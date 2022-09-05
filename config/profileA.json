@@ -1,0 +1,96 @@
+{
+  "headingPID": {
+    "p": 5.0,
+    "i": 0.05,
+    "d": 0.0,
+    "f": 0.0
+  },
+  "distancePID": {
+    "p": 0.5,
+    "i": 0.01,
+    "d": 0.0,
+    "f": 0.0
+  },
+  "shootPID": {
+    "p": 24.0,
+    "i": 0.3,
+    "d": 0.0,
+    "f": 14.0
+  },
+  "rrHeadingPID": {
+    "p": 8.0,
+    "i": 0.05,
+    "d": 0.0,
+    "f": 0.0
+  },
+  "rrTranslationPID": {
+    "p": 10.0,
+    "i": 0.1,
+    "d": 0.0,
+    "f": 0.0
+  },
+  "rrParam": {
+    "kA": 0.0001,
+    "kV": 0.01609,
+    "kStatic": 0.09652,
+    "lateralMultiplier": 1.0,
+    "maxVel": 30.0,
+    "maxAcc": 30.0
+  },
+  "cvParam": {
+    "maskUpperH": 30,
+    "maskUpperS": 255,
+    "maskUpperV": 255,
+    "maskLowerH": 20,
+    "maskLowerS": 150,
+    "maskLowerV": 100,
+    "cropTop": 20,
+    "cropBottom": 0,
+    "minArea": 5
+  },
+  "goalCvParam": {
+    "maskUpperH": 255,
+    "maskUpperS": 30,
+    "maskUpperV": 255,
+    "maskLowerH": 0,
+    "maskLowerS": 0,
+    "maskLowerV": 135,
+    "cropTop": 0,
+    "cropBottom": 70,
+    "minArea": 8000
+  },
+  "wobbleCvParam": {
+    "maskUpperH": 15,
+    "maskUpperS": 255,
+    "maskUpperV": 255,
+    "maskLowerH": 230,
+    "maskLowerS": 150,
+    "maskLowerV": 100,
+    "cropTop": 0,
+    "cropBottom": 70,
+    "minArea": 100
+  },
+  "hardwareSpec": {
+    "revHubVertical": false,
+    "trackWidth": 16.14,
+    "wheelBase": 13.5,
+    "wheelRadius": 0.748,
+    "ticksPerRev": 4000.0,
+    "forwardOffset": 0.0,
+    "leftEncoderReverse": true,
+    "rightEncoderReverse": true,
+    "horizontalEncoderReverse": true
+  },
+  "poses": {
+    "SHOOT-DRIVER": {
+      "x": -5.0,
+      "y": -42.0,
+      "heading": -5.0
+    },
+    "START": {
+      "x": -66.0,
+      "y": -20.0,
+      "heading": 0.0
+    }
+  }
+}
