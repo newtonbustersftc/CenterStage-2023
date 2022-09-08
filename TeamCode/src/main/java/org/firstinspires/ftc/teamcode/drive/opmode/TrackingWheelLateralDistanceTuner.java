@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.Logger;
+import org.firstinspires.ftc.teamcode.RobotFactory;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
@@ -82,8 +83,7 @@ public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
         }
 
         Logger.init();
-        RobotHardware robotHardware = new RobotHardware();
-        robotHardware.init(hardwareMap, robotProfile);
+        RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
 
         if (!(drive.getLocalizer() instanceof StandardTrackingWheelLocalizer)) {

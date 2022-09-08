@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Logger;
+import org.firstinspires.ftc.teamcode.RobotFactory;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
@@ -33,8 +34,7 @@ public class StrafeTest extends LinearOpMode {
         }
 
         Logger.init();
-        RobotHardware robotHardware = new RobotHardware();
-        robotHardware.init(hardwareMap, robotProfile);
+        RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
 
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
