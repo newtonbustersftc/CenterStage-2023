@@ -20,6 +20,7 @@ android {
     packagingOptions {
         jniLibs {
             pickFirsts += ['**/*.so']
+            useLegacyPackaging true
         }
     }
     namespace = 'org.firstinspires.ftc.teamcode'
