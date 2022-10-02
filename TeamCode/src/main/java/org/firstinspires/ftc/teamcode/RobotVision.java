@@ -92,6 +92,11 @@ public class RobotVision {
             catch (Exception ex) {
             }
         }
+        try {
+            Thread.sleep(100);
+        }
+        catch (Exception ex) {
+        }
         return doneOpen==OpenState.SUCCESS;
     }
 

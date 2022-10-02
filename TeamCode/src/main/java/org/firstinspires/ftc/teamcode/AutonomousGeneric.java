@@ -134,8 +134,8 @@ public class AutonomousGeneric extends LinearOpMode {
         catch (Exception ex) {};
         robotHardware.resetImu();
         robotHardware.robotVision.startWebcam("Webcam", null);
-        startPos = robotProfile.getProfilePose(driverOptions.getStartingPositionModes() + "_START");
-        robotHardware.getLocalizer().setPoseEstimate(startPos);
+//        startPos = robotProfile.getProfilePose(driverOptions.getStartingPositionModes() + "_START");
+//        robotHardware.getLocalizer().setPoseEstimate(startPos);
 //        robotHardware.getMecanumDrive().setPoseEstimate(getProfilePose("START_STATE"));
 
         if (taskList.size() > 0) {

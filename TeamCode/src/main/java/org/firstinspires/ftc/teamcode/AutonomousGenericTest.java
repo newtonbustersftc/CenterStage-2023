@@ -62,6 +62,10 @@ public class AutonomousGenericTest extends LinearOpMode {
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
         robotVision.initWebCam("Webcam", true);  //isRed boolean
+        try {
+            Thread.sleep(2000);
+        }
+        catch (Exception ex) {}
 
         //robotHardware.getTrackingWheelLocalizer().setPoseEstimate(new Pose2d(-66, -33, 0));
         //robotHardware.getLocalizer().update();
@@ -148,15 +152,23 @@ public class AutonomousGenericTest extends LinearOpMode {
         // move to shoot
         Pose2d p0 = new Pose2d(0,0,0);
         Pose2d p1 = new Pose2d(20, 0, 0);
-        //Pose2d p2 = new Pose2d(10,5,0);
+        Pose2d p2 = new Pose2d(40, -10, -Math.PI/4);
+
         Trajectory trj = robotHardware.mecanumDrive.trajectoryBuilder(p0)
                 .lineTo(p1.vec(), velConstraint, accelConstraint)
                 //.splineToSplineHeading(p2, p2.getHeading(), constraints)
                 .build();
         SplineMoveTask moveTask1 = new SplineMoveTask(robotHardware.mecanumDrive, trj);
-        taskList.add(new RobotSleep(300));
+        taskList.add(new RobotSleep(1000));
         taskList.add(moveTask1);
-        taskList.add(new RobotSleep(300));
+        taskList.add(new RobotSleep(1000));
+        Trajectory trj2 = robotHardware.mecanumDrive.trajectoryBuilder(p1)
+                .splineTo(p2.vec(), p2.getHeading(), velConstraint, accelConstraint)
+                //.splineToSplineHeading(p2, p2.getHeading(), constraints)
+                .build();
+        SplineMoveTask moveTask2= new SplineMoveTask(robotHardware.mecanumDrive, trj2);
+        taskList.add(moveTask2);
+        taskList.add(new RobotSleep(1000));
     }
 
     void setupTaskList2() {
