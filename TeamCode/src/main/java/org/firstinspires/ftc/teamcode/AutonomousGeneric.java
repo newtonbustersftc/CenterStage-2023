@@ -113,11 +113,10 @@ public class AutonomousGeneric extends LinearOpMode {
     @Override
     public void runOpMode() {
         initRobot();
-        robotHardware.setMotorStopBrake(false); // so we can adjust the robot00
-        robotHardware.initRobotVision();
-        robotHardware.getRobotVision().initRearCamera(driverOptions.getStartingPositionModes().contains("RED"));  //boolean isRed
+        robotHardware.setMotorStopBrake(false); // so we can adjust the robot
+        robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
 
-        RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(isRedAlliance);
+        RobotVision.AutonomousGoal goal = RobotVision.AutonomousGoal.NONE;
         Logger.logFile("recognition result: " + goal);
 
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(driverOptions, robotHardware, robotProfile, goal);
@@ -129,15 +128,12 @@ public class AutonomousGeneric extends LinearOpMode {
 
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-
-        robotHardware.autonomousGoal = robotHardware.getRobotVision().getAutonomousRecognition(isRedAlliance);
-        Logger.logFile("recognition result: " + robotHardware.autonomousGoal);
-
+        try {
+            Thread.sleep(1000);
+        }
+        catch (Exception ex) {};
         robotHardware.resetImu();
-        Logger.logFile("Stopping Vuforia");
-        robotHardware.getRobotVision().stopVuforia();
-        robotHardware.ignoreT265Confidence = false;
-
+        robotHardware.robotVision.startWebcam("Webcam", null);
         startPos = robotProfile.getProfilePose(driverOptions.getStartingPositionModes() + "_START");
         robotHardware.getLocalizer().setPoseEstimate(startPos);
 //        robotHardware.getMecanumDrive().setPoseEstimate(getProfilePose("START_STATE"));
@@ -146,7 +142,6 @@ public class AutonomousGeneric extends LinearOpMode {
             taskList.get(0).prepare();
         }
         robotHardware.setMotorStopBrake(true);
-        robotHardware.robotVision.startRearCamera();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size()>0) {
             loopCount++;
@@ -181,7 +176,7 @@ public class AutonomousGeneric extends LinearOpMode {
         catch (Exception ex) {
         }
 
-        robotHardware.getRobotVision().stopRearCamera();
+        robotHardware.getRobotVision().stopWebcam("Webcam");
         robotHardware.stopAll();
         robotHardware.setMotorStopBrake(false);
     }

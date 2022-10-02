@@ -52,7 +52,6 @@ public class RobotHardware {
     LynxModule expansionHub1, expansionHub2;
     NBMecanumDrive mecanumDrive;
     BNO055IMU imu;
-    RobotVision.AutonomousGoal autonomousGoal = null;
 
     RobotVision robotVision;
     DecimalFormat nf2 = new DecimalFormat("#.##");
@@ -106,16 +105,11 @@ public class RobotHardware {
 //        SampleMecanumDrive.TRANSLATIONAL_PID = new PIDCoefficients(profile.rrTranslationPID.p,profile.rrTranslationPID.i,profile.rrTranslationPID.d);
         mecanumDrive = new NBMecanumDrive(hardwareMap, profile);
         //mecanumDrive.setLocalizer(realSenseLocalizer);
+        robotVision = new RobotVision(this, profile);
     }
 
     public HardwareMap getHardwareMap() {
         return hardwareMap;
-    }
-    /**
-     * We need this because Vuforia end of OpMode run because losing camera context
-     */
-    public void initRobotVision() {
-        robotVision.init();
     }
 
     public RobotVision getRobotVision() {
