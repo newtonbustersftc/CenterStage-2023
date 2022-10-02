@@ -1,0 +1,9 @@
+{
+  "hardwareSpec": {
+    "revHubVertical": true,
+    "leftRightWheelDist": 41.0,
+    "leftEncodeForwardSign": 1,
+    "rightEncoderForwardSign": -1,
+    "horizontalEncoderForwardSign": -1
+  }
+}
