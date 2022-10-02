@@ -35,9 +35,16 @@ public class RobotVisionTest extends LinearOpMode {
     long loopCount = 0;
     int countTasks = 0;
 
-    public static Scalar LOWER_BOUND = new Scalar(10, 10, 100);
-    public static Scalar UPPER_BOUND = new Scalar(30, 200, 200);
+    public static int L1 = 70;
+    public static int L2 = 100;
+    public static int L3 = 50;
+    public static int H1 = 100;
+    public static int H2 = 255;
+    public static int H3 = 255;
     public static int MIN_AREA = 100;
+
+    // GREEN: 60, 30, 60 -> 100, 255, 255
+    // RED: 230, 60, 60 -> 15, 255, 255
 
     public void initRobot() {
         try{
@@ -140,20 +147,22 @@ public class RobotVisionTest extends LinearOpMode {
         // 1. Convert to HSV
         Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
         // 2. Create MASK
-        if (RobotVisionTest.LOWER_BOUND.val[0] > RobotVisionTest.UPPER_BOUND.val[0]) {
+         Scalar lowerBound = new Scalar(RobotVisionTest.L1, RobotVisionTest.L2, RobotVisionTest.L3);
+         Scalar upperBound = new Scalar(RobotVisionTest.H1, RobotVisionTest.H2, RobotVisionTest.H3);
+        if (lowerBound.val[0] > upperBound.val[0]) {
              // RED situation
              Mat maskMat1 = new Mat();
              Mat maskMat2 = new Mat();
-             Core.inRange(hsvMat, RobotVisionTest.LOWER_BOUND,
-                     new Scalar(255, RobotVisionTest.UPPER_BOUND.val[1], RobotVisionTest.UPPER_BOUND.val[2]), maskMat1);
-             Core.inRange(hsvMat, new Scalar(0, RobotVisionTest.LOWER_BOUND.val[1], RobotVisionTest.LOWER_BOUND.val[2]),
-                     RobotVisionTest.UPPER_BOUND, maskMat2);
+             Core.inRange(hsvMat, lowerBound,
+                     new Scalar(255, upperBound.val[1], upperBound.val[2]), maskMat1);
+             Core.inRange(hsvMat, new Scalar(0, lowerBound.val[1], lowerBound.val[2]),
+                     upperBound, maskMat2);
              Core.add(maskMat1, maskMat2, maskMat);
              maskMat1.release();
              maskMat2.release();
          } else {
              // Non RED situation
-            Core.inRange(hsvMat, RobotVisionTest.LOWER_BOUND, RobotVisionTest.UPPER_BOUND, maskMat);
+            Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
          }
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
