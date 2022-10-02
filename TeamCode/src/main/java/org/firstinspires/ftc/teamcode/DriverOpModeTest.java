@@ -53,14 +53,15 @@ public class DriverOpModeTest extends OpMode {
         robotHardware.init(hardwareMap, robotProfile);
         robotVision = robotHardware.getRobotVision();
         //robotVision.activateNavigationTarget();
-        robotVision.initRearCamera(isRedTeam);  //boolean isRed
+        robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
+
         try {
             Thread.sleep(100);
         }
         catch (Exception e) {
         }
 
-        robotVision.startRearCamera();
+        robotVision.startWebcam("Webcam", null);
         robotHardware.initLeds();   // need to init everytime
     }
 
@@ -104,7 +105,7 @@ public class DriverOpModeTest extends OpMode {
     public void stop() {
         // open the clamp to relief the grabber servo
         try {
-            robotVision.stopRearCamera();
+            robotVision.stopWebcam("Webcam");
             robotHardware.stopAll();
             Logger.logFile("DriverOpMode Test stop() called");
             Logger.flushToFile();

@@ -60,15 +60,15 @@ public class AutonomousGenericTest extends LinearOpMode {
 
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        robotHardware.initRobotVision();
         robotVision = robotHardware.getRobotVision();
-        robotVision.initRearCamera(false);  //isRed boolean
+        robotVision.initWebCam("Webcam", true);  //isRed boolean
 
         //robotHardware.getTrackingWheelLocalizer().setPoseEstimate(new Pose2d(-66, -33, 0));
         //robotHardware.getLocalizer().update();
         //robotHardware.getMecanumDrive().setPoseEstimate(getProfilePose("START"));
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
+        robotVision.startWebcam("Webcam", null);
         while (!isStarted()) {
             //RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(false);
             //telemetry.addData("goal",goal);
@@ -78,13 +78,11 @@ public class AutonomousGenericTest extends LinearOpMode {
             if (loopCnt%100==0) {
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS:", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                telemetry.addData("RearCameraOpen", robotVision.isRearCameraOpened());
                 telemetry.update();
             }
         }
 
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
-        Logger.logFile("Recognition Result: " + robotVision.getAutonomousRecognition(startPosStr.contains("BULE") ? false : true));
         taskList = new ArrayList<RobotControl>();
 
         setupTaskList1();
@@ -103,7 +101,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         long startTime = System.currentTimeMillis();
         int cnt = 100;
         double veloSum = 0;
-        robotVision.startRearCamera();
+        robotVision.startWebcam("Webcam", null);
         Logger.logFile("Main Task Loop started");
 
         while (opModeIsActive()) {
@@ -134,7 +132,7 @@ public class AutonomousGenericTest extends LinearOpMode {
                 }
             }
         }
-        robotVision.stopRearCamera();
+        robotVision.stopWebcam("Webcam");
         try {
             Logger.flushToFile();
         }
