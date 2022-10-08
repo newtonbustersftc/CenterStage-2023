@@ -39,6 +39,8 @@ public class DriverOpMode extends OpMode {
     boolean leftTriggerPressed = false;
     boolean rightTriggerPressed = false;
     double imuAngleOffset = 0;
+    double driveAngle = 0;
+    boolean amCorrecting = true;
 
     // DriveThru combos
     SequentialComboTask intakeAndLift, deliverTask,  sharedHubTask;
@@ -57,7 +59,8 @@ public class DriverOpMode extends OpMode {
 
         Logger.init();
         //Obtain the RobotHardware object from factory
-        robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware = new RobotHardware();
+        robotHardware.init(hardwareMap, robotProfile);
         //robotHardware.initRobotVision();
         //robotVision = robotHardware.getRobotVision();
         //robotVision.activateNavigationTarget();
@@ -145,8 +148,31 @@ public class DriverOpMode extends OpMode {
         double turn = gamepad1.right_stick_x / 2;
         double power = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
         double padAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) + Math.PI / 2;
+        double currHeading = robotHardware.getImuHeading() + driveAngle;
+        double pidP = 2;
+        double corr = currHeading * pidP * Math.max(power, 0.2);
+        if (corr>0.5) corr=0.5; else if (corr<-0.5) corr=-0.5;
 
         double movAngle;
+
+        if(gamepad1.right_stick_x > 0.3 || gamepad1.right_stick_x < -0.3){
+            corr = 0;
+            amCorrecting = false;
+        } else if(amCorrecting == false){
+            driveAngle = -robotHardware.getImuHeading();
+            amCorrecting = true;
+        }
+        movAngle = padAngle;
+        if (gamepad1.left_bumper) {
+            power = power/3;
+            turn = turn/3;
+        }
+        robotHardware.mecanumDrive2(power, movAngle + driveAngle, corr + turn);
+        telemetry.addData("Move",  "a:" + Math.toDegrees(padAngle));
+        telemetry.addData("Stick", "x:" + gamepad1.left_stick_x + " y:" + gamepad1.left_stick_y);
+        telemetry.addData("Turn:", turn);
+        telemetry.addData("DriveAngle: ", driveAngle);
+        telemetry.addData("IMU:", Math.toDegrees(currHeading));
 
         //robotHardware.setLed2(fieldMode);
         if (fieldMode) {
@@ -158,7 +184,6 @@ public class DriverOpMode extends OpMode {
             power = power / 3;
             turn = turn / 3;
         }
-        robotHardware.mecanumDrive2(power, movAngle, turn);
 
         // toggle field mode on/off.
         // Driver 1: dpad down - enable; dpad right - disable
