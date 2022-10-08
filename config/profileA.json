@@ -72,8 +72,8 @@
   },
   "hardwareSpec": {
     "revHubVertical": false,
-    "trackWidth": 16.14,
-    "wheelBase": 13.5,
+    "trackWidth": 8.125,
+    "wheelBase": 4.063,
     "wheelRadius": 0.748,
     "ticksPerRev": 4000.0,
     "forwardOffset": 0.0,

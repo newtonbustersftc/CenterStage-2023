@@ -45,11 +45,12 @@ public class RobotHardware {
     DcMotor rrMotor, rlMotor, frMotor, flMotor;
     DcMotor liftMotor, duckMotor, intakeMotor;
     DcMotor targetLight;
-    DigitalChannel led1, led2;
+    //DigitalChannel led1, led2;
     Servo boxFlapServo, boxLidServo;
     ColorSensor colorSensor;
     DigitalChannel liftBottom;
-    LynxModule expansionHub1, expansionHub2;
+    LynxModule expansionHub1;
+    //LynxModule expansionHub2;
     NBMecanumDrive mecanumDrive;
     BNO055IMU imu;
 
@@ -87,15 +88,15 @@ public class RobotHardware {
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
+        //expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
 
-        led1 = hardwareMap.digitalChannel.get("LED1");
-        led2 = hardwareMap.digitalChannel.get("LED2");
-        initLeds();
+//        led1 = hardwareMap.digitalChannel.get("LED1");
+//        led2 = hardwareMap.digitalChannel.get("LED2");
+//        initLeds();
         // Use manual cache mode for most efficiency, but each program
         // needs to call clearBulkCache() in the while loop
         expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-        expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        //expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
         //TODO
 //        DriveConstants.kA = profile.rrFeedForwardParam.kA;
@@ -117,10 +118,10 @@ public class RobotHardware {
     }
 
     public void initLeds() {
-        led1.setMode(DigitalChannel.Mode.OUTPUT);
-        led2.setMode(DigitalChannel.Mode.OUTPUT);
-        led1.setState(true);
-        led2.setState(true);
+//        led1.setMode(DigitalChannel.Mode.OUTPUT);
+//        led2.setMode(DigitalChannel.Mode.OUTPUT);
+//        led1.setState(true);
+//        led2.setState(true);
     }
 
     public MecanumDrive getMecanumDrive() {
@@ -273,7 +274,7 @@ public class RobotHardware {
 
     public void clearBulkCache() {
         expansionHub1.clearBulkCache();
-        expansionHub2.clearBulkCache();
+        //expansionHub2.clearBulkCache();
     }
 
 
@@ -286,13 +287,13 @@ public class RobotHardware {
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
 
-    public void setLed1(boolean on) {
-        led1.setState(!on);
-    }
-
-    public void setLed2(boolean on) {
-        led2.setState(!on);
-    }
+//    public void setLed1(boolean on) {
+//        led1.setState(!on);
+//    }
+//
+//    public void setLed2(boolean on) {
+//        led2.setState(!on);
+//    }
 
 
     public double getImuHeading() {

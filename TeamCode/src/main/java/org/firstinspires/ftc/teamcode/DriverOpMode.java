@@ -98,7 +98,7 @@ public class DriverOpMode extends OpMode {
         //currPose = new Pose2d(0,0,0);   // for now
         //Handling autonomous task loop
         if (currentTask != null) {
-            robotHardware.setLed1(true);
+            //robotHardware.setLed1(true);
             if (gamepad1.left_bumper && gamepad1.right_bumper) {
                 currentTask.cleanUp();
                 currentTask = null;
@@ -113,7 +113,7 @@ public class DriverOpMode extends OpMode {
             }
         }
         else {
-            robotHardware.setLed1(false);
+            //robotHardware.setLed1(false);
         }
 
         handleMovement();
@@ -148,7 +148,7 @@ public class DriverOpMode extends OpMode {
 
         double movAngle;
 
-        robotHardware.setLed2(fieldMode);
+        //robotHardware.setLed2(fieldMode);
         if (fieldMode) {
             movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - robotHardware.getImuHeading()-imuAngleOffset;
         } else {

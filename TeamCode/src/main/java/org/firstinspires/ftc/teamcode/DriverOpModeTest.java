@@ -53,7 +53,7 @@ public class DriverOpModeTest extends OpMode {
         robotHardware.init(hardwareMap, robotProfile);
         robotVision = robotHardware.getRobotVision();
         //robotVision.activateNavigationTarget();
-        robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
+        //robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
 
         try {
             Thread.sleep(100);
@@ -61,7 +61,7 @@ public class DriverOpModeTest extends OpMode {
         catch (Exception e) {
         }
 
-        robotVision.startWebcam("Webcam", null);
+        //robotVision.startWebcam("Webcam", null);
         robotHardware.initLeds();   // need to init everytime
     }
 
@@ -82,7 +82,6 @@ public class DriverOpModeTest extends OpMode {
         testHardware();
 
         if (currentTask != null) {
-            robotHardware.setLed1(true);
             if (gamepad1.left_bumper && gamepad1.right_bumper) {
                 currentTask.cleanUp();
                 currentTask = null;
@@ -97,7 +96,6 @@ public class DriverOpModeTest extends OpMode {
             }
         }
         else {
-            robotHardware.setLed1(false);
         }
     }
 
@@ -105,7 +103,7 @@ public class DriverOpModeTest extends OpMode {
     public void stop() {
         // open the clamp to relief the grabber servo
         try {
-            robotVision.stopWebcam("Webcam");
+            //robotVision.stopWebcam("Webcam");
             robotHardware.stopAll();
             Logger.logFile("DriverOpMode Test stop() called");
             Logger.flushToFile();
