@@ -53,6 +53,7 @@ public class SplineTest extends LinearOpMode {
         telemetry.clearAll();
         waitForStart();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
+        robotHardware.resetDriveAndEncoders();
 
         if (isStopRequested()) return;
         Logger.logFile("Pose2d: "+ drive.getPoseEstimate());
@@ -62,21 +63,21 @@ public class SplineTest extends LinearOpMode {
         accelConstraint = getAccelerationConstraint(MAX_ACCEL);
 
         TrajectorySequence traj = drive.trajectorySequenceBuilder(new Pose2d(0,0, 0))
-                .splineTo(new Vector2d(20, 0), 0)
-                .splineTo(new Vector2d(45, 25), 0)
-                .splineTo(new Vector2d(70, -5), 0)
+                .splineTo(new Vector2d(50, 0), 0)
+                .splineTo(new Vector2d(56, -44), -Math.PI/2)
+                .splineTo(new Vector2d(80, -48), 0)
                 .waitSeconds(2)
                 .build();
 
         drive.followTrajectorySequence(traj);
         Logger.logFile("Pose2d:"+ drive.getPoseEstimate());
 
-        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(new Pose2d(70,-5, 0))
-                .setReversed(true)
-                .splineTo(new Vector2d(30, -20), Math.PI)
-                .splineTo(new Vector2d(0,0),Math.PI)
-                .build();
-        drive.followTrajectorySequence(traj2);
+//        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(new Pose2d(70,-5, 0))
+//                .setReversed(true)
+//                .splineTo(new Vector2d(30, -20), Math.PI)
+//                .splineTo(new Vector2d(0,0),Math.PI)
+//                .build();
+//        drive.followTrajectorySequence(traj2);
         sleep(2000);
         Logger.logFile("Pose2d:"+ drive.getPoseEstimate());
     }

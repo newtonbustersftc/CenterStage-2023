@@ -45,6 +45,8 @@ public class LocalizationTest extends LinearOpMode {
 
         Logger.init();
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware.resetDriveAndEncoders();
+        robotHardware.resetImu();
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         drive.setPoseEstimate(new Pose2d(0,0,0));
 

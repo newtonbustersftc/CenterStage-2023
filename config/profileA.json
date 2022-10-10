@@ -11,12 +11,6 @@
     "d": 0.0,
     "f": 0.0
   },
-  "shootPID": {
-    "p": 24.0,
-    "i": 0.3,
-    "d": 0.0,
-    "f": 14.0
-  },
   "rrHeadingPID": {
     "p": 8.0,
     "i": 0.05,
@@ -30,9 +24,9 @@
     "f": 0.0
   },
   "rrParam": {
-    "kA": 0.0001,
-    "kV": 0.01609,
-    "kStatic": 0.09652,
+    "kA": 0.00003,
+    "kV": 0.01323,
+    "kStatic": 0.10566,
     "lateralMultiplier": 1.0,
     "maxVel": 30.0,
     "maxAcc": 30.0
@@ -77,7 +71,7 @@
     "wheelRadius": 0.748,
     "ticksPerRev": 4000.0,
     "forwardOffset": 0.0,
-    "leftEncoderReverse": true,
+    "leftEncoderReverse": false,
     "rightEncoderReverse": true,
     "horizontalEncoderReverse": true
   },

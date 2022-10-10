@@ -45,7 +45,7 @@ import java.io.File;
  *
  * Uncomment the @Disabled tag below to use this opmode.
  */
-@Disabled
+//@Disabled
 @Config
 @TeleOp(group = "drive")
 public class MotorDirectionDebugger extends LinearOpMode {
