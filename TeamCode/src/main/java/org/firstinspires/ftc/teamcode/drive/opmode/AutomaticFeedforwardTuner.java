@@ -41,7 +41,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.rpmToVelocity;
 @Autonomous(group = "drive")
 public class AutomaticFeedforwardTuner extends LinearOpMode {
     public static final double MAX_POWER = 0.7;
-    public static final double DISTANCE = 100; // in
+    public static final double DISTANCE = 60; // in
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -61,6 +61,8 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
 
         Logger.init();
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware.resetDriveAndEncoders();
+        robotHardware.resetImu();
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
 
@@ -206,6 +208,7 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
             powerSamples.clear();
 
             drive.setPoseEstimate(new Pose2d());
+            robotHardware.resetDriveAndEncoders();
             drive.setDrivePower(new Pose2d(MAX_POWER, 0.0, 0.0));
 
             startTime = clock.seconds();

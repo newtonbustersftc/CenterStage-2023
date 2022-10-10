@@ -43,6 +43,7 @@ public class StrafeTest extends LinearOpMode {
 
         waitForStart();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
+        robotHardware.resetDriveAndEncoders();
 
         if (isStopRequested()) return;
 

@@ -32,10 +32,6 @@ public class RobotHardware {
             return (this.ordinal() > 0) ? vals[this.ordinal() - 1] : vals[0];
         }
     }
-    LiftPosition currLiftPos;
-    boolean ignoreT265Confidence = false;
-    int currLiftEncoder;
-    int ogDuckEncoder;
 
     public enum Freight {
         NONE, CUBE, BALL
@@ -43,8 +39,6 @@ public class RobotHardware {
 
     HardwareMap hardwareMap;
     DcMotor rrMotor, rlMotor, frMotor, flMotor;
-    DcMotor liftMotor, duckMotor, intakeMotor;
-    DcMotor targetLight;
     //DigitalChannel led1, led2;
     Servo boxFlapServo, boxLidServo;
     ColorSensor colorSensor;
@@ -61,8 +55,6 @@ public class RobotHardware {
     //Rev2mDistanceSensor ;
     RobotProfile profile;
 
-    boolean isDelivered;
-
     public void init(HardwareMap hardwareMap, RobotProfile profile) {
         Logger.logFile("RobotHardware init()");
         this.hardwareMap = hardwareMap;
@@ -74,7 +66,30 @@ public class RobotHardware {
         flMotor = hardwareMap.dcMotor.get("FLMotor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         resetImu();
+        resetDriveAndEncoders();
+        //expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
 
+//        led1 = hardwareMap.digitalChannel.get("LED1");
+//        led2 = hardwareMap.digitalChannel.get("LED2");
+//        initLeds();
+        // Use manual cache mode for most efficiency, but each program
+        // needs to call clearBulkCache() in the while loop
+        expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        expansionHub1.clearBulkCache();
+        //expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+
+        //TODO
+//        DriveConstants.kA = profile.rrFeedForwardParam.kA;
+//        DriveConstants.kV = profile.rrFeedForwardParam.kV;
+//        DriveConstants.kStatic = profile.rrFeedForwardParam.kStatic;
+//        SampleMecanumDrive.HEADING_PID = new PIDCoefficients(profile.rrHeadingPID.p,profile.rrHeadingPID.i,profile.rrHeadingPID.d);
+//        SampleMecanumDrive.TRANSLATIONAL_PID = new PIDCoefficients(profile.rrTranslationPID.p,profile.rrTranslationPID.i,profile.rrTranslationPID.d);
+        mecanumDrive = new NBMecanumDrive(hardwareMap, profile);
+        //mecanumDrive.setLocalizer(realSenseLocalizer);
+        robotVision = new RobotVision(this, profile);
+    }
+
+    public void resetDriveAndEncoders() {
         flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rlMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -87,26 +102,7 @@ public class RobotHardware {
         rlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        //expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
-
-//        led1 = hardwareMap.digitalChannel.get("LED1");
-//        led2 = hardwareMap.digitalChannel.get("LED2");
-//        initLeds();
-        // Use manual cache mode for most efficiency, but each program
-        // needs to call clearBulkCache() in the while loop
-        expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-        //expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-
-        //TODO
-//        DriveConstants.kA = profile.rrFeedForwardParam.kA;
-//        DriveConstants.kV = profile.rrFeedForwardParam.kV;
-//        DriveConstants.kStatic = profile.rrFeedForwardParam.kStatic;
-//        SampleMecanumDrive.HEADING_PID = new PIDCoefficients(profile.rrHeadingPID.p,profile.rrHeadingPID.i,profile.rrHeadingPID.d);
-//        SampleMecanumDrive.TRANSLATIONAL_PID = new PIDCoefficients(profile.rrTranslationPID.p,profile.rrTranslationPID.i,profile.rrTranslationPID.d);
-        mecanumDrive = new NBMecanumDrive(hardwareMap, profile);
-        //mecanumDrive.setLocalizer(realSenseLocalizer);
-        robotVision = new RobotVision(this, profile);
+        expansionHub1.clearBulkCache();
     }
 
     public HardwareMap getHardwareMap() {
@@ -273,16 +269,13 @@ public class RobotHardware {
     }
 
     public void clearBulkCache() {
-        expansionHub1.clearBulkCache();
+        //expansionHub1.clearBulkCache();
         //expansionHub2.clearBulkCache();
     }
 
 
     public void stopAll() {
         setMotorPower(0, 0, 0, 0);
-        liftMotor.setPower(0);
-        intakeMotor.setPower(0);
-        duckMotor.setPower(0);
     }
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
