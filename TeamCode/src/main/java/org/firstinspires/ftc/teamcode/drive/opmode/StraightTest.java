@@ -35,7 +35,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
 @Config
 @Autonomous(group = "drive")
 public class StraightTest extends LinearOpMode {
-    public static double DISTANCE = 30; // in
+    public static double DISTANCE = 50; // in
 
     @Override
     public void runOpMode() throws InterruptedException {

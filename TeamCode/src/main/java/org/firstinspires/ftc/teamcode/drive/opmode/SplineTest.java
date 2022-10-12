@@ -59,13 +59,14 @@ public class SplineTest extends LinearOpMode {
         Logger.logFile("Pose2d: "+ drive.getPoseEstimate());
         Logger.flushToFile();
 //        DriveConstraints constraints = new DriveConstraints(20.0, 15.0, 0.0, Math.toRadians(360.0), Math.toRadians(360.0), 0.0);
-        velConstraint = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
-        accelConstraint = getAccelerationConstraint(MAX_ACCEL);
+        velConstraint = getVelocityConstraint(20, 20, 8.317);
+        accelConstraint = getAccelerationConstraint(15);
 
         TrajectorySequence traj = drive.trajectorySequenceBuilder(new Pose2d(0,0, 0))
-                .splineTo(new Vector2d(50, 0), 0)
-                .splineTo(new Vector2d(56, -44), -Math.PI/2)
-                .splineTo(new Vector2d(80, -48), 0)
+                .lineTo(new Vector2d(0, -6))
+                .lineTo(new Vector2d(60, -6))
+                .lineTo(new Vector2d(60, -52))
+                .lineTo(new Vector2d(80, -52))
                 .waitSeconds(2)
                 .build();
 

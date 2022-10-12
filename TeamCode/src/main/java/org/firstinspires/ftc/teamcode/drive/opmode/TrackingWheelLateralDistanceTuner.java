@@ -91,6 +91,8 @@ public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
                     + "drive class. Ensure that \"setLocalizer(new StandardTrackingWheelLocalizer"
                     + "(hardwareMap));\" is called in SampleMecanumDrive.java");
         }
+        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
+        robotHardware.resetDriveAndEncoders();
 
         telemetry.addLine("Prior to beginning the routine, please read the directions "
                 + "located in the comments of the opmode file.");
@@ -112,6 +114,7 @@ public class TrackingWheelLateralDistanceTuner extends LinearOpMode {
         boolean tuningFinished = false;
 
         while (!isStopRequested() && !tuningFinished) {
+            robotHardware.clearBulkCache();
             Pose2d vel = new Pose2d(0, 0, -gamepad1.right_stick_x);
             drive.setDrivePower(vel);
 
