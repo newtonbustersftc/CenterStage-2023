@@ -269,7 +269,7 @@ public class RobotHardware {
     }
 
     public void clearBulkCache() {
-        //expansionHub1.clearBulkCache();
+        expansionHub1.clearBulkCache();
         //expansionHub2.clearBulkCache();
     }
 

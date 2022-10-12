@@ -61,6 +61,7 @@ public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
         Logger.init();
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
+        robotHardware.resetDriveAndEncoders();
         drive.setPoseEstimate(new Pose2d(0,0,0));
 
         if (!(drive.getLocalizer() instanceof StandardTrackingWheelLocalizer)) {
@@ -92,6 +93,7 @@ public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
             drive.turnAsync(Math.toRadians(ANGLE));
 
             while (!isStopRequested() && drive.isBusy()) {
+                robotHardware.clearBulkCache();
                 double heading = drive.getPoseEstimate().getHeading();
                 headingAccumulator += Angle.norm(heading - lastHeading);
                 lastHeading = heading;
