@@ -1,10 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -13,123 +8,57 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 
-@Config
-@TeleOp(name="Signal Recognition", group="Test")
-public class SignalRecognition extends LinearOpMode {
+public class SignalRecognition {
 
-    RobotHardware robotHardware;
-    RobotProfile robotProfile;
-    RobotVision robotVision;
+    RobotVision rVision;
+    RobotProfile rProfile;
 
-    ArrayList<RobotControl> taskList;
+    CVPipelineSignal pipe;
 
-    long loopCount = 0;
-    int countTasks = 0;
-
-    public static int L1 = 70;
-    public static int L2 = 100;
-    public static int L3 = 50;
-    public static int H1 = 100;
-    public static int H2 = 255;
-    public static int H3 = 255;
-    public static int MIN_AREA = 100;
-
-    // GREEN: 60, 30, 60 -> 100, 255, 255
-    // RED: 230, 60, 60 -> 15, 255, 255
-
-    public void initRobot() {
-        try{
-            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profile.json"));
-        } catch (Exception e) {
-        }
-        Logger.init();
-        robotHardware = new RobotHardware();
-        robotHardware.init(hardwareMap, robotProfile);
-
-        Logger.logFile("Init completed");
+    public SignalRecognition(RobotVision rVision, RobotProfile rProfile) {
+        this.rVision = rVision;
+        this.rProfile = rProfile;
+        this.pipe = new CVPipelineSignal(rProfile);
     }
 
-    @Override
-    public void runOpMode() {
+    public void stopRecognition() {
+        rVision.stopWebcam("Webcam");
+    }
 
-        initRobot();
-        robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        robotVision = robotHardware.getRobotVision();
-        robotVision.initWebCam("Webcam", true);
-
-        CVPipelineSignal pipe = new CVPipelineSignal();
-        robotVision.startWebcam("Webcam", pipe);
-        while (!isStarted()) {
-            robotHardware.getLocalizer().update();
-            Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
-            telemetry.addData("Sees Red?", pipe.getIsRed());
-            telemetry.addData("Sees Green?", pipe.getIsGreen());
-            telemetry.update();
-        }
-
-        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
-        taskList = new ArrayList<RobotControl>();
-
-        taskList.add(new RobotSleep(1000));
-
-        robotHardware.setMotorStopBrake(true);
-        TaskReporter.report(taskList);
-        Logger.logFile("Task list items: " + taskList.size());
-        Logger.flushToFile();
-
-        if (taskList.size()>0) {
-            Logger.logFile("Task Prepare " + taskList.get(0));
-            taskList.get(0).prepare();
-        }
-        // run until the end of the match (driver presses STOP)
-        // run until the end of the match (driver presses STOP)
-        long startTime = System.currentTimeMillis();
-        int cnt = 100;
-        double veloSum = 0;
-        robotVision.startWebcam("Webcam", null);
-        Logger.logFile("Main Task Loop started");
-
-        while (opModeIsActive()) {
-            loopCount++;
-            robotHardware.clearBulkCache();
-            robotHardware.getLocalizer().update();
-            try {
-                Logger.flushToFile();
-            }
-            catch (Exception ex) {
-            }
-            if (taskList.size() > 0) {
-                taskList.get(0).execute();
-                if (taskList.get(0).isDone()) {
-                    Logger.logFile("MainTaskComplete: " + taskList.get(0) + " Pose:" + robotHardware.getLocalizer().getPoseEstimate());
-                    taskList.get(0).cleanUp();
-                    taskList.remove(0);
-                    countTasks++;
-                    telemetry.update();
-                    if (taskList.size() > 0) {
-                        taskList.get(0).prepare();
-                    }
-                }
-            }
-        }
-        robotVision.stopWebcam("Webcam");
+    public void startRecognition() {
+        rVision.initWebCam("Webcam", true);
         try {
-            Logger.flushToFile();
+            Thread.sleep(500);
         }
-        catch (Exception ex) {
+        catch (Exception e) {}
+        rVision.startWebcam("Webcam", pipe);
+    }
+
+    public enum Result {POSITION1, POSITION2, POSITION3}
+    public Result getRecognitionResult() {
+        if (pipe.getIsRed()) {
+            return Result.POSITION1;
+        } else if (pipe.getIsGreen()) {
+            return Result.POSITION2;
+        } else {
+            return Result.POSITION3;
         }
     }
 }
  class CVPipelineSignal extends OpenCvPipeline {
 
+    RobotProfile robotProfile;
+
+    public CVPipelineSignal(RobotProfile robotProfile) {
+        this.robotProfile = robotProfile;
+    }
+
     Mat hsvMat = new Mat();
-    Mat maskMat = new Mat();
     Mat hierarchey = new Mat();
 
     static Scalar DRAW_COLOR_RED = new Scalar(255, 0, 0);
@@ -142,28 +71,21 @@ public class SignalRecognition extends LinearOpMode {
      @Override
     public Mat processFrame(Mat input) {
         // 1. Convert to HSV
-         int CROP_LEFT_PERCENT = 25;
-         int CROP_RIGHT_PERCENT = 25;
-         int CROP_TOP_PERCENT = 65;
-         int CROP_BOTTOM_PERCENT = 15;
-         offsetX = input.width()*CROP_LEFT_PERCENT/100;
-         offsetY = input.height()*CROP_TOP_PERCENT/100;
+         offsetX = input.width()*robotProfile.cvParam.cropLeftPercent/100;
+         offsetY = input.height()*robotProfile.cvParam.cropTopPercent/100;
          Mat procMat = input.submat(new Rect(offsetX, offsetY,
-                 input.width()*(100-CROP_LEFT_PERCENT-CROP_RIGHT_PERCENT)/100,
-                 input.height()*(100-CROP_TOP_PERCENT-CROP_BOTTOM_PERCENT)/100));
+                 input.width()*(100-robotProfile.cvParam.cropLeftPercent-robotProfile.cvParam.cropRightPercent)/100,
+                 input.height()*(100-robotProfile.cvParam.cropTopPercent-robotProfile.cvParam.cropBottomPercent)/100));
 
         Imgproc.cvtColor(procMat, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
         // 2. Create MASK
-         Scalar lowerBoundRed = new Scalar(230, 60, 60);
-         Scalar upperBoundRed = new Scalar(15, 255, 255);
-         Scalar lowerBoundGreen = new Scalar(60, 30, 60);
-         Scalar upperBoundGreen = new Scalar(100, 255, 255);
+         Scalar lowerBoundRed = robotProfile.cvParam.redLowerBound;
+         Scalar upperBoundRed = robotProfile.cvParam.redUpperBound;
+         Scalar lowerBoundGreen = robotProfile.cvParam.greenLowerBound;
+         Scalar upperBoundGreen = robotProfile.cvParam.greenUpperBound;
 
-         // GREEN: 60, 30, 60 -> 100, 255, 255
-         // RED: 230, 60, 60 -> 15, 255, 255
-
-         findRed = checkColor(lowerBoundRed, upperBoundRed, 100, hsvMat, input);
-         findGreen = checkColor(lowerBoundGreen, upperBoundGreen, 100, hsvMat, input);
+         findRed = checkColor(lowerBoundRed, upperBoundRed, robotProfile.cvParam.minArea, hsvMat, input);
+         findGreen = checkColor(lowerBoundGreen, upperBoundGreen, robotProfile.cvParam.minArea, hsvMat, input);
 
 //        if (saveImage) {
 //            //need to save pic to file

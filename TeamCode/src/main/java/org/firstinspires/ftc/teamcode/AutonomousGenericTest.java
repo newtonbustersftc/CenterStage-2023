@@ -61,7 +61,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
-        robotVision.initWebCam("Webcam", true);  //isRed boolean
+        robotVision.initWebCam("Webcam", false);  //isRed boolean
         try {
             Thread.sleep(2000);
         }
@@ -72,16 +72,18 @@ public class AutonomousGenericTest extends LinearOpMode {
         //robotHardware.getMecanumDrive().setPoseEstimate(getProfilePose("START"));
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-        robotVision.startWebcam("Webcam", null);
+        SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
+        signalRecognition.startRecognition();
         while (!isStarted()) {
             //RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(false);
             //telemetry.addData("goal",goal);
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
-            if (loopCnt%100==0) {
+            if (loopCnt%1==0) {
                 telemetry.addData("CurrPose", currPose);
-                telemetry.addData("LoopTPS:", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
+                telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
+                telemetry.addData("Recognition Result", signalRecognition.getRecognitionResult());
                 telemetry.update();
             }
         }
@@ -89,7 +91,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
-        setupTaskList1();
+        //setupTaskList1();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
@@ -105,7 +107,6 @@ public class AutonomousGenericTest extends LinearOpMode {
         long startTime = System.currentTimeMillis();
         int cnt = 100;
         double veloSum = 0;
-        robotVision.startWebcam("Webcam", null);
         Logger.logFile("Main Task Loop started");
 
         while (opModeIsActive()) {
@@ -136,6 +137,7 @@ public class AutonomousGenericTest extends LinearOpMode {
                 }
             }
         }
+        signalRecognition.stopRecognition();
         robotVision.stopWebcam("Webcam");
         try {
             Logger.flushToFile();

@@ -32,15 +32,43 @@
     "maxAcc": 30.0
   },
   "cvParam": {
-    "maskUpperH": 30,
-    "maskUpperS": 255,
-    "maskUpperV": 255,
-    "maskLowerH": 20,
-    "maskLowerS": 150,
-    "maskLowerV": 100,
-    "cropTop": 20,
-    "cropBottom": 0,
-    "minArea": 5
+    "redLowerBound": {
+      "val": [
+        230.0,
+        60.0,
+        60.0,
+        0.0
+      ]
+    },
+    "redUpperBound": {
+      "val": [
+        15.0,
+        255.0,
+        255.0,
+        0.0
+      ]
+    },
+    "greenLowerBound": {
+      "val": [
+        60.0,
+        30.0,
+        60.0,
+        0.0
+      ]
+    },
+    "greenUpperBound": {
+      "val": [
+        100.0,
+        255.0,
+        255.0,
+        0.0
+      ]
+    },
+    "cropTopPercent": 65,
+    "cropBottomPercent": 15,
+    "cropLeftPercent": 25,
+    "cropRightPercent": 25,
+    "minArea": 100
   },
   "goalCvParam": {
     "maskUpperH": 255,
