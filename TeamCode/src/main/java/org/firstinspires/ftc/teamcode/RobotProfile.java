@@ -4,6 +4,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.opencv.core.Scalar;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -104,14 +106,14 @@ public class RobotProfile {
     }
 
     class CVParam {
-        int maskUpperH;
-        int maskUpperS;
-        int maskUpperV;
-        int maskLowerH;
-        int maskLowerS;
-        int maskLowerV;
-        int cropTop;
-        int cropBottom;
+        Scalar redLowerBound;
+        Scalar redUpperBound;
+        Scalar greenLowerBound;
+        Scalar greenUpperBound;
+        int cropTopPercent;
+        int cropBottomPercent;
+        int cropLeftPercent;
+        int cropRightPercent;
         int minArea;
     }
 
