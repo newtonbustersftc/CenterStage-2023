@@ -59,9 +59,10 @@ public class AutonomousGenericTest extends LinearOpMode {
     public void runOpMode() {
 
         initRobot();
+        robotHardware.selfInit();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
-        robotVision.initWebCam("Webcam", false);  //isRed boolean
+        robotVision.initWebCam("Webcam 1", false);  //isRed boolean
         try {
             Thread.sleep(2000);
         }
@@ -138,7 +139,7 @@ public class AutonomousGenericTest extends LinearOpMode {
             }
         }
         signalRecognition.stopRecognition();
-        robotVision.stopWebcam("Webcam");
+        robotVision.stopWebcam("Webcam 1");
         try {
             Logger.flushToFile();
         }

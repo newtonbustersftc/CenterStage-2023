@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
@@ -37,14 +38,16 @@ public class RobotHardware {
         NONE, CUBE, BALL
     }
 
+    public double extensionPos;
+
     HardwareMap hardwareMap;
     DcMotor rrMotor, rlMotor, frMotor, flMotor;
-    //DigitalChannel led1, led2;
-    Servo boxFlapServo, boxLidServo;
-    ColorSensor colorSensor;
+    DcMotor liftMotor, turretMotor;
+    Servo grabberServo, extensionServo;
     DigitalChannel liftBottom;
+    TouchSensor magneticSensor, liftTouch;
     LynxModule expansionHub1;
-    //LynxModule expansionHub2;
+    LynxModule expansionHub2;
     NBMecanumDrive mecanumDrive;
     BNO055IMU imu;
 
@@ -60,30 +63,27 @@ public class RobotHardware {
         this.hardwareMap = hardwareMap;
         this.profile = profile;
         expansionHub1 = hardwareMap.get(LynxModule.class, "Control Hub");
-        rrMotor = hardwareMap.dcMotor.get("RRMotor");
-        rlMotor = hardwareMap.dcMotor.get("RLMotor");
-        frMotor = hardwareMap.dcMotor.get("FRMotor");
-        flMotor = hardwareMap.dcMotor.get("FLMotor");
+        rrMotor = hardwareMap.dcMotor.get("Rear Right");
+        rlMotor = hardwareMap.dcMotor.get("Rear Left");
+        frMotor = hardwareMap.dcMotor.get("Front Right");
+        flMotor = hardwareMap.dcMotor.get("Front Left");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         resetImu();
         resetDriveAndEncoders();
-        //expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
+        expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
+        magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
+        liftTouch = hardwareMap.touchSensor.get("Lift Touch");
+        extensionServo = hardwareMap.servo.get("Arm Extension");
+        grabberServo = hardwareMap.servo.get("Gripper Open/Close");
+        liftMotor = hardwareMap.dcMotor.get("Lift Motor");
+        turretMotor = hardwareMap.dcMotor.get("Turret Motor");
 
-//        led1 = hardwareMap.digitalChannel.get("LED1");
-//        led2 = hardwareMap.digitalChannel.get("LED2");
-//        initLeds();
         // Use manual cache mode for most efficiency, but each program
         // needs to call clearBulkCache() in the while loop
-        expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         expansionHub1.clearBulkCache();
         //expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
 
-        //TODO
-//        DriveConstants.kA = profile.rrFeedForwardParam.kA;
-//        DriveConstants.kV = profile.rrFeedForwardParam.kV;
-//        DriveConstants.kStatic = profile.rrFeedForwardParam.kStatic;
-//        SampleMecanumDrive.HEADING_PID = new PIDCoefficients(profile.rrHeadingPID.p,profile.rrHeadingPID.i,profile.rrHeadingPID.d);
-//        SampleMecanumDrive.TRANSLATIONAL_PID = new PIDCoefficients(profile.rrTranslationPID.p,profile.rrTranslationPID.i,profile.rrTranslationPID.d);
         mecanumDrive = new NBMecanumDrive(hardwareMap, profile);
         //mecanumDrive.setLocalizer(realSenseLocalizer);
         robotVision = new RobotVision(this, profile);
@@ -111,13 +111,6 @@ public class RobotHardware {
 
     public RobotVision getRobotVision() {
         return robotVision;
-    }
-
-    public void initLeds() {
-//        led1.setMode(DigitalChannel.Mode.OUTPUT);
-//        led2.setMode(DigitalChannel.Mode.OUTPUT);
-//        led1.setState(true);
-//        led2.setState(true);
     }
 
     public MecanumDrive getMecanumDrive() {
@@ -270,24 +263,17 @@ public class RobotHardware {
 
     public void clearBulkCache() {
         expansionHub1.clearBulkCache();
-        //expansionHub2.clearBulkCache();
+        expansionHub2.clearBulkCache();
     }
 
 
     public void stopAll() {
         setMotorPower(0, 0, 0, 0);
+        liftMotor.setPower(0);
+        turretMotor.setPower(0);
     }
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
-
-//    public void setLed1(boolean on) {
-//        led1.setState(!on);
-//    }
-//
-//    public void setLed2(boolean on) {
-//        led2.setState(!on);
-//    }
-
 
     public double getImuHeading() {
         return imu.getAngularOrientation().firstAngle;
@@ -310,4 +296,84 @@ public class RobotHardware {
     RobotProfile getRobotProfile() {
         return profile;
     }
+
+    public boolean isLiftTouched() {return liftTouch.isPressed();}
+
+    public boolean isMagneticTouched() {return magneticSensor.isPressed();}
+
+    public void resetLiftPos() {
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void resetTurretPos() {
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void extensionExtend() {
+        extensionPos = Math.min(profile.hardwareSpec.extensionFullOutPos, extensionPos + .1);
+        extensionServo.setPosition(extensionPos);
+    }
+
+    public void extensionRetract() {
+        extensionPos = Math.max(profile.hardwareSpec.extensionInitPos, extensionPos - .1);
+        extensionServo.setPosition(extensionPos);
+    }
+
+    public void grabberOpen() {
+        grabberServo.setPosition(profile.hardwareSpec.grabberOpenPos);
+    }
+
+    public void grabberClose() {
+        grabberServo.setPosition(profile.hardwareSpec.grabberClosePos);
+    }
+
+    public void grabberInit() {
+        grabberServo.setPosition(profile.hardwareSpec.grabberInitPos);
+    }
+
+    public void selfInit() {
+        int liftPos = liftMotor.getCurrentPosition();
+        liftMotor.setTargetPosition(liftPos + 620);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setPower(0.3);
+        while (liftMotor.getCurrentPosition() < liftPos + 600) {Thread.yield(); clearBulkCache();}
+
+        resetTurretPos();
+        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turretMotor.setPower(.6);
+        if (isMagneticTouched()) {
+            turretMotor.setTargetPosition(50);
+            while (turretMotor.getCurrentPosition() < 50) {Thread.yield(); clearBulkCache();}
+        }
+        int turretPos = turretMotor.getCurrentPosition();
+        while (!isMagneticTouched()) {
+            turretPos++;
+            turretMotor.setTargetPosition(turretPos);
+            try {
+                Thread.sleep(2);
+            } catch (Exception e) {}
+        }
+        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turretMotor.setTargetPosition(profile.hardwareSpec.turretOffset);
+        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (turretMotor.getCurrentPosition() < profile.hardwareSpec.turretOffset) {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {}
+            clearBulkCache();
+        }
+
+        liftMotor.setTargetPosition(-profile.hardwareSpec.liftMax);
+        while (!isLiftTouched()) {
+            clearBulkCache();
+            Thread.yield();
+        }
+        resetLiftPos();
+
+        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
+
+        grabberInit();
+    }
+
 }
