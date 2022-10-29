@@ -62,7 +62,6 @@ public class DriverOpModeTest extends OpMode {
         }
 
         //robotVision.startWebcam("Webcam", null);
-        robotHardware.initLeds();   // need to init everytime
     }
 
     @Override

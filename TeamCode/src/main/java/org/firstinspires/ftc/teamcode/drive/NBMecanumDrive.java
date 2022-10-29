@@ -147,10 +147,10 @@ public class NBMecanumDrive extends MecanumDrive {
         if (profile.hardwareSpec.revHubVertical) {
             BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
         }
-        leftFront = hardwareMap.get(DcMotorEx.class, "FLMotor");
-        leftRear = hardwareMap.get(DcMotorEx.class, "RLMotor");
-        rightRear = hardwareMap.get(DcMotorEx.class, "RRMotor");
-        rightFront = hardwareMap.get(DcMotorEx.class, "FRMotor");
+        leftFront = hardwareMap.get(DcMotorEx.class, "Front Left");
+        leftRear = hardwareMap.get(DcMotorEx.class, "Rear Left");
+        rightRear = hardwareMap.get(DcMotorEx.class, "Rear Right");
+        rightFront = hardwareMap.get(DcMotorEx.class, "Front Right");
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 

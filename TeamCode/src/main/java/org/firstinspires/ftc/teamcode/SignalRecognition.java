@@ -27,16 +27,16 @@ public class SignalRecognition {
     }
 
     public void stopRecognition() {
-        rVision.stopWebcam("Webcam");
+        rVision.stopWebcam("Webcam 1");
     }
 
     public void startRecognition() {
-        rVision.initWebCam("Webcam", true);
+        rVision.initWebCam("Webcam 1", true);
         try {
             Thread.sleep(500);
         }
         catch (Exception e) {}
-        rVision.startWebcam("Webcam", pipe);
+        rVision.startWebcam("Webcam 1", pipe);
     }
 
     public enum Result {POSITION1, POSITION2, POSITION3}

@@ -90,7 +90,18 @@
     "forwardOffset": 0.0,
     "leftEncoderReverse": false,
     "rightEncoderReverse": true,
-    "horizontalEncoderReverse": true
+    "horizontalEncoderReverse": true,
+    "grabberInitPos": 0.5,
+    "grabberOpenPos": 0.6,
+    "grabberClosePos": 0.85,
+    "extensionInitPos": 0.29,
+    "extensionFullOutPos": 0.79,
+    "extensionNormalPos": 0.39,
+    "extensionDriverMin": 0.43,
+    "turretSlow": 0.3,
+    "turretFast": 0.6,
+    "turretOffset": 100,
+    "liftMax": 4300
   },
   "poses": {
     "SHOOT-DRIVER": {
