@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.teamcode.RobotFactory;
+import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
@@ -85,9 +86,8 @@ public class NBMecanumDrive extends MecanumDrive {
 //    }
 
     private FtcDashboard dashboard;
-
+    RobotHardware robotHardware;
 //    private Mode mode;
-
     private PIDFController turnController;
     private MotionProfile turnProfile;
     private double turnStart;
@@ -102,22 +102,21 @@ public class NBMecanumDrive extends MecanumDrive {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
 
-    private BNO055IMU imu;
-
     private Pose2d lastPoseOnTurn;
 
     private VoltageSensor batteryVoltageSensor;
     private TrajectorySequenceRunner trajectorySequenceRunner;
 
-    public NBMecanumDrive(HardwareMap hardwareMap, RobotProfile profile) {
+    public NBMecanumDrive(RobotHardware robotHardware, RobotProfile profile) {
 //        super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
         super(profile.rrParam.kV, profile.rrParam.kA, profile.rrParam.kStatic, profile.hardwareSpec.trackWidth,
                 profile.hardwareSpec.wheelBase, profile.rrParam.lateralMultiplier);
 
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);
+        this.robotHardware = robotHardware;
 
-        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+        batteryVoltageSensor = robotHardware.getHardwareMap().voltageSensor.iterator().next();
 
         velConstraint = getVelocityConstraint(profile.rrParam.maxVel, MAX_ANG_VEL, profile.hardwareSpec.trackWidth);
         accelConstraint = getAccelerationConstraint(profile.rrParam.maxAcc);
@@ -130,32 +129,14 @@ public class NBMecanumDrive extends MecanumDrive {
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                     new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
-        LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
+        LynxModuleUtil.ensureMinimumFirmwareVersion(robotHardware.getHardwareMap());
 
         poseHistory = new ArrayList<>();
 
 //        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
 //            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
 //        }
-
-        // TODO: adjust the names of the following hardware devices to match your configuration
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        imu.initialize(parameters);
-
-        // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
-        // upward (normal to the floor) using a command like the following:
-        if (profile.hardwareSpec.revHubVertical) {
-            BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
-        }
-        leftFront = hardwareMap.get(DcMotorEx.class, "Front Left");
-        leftRear = hardwareMap.get(DcMotorEx.class, "Rear Left");
-        rightRear = hardwareMap.get(DcMotorEx.class, "Rear Right");
-        rightFront = hardwareMap.get(DcMotorEx.class, "Front Right");
-
-        motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
-
+        motors = robotHardware.getDriveMotors();
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
@@ -178,7 +159,7 @@ public class NBMecanumDrive extends MecanumDrive {
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
-        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap, profile));
+        setLocalizer(new StandardTrackingWheelLocalizer(robotHardware.getHardwareMap(), profile));
         //setLocalizer(new RealSenseLocalizer(hardwareMap));
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
     }
@@ -345,7 +326,7 @@ public class NBMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return imu.getAngularOrientation().firstAngle;
+        return robotHardware.getGyroHeading();
     }
 
     @Override
@@ -368,7 +349,8 @@ public class NBMecanumDrive extends MecanumDrive {
         // Rotate about the z axis is the default assuming your REV Hub/Control Hub is laying
         // flat on a surface
 
-        return (double) imu.getAngularVelocity().zRotationRate;
+        //return (double) imu.getAngularVelocity().zRotationRate;
+        return robotHardware.getGyroVelocity();
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

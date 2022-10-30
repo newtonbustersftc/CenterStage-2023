@@ -3,9 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import android.content.SharedPreferences;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,8 +10,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import java.io.File;
 
 import static org.firstinspires.ftc.teamcode.AutonomousOptions.START_POS_MODES_PREF;
-
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 
 @TeleOp(name="Newton DriverOpMode", group="Main")
@@ -83,12 +78,10 @@ public class DriverOpMode extends OpMode {
         else {
             fieldModeSign = -1;
         }
-        if (prefs.getString(START_POS_MODES_PREF, "NONE").contains("DUCK")) {
-            imuAngleOffset = Math.PI;
-        }
+
         Logger.logFile("DriverOpMode: " + prefs.getString(START_POS_MODES_PREF, "NONE"));
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
-        Logger.logFile("Current IMU Angle " + Math.toDegrees(robotHardware.getImuHeading()));
+        Logger.logFile("Current IMU Angle " + Math.toDegrees(robotHardware.getGyroHeading()));
 
         //robotHardware.getRobotVision().initRearCamera(isRedTeam);
 
@@ -126,13 +119,13 @@ public class DriverOpMode extends OpMode {
             //robotHardware.setLed1(false);
         }
 
-        //handleMovement();
+        handleMovement();
         handleExtension();
         handleGripper();
         handleLift();
         handleTurret();
 
-        telemetry.addData("Heading", Math.toDegrees(robotHardware.getImuHeading()));
+        telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
 
 
     }
@@ -159,7 +152,7 @@ public class DriverOpMode extends OpMode {
         double turn = gamepad1.right_stick_x / 2;
         double power = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
         double padAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) + Math.PI / 2;
-        double currHeading = robotHardware.getImuHeading() + driveAngle;
+        double currHeading = robotHardware.getGyroHeading() + driveAngle;
         double pidP = 2;
         double corr = currHeading * pidP * Math.max(power, 0.2);
         if (corr>0.5) corr=0.5; else if (corr<-0.5) corr=-0.5;
@@ -170,7 +163,7 @@ public class DriverOpMode extends OpMode {
             corr = 0;
             amCorrecting = false;
         } else if(amCorrecting == false){
-            driveAngle = -robotHardware.getImuHeading();
+            driveAngle = -robotHardware.getGyroHeading();
             amCorrecting = true;
         }
         movAngle = padAngle;
@@ -187,7 +180,7 @@ public class DriverOpMode extends OpMode {
 
         //robotHardware.setLed2(fieldMode);
         if (fieldMode) {
-            movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - robotHardware.getImuHeading()-imuAngleOffset;
+            movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - robotHardware.getGyroHeading()-imuAngleOffset;
         } else {
             movAngle = padAngle;
         }

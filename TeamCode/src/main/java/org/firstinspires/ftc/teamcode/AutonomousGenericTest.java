@@ -49,17 +49,17 @@ public class AutonomousGenericTest extends LinearOpMode {
         } catch (Exception e) {
         }
         Logger.init();
-        robotHardware = new RobotHardware();
-        robotHardware.init(hardwareMap, robotProfile);
+        Logger.init();
 
+        RobotFactory.reset();
+        robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         Logger.logFile("Init completed");
     }
 
     @Override
     public void runOpMode() {
-
         initRobot();
-        robotHardware.selfInit();
+        robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
         robotVision.initWebCam("Webcam 1", false);  //isRed boolean
@@ -75,7 +75,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         long loopCnt = 0;
         SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
         signalRecognition.startRecognition();
-        while (!isStarted()) {
+        while (!isStopRequested() && !isStarted()) {
             //RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(false);
             //telemetry.addData("goal",goal);
             robotHardware.getLocalizer().update();

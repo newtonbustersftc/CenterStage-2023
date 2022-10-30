@@ -3,22 +3,36 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.localization.Localizer;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorKLNavxMicro;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AxesSigns;
 import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.List;
 
 public class RobotHardware {
     public enum LiftPosition {
@@ -41,7 +55,7 @@ public class RobotHardware {
     public double extensionPos;
 
     HardwareMap hardwareMap;
-    DcMotor rrMotor, rlMotor, frMotor, flMotor;
+    DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
     DcMotor liftMotor, turretMotor;
     Servo grabberServo, extensionServo;
     DigitalChannel liftBottom;
@@ -50,6 +64,10 @@ public class RobotHardware {
     LynxModule expansionHub2;
     NBMecanumDrive mecanumDrive;
     BNO055IMU imu;
+    IntegratingGyroscope gyro;
+    NavxMicroNavigationSensor navxMicro;
+    double gyroOffset;
+
 
     RobotVision robotVision;
     DecimalFormat nf2 = new DecimalFormat("#.##");
@@ -63,12 +81,12 @@ public class RobotHardware {
         this.hardwareMap = hardwareMap;
         this.profile = profile;
         expansionHub1 = hardwareMap.get(LynxModule.class, "Control Hub");
-        rrMotor = hardwareMap.dcMotor.get("Rear Right");
-        rlMotor = hardwareMap.dcMotor.get("Rear Left");
-        frMotor = hardwareMap.dcMotor.get("Front Right");
-        flMotor = hardwareMap.dcMotor.get("Front Left");
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        resetImu();
+        rrMotor = hardwareMap.get(DcMotorEx.class, "Rear Right");
+        rlMotor = hardwareMap.get(DcMotorEx.class, "Rear Left");
+        frMotor = hardwareMap.get(DcMotorEx.class, "Front Right");
+        flMotor = hardwareMap.get(DcMotorEx.class, "Front Left");
+        //imu = hardwareMap.get(BNO055IMU.class, "imu");
+        //resetImu();
         resetDriveAndEncoders();
         expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
         magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
@@ -77,16 +95,23 @@ public class RobotHardware {
         grabberServo = hardwareMap.servo.get("Gripper Open/Close");
         liftMotor = hardwareMap.dcMotor.get("Lift Motor");
         turretMotor = hardwareMap.dcMotor.get("Turret Motor");
+        navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
+        gyro = (IntegratingGyroscope)navxMicro;
+        calibrateGyro(null);
 
         // Use manual cache mode for most efficiency, but each program
         // needs to call clearBulkCache() in the while loop
         expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-        expansionHub1.clearBulkCache();
-        //expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        //expansionHub1.clearBulkCache();
+        expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
 
-        mecanumDrive = new NBMecanumDrive(hardwareMap, profile);
+        mecanumDrive = new NBMecanumDrive(this, profile);
         //mecanumDrive.setLocalizer(realSenseLocalizer);
         robotVision = new RobotVision(this, profile);
+    }
+
+    public List<DcMotorEx> getDriveMotors() {
+        return Arrays.asList(flMotor, rlMotor, rrMotor, frMotor);
     }
 
     public void resetDriveAndEncoders() {
@@ -275,22 +300,51 @@ public class RobotHardware {
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
 
-    public double getImuHeading() {
-        return imu.getAngularOrientation().firstAngle;
+    public double getGyroHeading() {
+        Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+        return angles.firstAngle - gyroOffset;
+        //return imu.getAngularOrientation().firstAngle;
+    }
+
+    public double getGyroVelocity() {
+        AngularVelocity angles = gyro.getAngularVelocity(AngleUnit.RADIANS);
+        //AngularVelocity angles = imu.getAngularVelocity();
+        return angles.zRotationRate;
     }
 
     public void resetImu() {
-        Logger.logFile("Resetting IMU");
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-        imu.initialize(parameters);
-        //If Robot Controller is vertically placed, uncomment the following line
-        if (profile.hardwareSpec.revHubVertical) {
-            BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+        gyroOffset = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
+//        if (imu!=null) {
+//            Logger.logFile("Resetting IMU");
+//            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+//            parameters.mode = BNO055IMU.SensorMode.IMU;
+//            parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+//            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+//            parameters.loggingEnabled = false;
+//            imu.initialize(parameters);
+//            //If Robot Controller is vertically placed, uncomment the following line
+//            if (profile.hardwareSpec.revHubVertical) {
+//                BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+//            }
+//        }
+    }
+
+    public void calibrateGyro(Telemetry telemetry) {
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        gyroOffset = 0;
+        while (navxMicro.isCalibrating()) {
+            if (telemetry != null) {
+                telemetry.addData("calibrating", "%s", Math.round(timer.seconds()) % 2 == 0 ? "|.." : "..|");
+                telemetry.update();
+            }
+            try {
+                Thread.sleep(50);
+            }
+            catch (InterruptedException ex)
+            {}
         }
+        Logger.logFile("Gyro calibrated in "+ Math.round(timer.seconds()));
     }
 
     RobotProfile getRobotProfile() {
@@ -307,7 +361,9 @@ public class RobotHardware {
 
     public void resetTurretPos() {
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turretMotor.setTargetPosition(0);
+        turretMotor.setPower(profile.hardwareSpec.turretFast);
+        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void extensionExtend() {
@@ -332,48 +388,32 @@ public class RobotHardware {
         grabberServo.setPosition(profile.hardwareSpec.grabberInitPos);
     }
 
-    public void selfInit() {
-        int liftPos = liftMotor.getCurrentPosition();
-        liftMotor.setTargetPosition(liftPos + 620);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.setPower(0.3);
-        while (liftMotor.getCurrentPosition() < liftPos + 600) {Thread.yield(); clearBulkCache();}
-
-        resetTurretPos();
-        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretMotor.setPower(.6);
-        if (isMagneticTouched()) {
-            turretMotor.setTargetPosition(50);
-            while (turretMotor.getCurrentPosition() < 50) {Thread.yield(); clearBulkCache();}
-        }
-        int turretPos = turretMotor.getCurrentPosition();
-        while (!isMagneticTouched()) {
-            turretPos++;
-            turretMotor.setTargetPosition(turretPos);
-            try {
-                Thread.sleep(2);
-            } catch (Exception e) {}
-        }
-        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretMotor.setTargetPosition(profile.hardwareSpec.turretOffset);
-        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (turretMotor.getCurrentPosition() < profile.hardwareSpec.turretOffset) {
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {}
-            clearBulkCache();
-        }
-
-        liftMotor.setTargetPosition(-profile.hardwareSpec.liftMax);
-        while (!isLiftTouched()) {
-            clearBulkCache();
-            Thread.yield();
-        }
-        resetLiftPos();
-
+    public void initSetup(LinearOpMode opmode) {
+        waitforUp(opmode, "Press UP to start...");
+        if (opmode.isStopRequested()) return;
+        extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
+        waitforUp(opmode, "Move tullett to front, press UP ...");
+        if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
-
+        liftMotor.setPower(0);
+        waitforUp(opmode, "Down and Center Lift, press UP ...");
+        if (opmode.isStopRequested()) return;
+        resetLiftPos();
+        resetTurretPos();
         grabberInit();
     }
 
+    void waitforUp(LinearOpMode opmode, String text) {
+        opmode.telemetry.clearAll();
+        opmode.telemetry.addLine(text);
+        opmode.telemetry.update();
+        // wait until dpad-up pressed
+        while (!opmode.isStopRequested() && !opmode.gamepad1.dpad_up) {
+            opmode.sleep(50);
+        }
+        // wait until dpad-up released
+        while (!opmode.isStopRequested() && opmode.gamepad1.dpad_up) {
+            opmode.sleep(50);
+        }
+    }
 }

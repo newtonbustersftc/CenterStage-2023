@@ -64,22 +64,11 @@
         0.0
       ]
     },
-    "cropTopPercent": 65,
-    "cropBottomPercent": 15,
-    "cropLeftPercent": 25,
-    "cropRightPercent": 25,
-    "minArea": 100
-  },
-  "goalCvParam": {
-    "maskUpperH": 255,
-    "maskUpperS": 30,
-    "maskUpperV": 255,
-    "maskLowerH": 0,
-    "maskLowerS": 0,
-    "maskLowerV": 135,
-    "cropTop": 0,
-    "cropBottom": 70,
-    "minArea": 8000
+    "cropTopPercent": 44,
+    "cropBottomPercent": 42,
+    "cropLeftPercent": 62,
+    "cropRightPercent": 19,
+    "minArea": 200
   },
   "hardwareSpec": {
     "revHubVertical": false,
