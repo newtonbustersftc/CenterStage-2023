@@ -61,8 +61,8 @@ public class HardwareOpModeTest extends OpMode {
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
         telemetry.addData("Lift Touch", robotHardware.isLiftTouched());
         telemetry.addData("Magnetic Sensor", robotHardware.isMagneticTouched());
-        telemetry.addData("Lift Position", robotHardware.liftMotor.getCurrentPosition());
-        telemetry.addData("Turret Position", robotHardware.turretMotor.getCurrentPosition());
+        telemetry.addData("Lift Position", robotHardware.getLiftPosition());
+        telemetry.addData("Turret Position", robotHardware.getTurretPosition());
         telemetry.addData("Extension Position", robotHardware.extensionPos);
         telemetry.addData("Gyro", Math.toDegrees(robotHardware.getGyroHeading()));
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
@@ -70,19 +70,7 @@ public class HardwareOpModeTest extends OpMode {
                 .addData("RR:", robotHardware.rrMotor.getCurrentPosition())
                 .addData("FR:", robotHardware.frMotor.getCurrentPosition());
 
-        if (gamepad1.b) { // Circle
-            robotHardware.turretMotor.setPower(0.3);
-            telemetry.addData("Circle Pressed", true);
-            telemetry.addData("X Pressed", false);
-        } else if (gamepad1.a) { // X
-            robotHardware.turretMotor.setPower(0.6);
-            telemetry.addData("Circle Pressed", false);
-            telemetry.addData("X Pressed", true);
-        } else {
-            robotHardware.turretMotor.setPower(0);
-            telemetry.addData("Circle Pressed", false);
-            telemetry.addData("X Pressed", false);
-        }
+        robotHardware.turnTurret(gamepad1.left_stick_x);
 
         if (gamepad1.x) { // Square
             robotHardware.grabberClose();

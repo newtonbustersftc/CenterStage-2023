@@ -92,7 +92,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
-        //setupTaskList1();
+        setupTaskList2();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
@@ -175,7 +175,22 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList2() {
-
+        taskList.add(new GrabberTask(robotHardware,false));
+        taskList.add(new RobotSleep(500));
+        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        taskList.add(new RobotSleep(500));
+        taskList.add(new TurnTurretTask(robotHardware, -450));
+        taskList.add(new RobotSleep(500));
+        // Move robot here
+        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate * 3));
+        taskList.add(new RobotSleep(500));
+        double armL = (robotProfile.hardwareSpec.extensionDriverMin + robotProfile.hardwareSpec.extensionFullOutPos)/2;
+        taskList.add(new ExtendArmTask(robotHardware, armL));
+        taskList.add(new RobotSleep(500));
+        taskList.add(new GrabberTask(robotHardware,true));
+        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
+        taskList.add(new TurnTurretTask(robotHardware, 0));
+        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
     }
 
     void setupTaskList3() {

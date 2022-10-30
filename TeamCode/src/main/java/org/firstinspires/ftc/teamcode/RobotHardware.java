@@ -35,29 +35,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class RobotHardware {
-    public enum LiftPosition {
-        NOT_INIT, ZERO, ONE, BOTTOM, MIDDLE, TOP;
-        private static LiftPosition[] vals = values();
-
-        public LiftPosition next() {
-            return (this.ordinal() < vals.length - 1) ? vals[this.ordinal() + 1] : this;
-        }
-
-        public LiftPosition prev() { // can not goto init position
-            return (this.ordinal() > 0) ? vals[this.ordinal() - 1] : vals[0];
-        }
-    }
-
-    public enum Freight {
-        NONE, CUBE, BALL
-    }
-
     public double extensionPos;
 
     HardwareMap hardwareMap;
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
-    DcMotor liftMotor, turretMotor;
-    Servo grabberServo, extensionServo;
+    private DcMotorEx turretMotor;
+    private DcMotorEx liftMotor;        // make it private so we can prevent mistakes by lift down while arm is retracted in
+    private Servo grabberServo, extensionServo;
     DigitalChannel liftBottom;
     TouchSensor magneticSensor, liftTouch;
     LynxModule expansionHub1;
@@ -67,7 +51,7 @@ public class RobotHardware {
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
     double gyroOffset;
-
+    int turretTargetPos;
 
     RobotVision robotVision;
     DecimalFormat nf2 = new DecimalFormat("#.##");
@@ -93,8 +77,8 @@ public class RobotHardware {
         liftTouch = hardwareMap.touchSensor.get("Lift Touch");
         extensionServo = hardwareMap.servo.get("Arm Extension");
         grabberServo = hardwareMap.servo.get("Gripper Open/Close");
-        liftMotor = hardwareMap.dcMotor.get("Lift Motor");
-        turretMotor = hardwareMap.dcMotor.get("Turret Motor");
+        liftMotor = hardwareMap.get(DcMotorEx.class,"Lift Motor");
+        turretMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
         gyro = (IntegratingGyroscope)navxMicro;
         calibrateGyro(null);
@@ -146,29 +130,31 @@ public class RobotHardware {
         return mecanumDrive.getLocalizer();
     }
 
-//    public Localizer getLocalizer(){
-//        return realSenseLocalizer;
-//    }
-//
-//    public void getBulkData1() {
-//        bulkData1 = expansionHub1.getBulkInputData();
-//    }
-//
-//    public void getBulkData2() {
-//        bulkData2 = expansionHub2.getBulkInputData();
-//    }
+    public int getLiftPosition() {
+        return liftMotor.getCurrentPosition();
+    }
 
-    public int getEncoderCounts(EncoderType encoder) {
-        if (EncoderType.RIGHT == encoder) {
-            return rrMotor.getCurrentPosition();
+    public void setLiftPosition(int newLiftPos) {
+        long currPos = liftMotor.getCurrentPosition();
+        boolean goUp = newLiftPos>currPos;
+        if (!goUp) {
+            if (extensionPos < profile.hardwareSpec.extensionDriverMin && newLiftPos < profile.hardwareSpec.liftSafeRotate) {
+                newLiftPos = profile.hardwareSpec.liftSafeRotate;
+            }
+            else {
+                newLiftPos = Math.max(0, newLiftPos);
+            }
         }
-        else if (EncoderType.LEFT == encoder) {
-            return rlMotor.getCurrentPosition();
+        else {
+            newLiftPos = Math.min(newLiftPos, profile.hardwareSpec.liftMax);
         }
-        else if (EncoderType.HORIZONTAL == encoder) {
-            return frMotor.getCurrentPosition();
-        }
-        return 0;
+        liftMotor.setTargetPosition(newLiftPos);
+        liftMotor.setPower(goUp?profile.hardwareSpec.liftPowerUp:profile.hardwareSpec.liftPowerDown);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public boolean isLiftMoving() {
+        return Math.abs(liftMotor.getVelocity())>10;
     }
 
     public int getEncoderVelocity(EncoderType encoder) {
@@ -366,6 +352,36 @@ public class RobotHardware {
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
+    public void setTurretPosition(int pos) {
+        turretMotor.setTargetPosition(pos);
+        turretMotor.setPower(profile.hardwareSpec.turretFast);
+        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void turnTurret(double stickPos) {
+        int currPos = getTurretPosition();
+        if (Math.abs(stickPos) < 0.1) {
+            turretTargetPos = currPos;
+        }
+        else {  // rotate to target updated, but not allow to target too far away
+            turretTargetPos += (int) (stickPos * profile.hardwareSpec.turretMoveMax);
+            if (turretTargetPos > currPos) {
+                turretTargetPos = Math.max(turretTargetPos, currPos + profile.hardwareSpec.turretMaxAhead);
+            } else {
+                turretTargetPos = Math.min(turretTargetPos, currPos - profile.hardwareSpec.turretMaxAhead);
+            }
+        }
+        setTurretPosition(turretTargetPos);
+    }
+
+    public boolean isTurretTurning() {
+        return Math.abs(turretMotor.getVelocity())>10;
+    }
+
+    public int getTurretPosition() {
+        return turretMotor.getCurrentPosition();
+    }
+
     public void extensionExtend() {
         extensionPos = Math.min(profile.hardwareSpec.extensionFullOutPos, extensionPos + .1);
         extensionServo.setPosition(extensionPos);
@@ -374,6 +390,12 @@ public class RobotHardware {
     public void extensionRetract() {
         extensionPos = Math.max(profile.hardwareSpec.extensionInitPos, extensionPos - .1);
         extensionServo.setPosition(extensionPos);
+    }
+
+    public void setExtensionPosition(double extensionPos) {
+        this.extensionPos = Math.max(Math.min(extensionPos, profile.hardwareSpec.extensionFullOutPos),
+                profile.hardwareSpec.extensionInitPos);
+        extensionServo.setPosition(this.extensionPos);
     }
 
     public void grabberOpen() {
@@ -396,6 +418,7 @@ public class RobotHardware {
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         liftMotor.setPower(0);
+        turretMotor.setPower(0);
         waitforUp(opmode, "Down and Center Lift, press UP ...");
         if (opmode.isStopRequested()) return;
         resetLiftPos();
