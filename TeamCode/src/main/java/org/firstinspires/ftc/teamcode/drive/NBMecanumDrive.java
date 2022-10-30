@@ -64,9 +64,6 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.AXEL_TRANS_PID;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.LATERIAL_TRANS_PID;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.HEADING_PID;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.LATERAL_MULTIPLIER;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.VX_WEIGHT;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.VY_WEIGHT;
@@ -77,6 +74,9 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.OMEGA_WEIGHT;
  */
 @Config
 public class NBMecanumDrive extends MecanumDrive {
+    // Define these like the Sample so we can tune-over write easily
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
 //    public enum Mode {
 //        IDLE,
@@ -118,15 +118,17 @@ public class NBMecanumDrive extends MecanumDrive {
         dashboard.setTelemetryTransmissionInterval(25);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
-        turnController = new PIDFController(new PIDCoefficients(profile.rrHeadingPID.p, profile.rrHeadingPID.i, profile.rrHeadingPID.d));
-        turnController.setInputBounds(0, 2 * Math.PI);
 
         velConstraint = getVelocityConstraint(profile.rrParam.maxVel, MAX_ANG_VEL, profile.hardwareSpec.trackWidth);
         accelConstraint = getAccelerationConstraint(profile.rrParam.maxAcc);
+        TRANSLATIONAL_PID.kP = profile.rrTranslationPID.p;
+        TRANSLATIONAL_PID.kI = profile.rrTranslationPID.i;
+        TRANSLATIONAL_PID.kD = profile.rrTranslationPID.d;
+        HEADING_PID.kP = profile.rrHeadingPID.p;
+        HEADING_PID.kI = profile.rrHeadingPID.i;
+        HEADING_PID.kD = profile.rrHeadingPID.d;
 
-        PIDCoefficients transPid = new PIDCoefficients(profile.rrTranslationPID.p, profile.rrTranslationPID.i, profile.rrTranslationPID.d);
-        follower = new HolonomicPIDVAFollower(transPid, transPid, new PIDCoefficients(profile.rrHeadingPID.p,
-                    profile.rrHeadingPID.i, profile.rrHeadingPID.d),
+        follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                     new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -182,17 +184,14 @@ public class NBMecanumDrive extends MecanumDrive {
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
-//        return new TrajectoryBuilder(startPose, constraints);
         return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
-//        return new TrajectoryBuilder(startPose, reversed, constraints);
         return new TrajectoryBuilder(startPose, reversed, velConstraint, accelConstraint);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
-//        return new TrajectoryBuilder(startPose, startHeading, constraints);
         return new TrajectoryBuilder(startPose, startHeading, velConstraint, accelConstraint);
     }
 
@@ -214,17 +213,6 @@ public class NBMecanumDrive extends MecanumDrive {
 
 
     public void turnAsync(double angle) {
-//        double heading = getPoseEstimate().getHeading();
-//
-//        lastPoseOnTurn = getPoseEstimate();
-//        turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-//                new MotionState(heading, 0, 0, 0),
-//                new MotionState(heading + angle, 0, 0, 0),
-//                MAX_ANG_VEL,// constraints.maxAngVel,
-//                MAX_ANG_ACCEL,//constraints.maxAngAccel,
-//                MAXconstraints.maxAngJerk
-//        );
-//        mode = Mode.TURN;
         trajectorySequenceRunner.followTrajectorySequenceAsync(
                 trajectorySequenceBuilder(getPoseEstimate())
                         .turn(angle)
@@ -263,18 +251,6 @@ public class NBMecanumDrive extends MecanumDrive {
 
     public Pose2d getLastError() {
         return trajectorySequenceRunner.getLastPoseError();
-
-//           switch (mode) {
-//                case FOLLOW_TRAJECTORY:
-//                    return trajectorySequenceRunner.getLastPoseError();// return follower.getLastError();
-//                case TURN:
-////                    return new Pose2d(0, 0, turnController.getLastError());
-//                    return new Pose2d(0, 0, trajectorySequenceRunner.tu);
-//                case IDLE:
-//                    return new Pose2d();
-//            }
-//            throw new AssertionError();
-
     }
 
     public void update() {
@@ -308,19 +284,6 @@ public class NBMecanumDrive extends MecanumDrive {
             motor.setZeroPowerBehavior(zeroPowerBehavior);
         }
     }
-
-//    public PIDCoefficients getPIDCoefficients(DcMotor.RunMode runMode) {
-//        PIDFCoefficients coefficients = leftFront.getPIDFCoefficients(runMode);
-//        return new PIDCoefficients(coefficients.p, coefficients.i, coefficients.d);
-//    }
-
-//    public void setPIDCoefficients(DcMotor.RunMode runMode, PIDCoefficients coefficients) {
-//        for (DcMotorEx motor : motors) {
-//            motor.setPIDFCoefficients(runMode, new PIDFCoefficients(
-//                    coefficients.kP, coefficients.kI, coefficients.kD, getMotorVelocityF()
-//            ));
-//        }
-//    }
 
     public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
         PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(

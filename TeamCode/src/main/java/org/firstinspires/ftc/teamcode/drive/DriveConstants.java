@@ -32,10 +32,6 @@ public class DriveConstants {
     public static final boolean RUN_USING_ENCODER = false;
     public static PIDFCoefficients MOTOR_VELO_PID;
 
-    public static PIDCoefficients AXEL_TRANS_PID = new PIDCoefficients(5, 0.1, 0);
-    public static PIDCoefficients LATERIAL_TRANS_PID = new PIDCoefficients(5, 0.1, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(5, 0.1, 0.01);
-
     public static double LATERAL_MULTIPLIER = 1;
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
