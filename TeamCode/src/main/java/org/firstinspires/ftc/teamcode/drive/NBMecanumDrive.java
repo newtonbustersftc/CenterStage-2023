@@ -133,9 +133,10 @@ public class NBMecanumDrive extends MecanumDrive {
 
         poseHistory = new ArrayList<>();
 
-//        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
-//            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-//        }
+        for (LynxModule module : robotHardware.getHardwareMap().getAll(LynxModule.class)) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
         motors = robotHardware.getDriveMotors();
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -318,10 +319,11 @@ public class NBMecanumDrive extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftFront.setPower(v);
-        leftRear.setPower(v1);
-        rightRear.setPower(v2);
-        rightFront.setPower(v3);
+        robotHardware.setMotorPower(v, v3, v1, v2);
+//        leftFront.setPower(v);
+//        leftRear.setPower(v1);
+//        rightRear.setPower(v2);
+//        rightFront.setPower(v3);
     }
 
     @Override
