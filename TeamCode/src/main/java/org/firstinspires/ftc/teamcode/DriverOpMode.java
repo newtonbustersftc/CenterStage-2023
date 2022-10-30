@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import java.io.File;
 
@@ -205,18 +204,21 @@ public class DriverOpMode extends OpMode {
     }
 
     public void handleTurret() {
-        if (gamepad2.left_stick_x < -.3) {
-            robotHardware.turretMotor.setPower(-.5);
-        } else if (gamepad2.left_stick_x > .3) {
-            robotHardware.turretMotor.setPower(.5);
-        } else {
-            robotHardware.turretMotor.setPower(0);
-        }
+        robotHardware.turnTurret(gamepad2.left_stick_x);
+        telemetry.addData("Turret Pos", robotHardware.getTurretPosition());
+
+//        if (gamepad2.left_stick_x < -.3) {
+//            robotHardware.turretMotor.setPower(-.5);
+//        } else if (gamepad2.left_stick_x > .3) {
+//            robotHardware.turretMotor.setPower(.5);
+//        } else {
+//            robotHardware.turretMotor.setPower(0);
+//        }
     }
 
     public void handleExtension() {
-        double extensionTempPos = Math.max(0,gamepad2.left_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullOutPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
-        robotHardware.extensionServo.setPosition(extensionTempPos);
+        double extensionTempPos = Math.max(0,-gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullOutPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
+        robotHardware.setExtensionPosition(extensionTempPos);
         telemetry.addData("Extension Pos", extensionTempPos);
     }
 
@@ -241,75 +243,67 @@ public class DriverOpMode extends OpMode {
          * 4 - High (3781)
          */
 
-        robotHardware.liftMotor.setPower(.4);
         if (liftCanChange) {
             if (gripperOpen) {
                 if (gamepad2.right_bumper && openLiftPos < 5) {
                     openLiftPos++;
                     liftCanChange = false;
                     if (openLiftPos == 1) {
-                        robotHardware.liftMotor.setTargetPosition(0);
+                        robotHardware.setLiftPosition(0);
                     } else if (openLiftPos == 2) {
-                        robotHardware.liftMotor.setTargetPosition(130);
+                        robotHardware.setLiftPosition(130);
                     } else if (openLiftPos == 3) {
-                        robotHardware.liftMotor.setTargetPosition(260);
+                        robotHardware.setLiftPosition(260);
                     } else if (openLiftPos == 4) {
-                        robotHardware.liftMotor.setTargetPosition(390);
+                        robotHardware.setLiftPosition(390);
                     } else {
-                        robotHardware.liftMotor.setTargetPosition(520);
+                        robotHardware.setLiftPosition(520);
                     }
-                    robotHardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 } else if (gamepad2.left_bumper && openLiftPos > 1) {
                     openLiftPos--;
                     liftCanChange = false;
                     if (openLiftPos == 1) {
-                        robotHardware.liftMotor.setTargetPosition(0);
+                        robotHardware.setLiftPosition(0);
                     } else if (openLiftPos == 2) {
-                        robotHardware.liftMotor.setTargetPosition(130);
+                        robotHardware.setLiftPosition(130);
                     } else if (openLiftPos == 3) {
-                        robotHardware.liftMotor.setTargetPosition(260);
+                        robotHardware.setLiftPosition(260);
                     } else if (openLiftPos == 4) {
-                        robotHardware.liftMotor.setTargetPosition(390);
+                        robotHardware.setLiftPosition(390);
                     } else {
-                        robotHardware.liftMotor.setTargetPosition(520);
+                        robotHardware.setLiftPosition(520);
                     }
-                    robotHardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
             } else {
                 if (gamepad2.right_bumper && closedLiftPos < 4) {
                     closedLiftPos++;
                     liftCanChange = false;
                     if (closedLiftPos == 1) {
-                        robotHardware.liftMotor.setTargetPosition(65);
+                        robotHardware.setLiftPosition(65);
                     } else if (closedLiftPos == 2) {
-                        robotHardware.liftMotor.setTargetPosition(1619);
+                        robotHardware.setLiftPosition(1619);
                     } else if (closedLiftPos == 3) {
-                        robotHardware.liftMotor.setTargetPosition(2682);
+                        robotHardware.setLiftPosition(2682);
                     } else {
-                        robotHardware.liftMotor.setTargetPosition(3781);
+                        robotHardware.setLiftPosition(3781);
                     }
-                    robotHardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 } else if (gamepad2.left_bumper && closedLiftPos > 1) {
                     closedLiftPos--;
                     liftCanChange = false;
                     if (closedLiftPos == 1) {
-                        robotHardware.liftMotor.setTargetPosition(65);
+                        robotHardware.setLiftPosition(65);
                     } else if (closedLiftPos == 2) {
-                        robotHardware.liftMotor.setTargetPosition(1619);
+                        robotHardware.setLiftPosition(1619);
                     } else if (closedLiftPos == 3) {
-                        robotHardware.liftMotor.setTargetPosition(2682);
+                        robotHardware.setLiftPosition(2682);
                     } else {
-                        robotHardware.liftMotor.setTargetPosition(3781);
+                        robotHardware.setLiftPosition(3781);
                     }
-                    robotHardware.liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
             }
         } else if (!liftCanChange && !gamepad2.right_bumper && !gamepad2.left_bumper) {
             liftCanChange = true;
         }
-        telemetry.addData("Open Pos", openLiftPos);
-        telemetry.addData("Closed Pos", closedLiftPos);
-        telemetry.addData("Gripper Open", gripperOpen);
     }
 
     public void handleGripper() {

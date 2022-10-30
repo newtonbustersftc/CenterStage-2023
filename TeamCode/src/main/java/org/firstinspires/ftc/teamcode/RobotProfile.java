@@ -76,10 +76,14 @@ public class RobotProfile {
         public boolean rightEncoderReverse;
         public boolean horizontalEncoderReverse;
         public double grabberInitPos, grabberOpenPos, grabberClosePos;
-        public double extensionInitPos, extensionFullOutPos, extensionNormalPos, extensionDriverMin;
+        public double extensionInitPos, extensionFullOutPos, extensionDriverMin;
         public double turretSlow, turretFast;
-        public int turretOffset;
+        public int turret360;
+        public int turretMaxAhead;
+        public int turretMoveMax;
         public int liftMax;
+        public int liftSafeRotate;
+        public double liftPowerUp, liftPowerDown;
     }
 
     public class RoadRunnerParam {
