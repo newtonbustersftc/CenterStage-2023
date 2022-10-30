@@ -12,21 +12,21 @@
     "f": 0.0
   },
   "rrHeadingPID": {
-    "p": 5.0,
+    "p": 2.0,
     "i": 0.05,
     "d": 0.0,
     "f": 0.0
   },
   "rrTranslationPID": {
-    "p": 10.0,
+    "p": 8.0,
     "i": 0.1,
     "d": 0.0,
     "f": 0.0
   },
   "rrParam": {
-    "kA": 0.00003,
-    "kV": 0.01269,
-    "kStatic": 0.08111,
+    "kA": 0.00218,
+    "kV": 0.01745,
+    "kStatic": 0.13052,
     "lateralMultiplier": 1.0,
     "maxVel": 30.0,
     "maxAcc": 30.0

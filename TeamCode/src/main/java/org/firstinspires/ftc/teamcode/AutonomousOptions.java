@@ -21,28 +21,16 @@ public class AutonomousOptions extends OpMode {
     public static final String START_POS_MODES_PREF = "starting position";
     public static final String START_DELAY_PREF = "start_delay";
     public static final String PARK_ONLY_PREF = "park only";
-    public static final String DELIVER_TO_HUB_USING_OPENCV_PREF ="Deliver to hub using openCV";
-    public static final String DUCK_DELIVER_TO_HUB_BY_SIDE_PREF = "Duck deliver to hub by side route";
-    public static final String FREIGHT_DELIVERY_COUNT_PREF = "freight delivery count";
-    public static final String DUCK_PARKING_DIRECTION_PREF = "duck parking direction";
-    public static final String DELAY_PARKING_STORAGE_PREF = "delay parking by storage";
-    public static final String DELAY_PARKING_WAREHOUSE_PREF = "delay parking by warehouse";
-    public static final String PARKING_PREF = "parking";
+    public static final String PARKING_PREF = "parking loc";
     // ADD preference values here
-    public static final String[] START_POS_MODES = {"RED_DUCK", "RED_DEPOT","BLUE_DUCK", "BLUE_DEPOT"};
-    public static final String[] START_DELAY = {"0 " + "sec", "1 sec", "2 sec", "3 sec", "4 sec", "5 sec", "25 sec"};
-    public static final String[] PARK_ONLY = {"PARK_ONLY", "NONE"};
-    public static final String[] DELIVER_TO_HUB_USING_OPENCV ={"YES", "NO"};
-    public static final String[] DUCK_DELIVER_TO_HUB_BY_SIDE ={"YES", "NO"};
-    public static final String[] FREIGHT_DELIVERY_COUNT = {"0", "1","2","3"};
-    public static final String[] DUCK_PARKING_DIRECTION = {"NONE", "CW","CCW"};
-    public static final String[] DELAY_TIME_PARKING_STORAGE_FROM_ENDING = {"0 sec", "5 sec", "8 sec", "10 sec"};
-    public static final String[] DELAY_TIME_PARKING_WAREHOUSE_FROM_ENDING = {"0 sec", "5 sec", "8 sec", "10 sec"};
-    public static final String[] PARKING_LOCATION = {"STORAGE", "WALL", "CENTRAL"};
+    public static final String[] START_POS_MODES = {"RED_LEFT", "RED_RIGHT","BLUE_LEFT", "BLUE_RIGHT"};
+    public static final String[] START_DELAY = {"0 " + "sec", "1 sec", "2 sec", "3 sec", "4 sec", "5 sec"};
+    public static final String[] PARK_ONLY = {"YES", "NO"};
+    public static final String[] PARKING_LOCATION = {"ROW 1", "ROW 2", "ROW 3"};
     private static final String NONE = "none";
 
     public static Map<String, String[]> prefMap = new HashMap<>();
-    private static String[] prefKeys = {START_POS_MODES_PREF, START_DELAY_PREF, PARK_ONLY_PREF,DELIVER_TO_HUB_USING_OPENCV_PREF, DUCK_DELIVER_TO_HUB_BY_SIDE_PREF, FREIGHT_DELIVERY_COUNT_PREF,DUCK_PARKING_DIRECTION_PREF, DELAY_PARKING_STORAGE_PREF, DELAY_PARKING_WAREHOUSE_PREF, PARKING_PREF};
+    private static String[] prefKeys = {START_POS_MODES_PREF, START_DELAY_PREF, PARK_ONLY_PREF, PARKING_PREF};
     private static int keyIdx = 0;
 
     //private static String[] prefKeys = prefMap.keySet().toArray(new String[prefMap.keySet().size()]);
@@ -52,13 +40,7 @@ public class AutonomousOptions extends OpMode {
         prefMap.put(START_DELAY_PREF, START_DELAY);
         prefMap.put(START_POS_MODES_PREF, START_POS_MODES);
         prefMap.put(PARKING_PREF, PARKING_LOCATION);
-        prefMap.put(DELAY_PARKING_STORAGE_PREF, DELAY_TIME_PARKING_STORAGE_FROM_ENDING);
-        prefMap.put(DELAY_PARKING_WAREHOUSE_PREF, DELAY_TIME_PARKING_WAREHOUSE_FROM_ENDING);
         prefMap.put(PARK_ONLY_PREF, PARK_ONLY);
-        prefMap.put(FREIGHT_DELIVERY_COUNT_PREF,FREIGHT_DELIVERY_COUNT);
-        prefMap.put(DUCK_PARKING_DIRECTION_PREF, DUCK_PARKING_DIRECTION);
-        prefMap.put(DELIVER_TO_HUB_USING_OPENCV_PREF, DELIVER_TO_HUB_USING_OPENCV);
-        prefMap.put(DUCK_DELIVER_TO_HUB_BY_SIDE_PREF, DUCK_DELIVER_TO_HUB_BY_SIDE);
     }
 
 //    static {

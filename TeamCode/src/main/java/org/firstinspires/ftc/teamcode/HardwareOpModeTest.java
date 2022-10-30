@@ -65,6 +65,10 @@ public class HardwareOpModeTest extends OpMode {
         telemetry.addData("Turret Position", robotHardware.turretMotor.getCurrentPosition());
         telemetry.addData("Extension Position", robotHardware.extensionPos);
         telemetry.addData("Gyro", Math.toDegrees(robotHardware.getGyroHeading()));
+        telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
+                .addData("RL:", robotHardware.rlMotor.getCurrentPosition())
+                .addData("RR:", robotHardware.rrMotor.getCurrentPosition())
+                .addData("FR:", robotHardware.frMotor.getCurrentPosition());
 
         if (gamepad1.b) { // Circle
             robotHardware.turretMotor.setPower(0.3);
