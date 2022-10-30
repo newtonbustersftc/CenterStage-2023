@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.io.File;
-import java.util.Locale;
 
 @TeleOp(name="Hardware Test", group="Test")
 //@Disabled
@@ -37,6 +36,7 @@ public class HardwareOpModeTest extends OpMode {
         robotHardware = new RobotHardware();
         robotHardware.init(hardwareMap, robotProfile);
         robotHardware.grabberOpen();
+        robotHardware.calibrateGyro(telemetry);
         robotVision = robotHardware.getRobotVision();
         //robotVision.activateNavigationTarget();
         //robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
@@ -58,12 +58,13 @@ public class HardwareOpModeTest extends OpMode {
 
         testHardware();
 
-        telemetry.addData("Heading", Math.toDegrees(robotHardware.getImuHeading()));
+        telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
         telemetry.addData("Lift Touch", robotHardware.isLiftTouched());
         telemetry.addData("Magnetic Sensor", robotHardware.isMagneticTouched());
         telemetry.addData("Lift Position", robotHardware.liftMotor.getCurrentPosition());
         telemetry.addData("Turret Position", robotHardware.turretMotor.getCurrentPosition());
         telemetry.addData("Extension Position", robotHardware.extensionPos);
+        telemetry.addData("Gyro", Math.toDegrees(robotHardware.getGyroHeading()));
 
         if (gamepad1.b) { // Circle
             robotHardware.turretMotor.setPower(0.3);

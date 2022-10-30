@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.io.File;
-import java.util.Locale;
 
 @TeleOp(name="XDrive Test", group="Test")
 //@Disabled
@@ -30,7 +27,7 @@ public class XDriveOpMode extends OpMode {
         robotHardware = new RobotHardware();
         robotHardware.init(hardwareMap, robotProfile);
         targetHeading = 0;
-        headingOffset = robotHardware.getImuHeading();
+        headingOffset = robotHardware.getGyroHeading();
     }
 
     @Override
@@ -57,7 +54,7 @@ public class XDriveOpMode extends OpMode {
         double turn = gamepad1.right_stick_x/4; // negative when point left
         double power = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
         double padAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) + Math.PI/2;
-        double currHeading = robotHardware.getImuHeading();
+        double currHeading = robotHardware.getGyroHeading();
         double pidP = 2;
         double corr = currHeading * pidP * Math.max(power, 0.2);
         if (corr>0.5) corr=0.5; else if (corr<-0.5) corr=-0.5;

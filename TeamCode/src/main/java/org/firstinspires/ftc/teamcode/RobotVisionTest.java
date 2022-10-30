@@ -12,14 +12,18 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 
 @Config
@@ -64,11 +68,11 @@ public class RobotVisionTest extends LinearOpMode {
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
-        robotVision.initWebCam("Webcam", true);
+        robotVision.initWebCam("Webcam 1", true);
 
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-        robotVision.startWebcam("Webcam", new CVPipeline());
+        robotVision.startWebcam("Webcam 1", new CVPipeline());
         while (!isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
@@ -125,7 +129,7 @@ public class RobotVisionTest extends LinearOpMode {
                 }
             }
         }
-        robotVision.stopWebcam("Webcam");
+        robotVision.stopWebcam("Webcam 1");
         try {
             Logger.flushToFile();
         }
@@ -138,6 +142,7 @@ public class RobotVisionTest extends LinearOpMode {
     Mat hsvMat = new Mat();
     Mat maskMat = new Mat();
     Mat hierarchey = new Mat();
+    boolean saveImage = true;
 
     static Scalar DRAW_COLOR_RED = new Scalar(255, 0, 0);
 
@@ -177,14 +182,15 @@ public class RobotVisionTest extends LinearOpMode {
                 Imgproc.rectangle(input, rec, DRAW_COLOR_RED, 2);
             }
         }
-//        if (saveImage) {
-//            //need to save pic to file
-//            String timestamp = new SimpleDateFormat("MMdd-HHmmss", Locale.US).format(new Date());
-//            Mat mbgr = new Mat();
-//            Imgproc.cvtColor(input, mbgr, Imgproc.COLOR_RGB2BGR, 3);
-//            Imgcodecs.imwrite("/sdcard/FIRST/S" + timestamp + ".jpg", mbgr);
-//            mbgr.release();
-//        }
+        if (saveImage) {
+            //need to save pic to file
+            String timestamp = new SimpleDateFormat("MMdd-HHmmss", Locale.US).format(new Date());
+            Mat mbgr = new Mat();
+            Imgproc.cvtColor(input, mbgr, Imgproc.COLOR_RGB2BGR, 3);
+            Imgcodecs.imwrite("/sdcard/FIRST/S" + timestamp + ".jpg", mbgr);
+            mbgr.release();
+            saveImage = false;
+        }
         return input;
     }
  }
