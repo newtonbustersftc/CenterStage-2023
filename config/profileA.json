@@ -12,21 +12,21 @@
     "f": 0.0
   },
   "rrHeadingPID": {
-    "p": 2.0,
+    "p": 5.0,
     "i": 0.05,
     "d": 0.0,
     "f": 0.0
   },
   "rrTranslationPID": {
-    "p": 8.0,
+    "p": 10.0,
     "i": 0.1,
     "d": 0.0,
     "f": 0.0
   },
   "rrParam": {
-    "kA": 0.00218,
-    "kV": 0.01745,
-    "kStatic": 0.13052,
+    "kA": 0.00145,
+    "kV": 0.01563,
+    "kStatic": 0.11855,
     "lateralMultiplier": 1.0,
     "maxVel": 30.0,
     "maxAcc": 30.0
@@ -97,14 +97,14 @@
     "liftPowerDown": 0.4
   },
   "poses": {
-    "SHOOT-DRIVER": {
-      "x": -5.0,
-      "y": -42.0,
-      "heading": -5.0
+    "TURRET_ANGLE_1_RIGHT": {
+      "x": -90,
+      "y": 0,
+      "heading": 0.0
     },
-    "START": {
-      "x": -66.0,
-      "y": -20.0,
+    "DROP_HIGH_1_RIGHT": {
+      "x": 0.0,
+      "y": 52.0,
       "heading": 0.0
     }
   }

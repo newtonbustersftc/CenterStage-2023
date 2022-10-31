@@ -33,7 +33,7 @@ public class SignalRecognition {
     public void startRecognition() {
         rVision.initWebCam("Webcam 1", true);
         try {
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }
         catch (Exception e) {}
         rVision.startWebcam("Webcam 1", pipe);
@@ -135,7 +135,7 @@ public class SignalRecognition {
     public boolean getIsRed() {
          return findRed;
     }
-     public boolean getIsGreen() {
+    public boolean getIsGreen() {
          return findGreen;
      }
  }

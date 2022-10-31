@@ -35,13 +35,11 @@ public class AutonomousGenericTest extends LinearOpMode {
     RobotVision robotVision;
 
     ArrayList<RobotControl> taskList;
-
     long loopCount = 0;
     int countTasks = 0;
 
     private TrajectoryVelocityConstraint velConstraint;
     private TrajectoryAccelerationConstraint accelConstraint;
-    String startPosStr = "RED";
 
     public void initRobot() {
         try{
@@ -88,7 +86,7 @@ public class AutonomousGenericTest extends LinearOpMode {
                 telemetry.update();
             }
         }
-
+        signalRecognition.stopRecognition();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
