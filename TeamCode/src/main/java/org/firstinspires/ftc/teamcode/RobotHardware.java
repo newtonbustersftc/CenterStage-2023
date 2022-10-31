@@ -250,7 +250,7 @@ public class RobotHardware {
         rearLeft = rearLeft/biggest*power;
         rearRight = rearRight/biggest*power;
 
-        setMotorPower(frontLeft, frontRight, rearLeft, rearRight);
+        setMotorPower(-frontLeft, frontRight, -rearLeft, rearRight);        // TO FIX!!!
     }
 
     public void setMotorPower(double flPower, double frPower, double rlPower, double rrPower) {
@@ -414,9 +414,10 @@ public class RobotHardware {
         waitforUp(opmode, "Press UP to start...");
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
-        waitforUp(opmode, "Move tullett to front, press UP ...");
+        waitforUp(opmode, "Move tullet to front, press UP ...");
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
+        grabberOpen();
         liftMotor.setPower(0);
         turretMotor.setPower(0);
         waitforUp(opmode, "Down and Center Lift, press UP ...");

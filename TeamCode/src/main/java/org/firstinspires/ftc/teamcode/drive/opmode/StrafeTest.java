@@ -35,6 +35,11 @@ public class StrafeTest extends LinearOpMode {
 
         Logger.init();
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
+        robotHardware.resetDriveAndEncoders();
+        robotHardware.calibrateGyro(telemetry);
+        robotHardware.resetImu();
+
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
 
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
@@ -42,8 +47,6 @@ public class StrafeTest extends LinearOpMode {
                 .build();
 
         waitForStart();
-        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
-        robotHardware.resetDriveAndEncoders();
 
         if (isStopRequested()) return;
 
