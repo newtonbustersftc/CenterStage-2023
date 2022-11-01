@@ -40,7 +40,12 @@ public class SplineMoveTask implements RobotControl {
     }
 
     public String toString() {
-        return "SplineMove " + trajectory.start() + " -> " + trajectory.end() ;
+        if (trajectory!=null) {
+            return "SplineMove " + trajectory.start() + " -> " + trajectory.end();
+        }
+        else {
+            return "SplineMove " + trajectorySequence.start() + " -> " + trajectorySequence.end();
+        }
     }
 
     public boolean isDone(){

@@ -16,6 +16,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -63,7 +65,7 @@ public class AutonomousTaskBuilder {
         taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
         // 4. Rotate tullet to -90 degree
         Pose2d turretAngle = getProfilePose("TURRET_ANGLE_1" + postFix);
-        taskList.add(new TurnTurretTask(robotHardware, (int)(turretAngle.getX() * robotProfile.hardwareSpec.turret360 / 360)));
+        taskList.add(new TurnTurretTask(robotHardware, (int)turretAngle.getX()));
         // 5. Move to first position
         Pose2d pos1 = getProfilePose("DROP_HIGH_1" + postFix);
         TrajectoryVelocityConstraint velConstraint;
@@ -71,31 +73,52 @@ public class AutonomousTaskBuilder {
 
         velConstraint = getVelocityConstraint(20, 15, robotProfile.hardwareSpec.trackWidth);
         accelConstraint = getAccelerationConstraint(15);
-        // move to deliver 1st cone
+        // move to first line
         Pose2d p0 = new Pose2d(0,0,0);
-
-        Trajectory trj = drive.trajectoryBuilder(p0)
+        TrajectorySequence trj1 = drive.trajectorySequenceBuilder(p0)
                 .lineTo(pos1.vec(), velConstraint, accelConstraint)
+                .back(12)
+                .turn(Math.PI/2)
+                .forward(12)
                 .build();
-        SplineMoveTask moveTask1 = new SplineMoveTask(robotHardware.mecanumDrive, trj);
-        taskList.add(moveTask1);
+        SplineMoveTask moveToDrop1 = new SplineMoveTask(robotHardware.mecanumDrive, trj1);
+        taskList.add(moveToDrop1);
+
         // Lift, Rotate and Drop
         Pose2d armHighPos = getProfilePose("DROP_HIGH_ARM" + postFix);
-        ParallelComboTask parLRD = new ParallelComboTask();
-        parLRD.addTask(new TurnTurretTask(robotHardware, (int)armHighPos.getX()));
-        parLRD.addTask(new LiftArmTask(robotHardware, 3781));
-        taskList.add(parLRD);
-        taskList.add(new ExtendArmTask(robotHardware, armHighPos.getY()));
-        taskList.add(new RobotSleep(2000));
+        taskList.add(new LiftArmTask(robotHardware, 3781));
+        taskList.add(new TurnTurretTask(robotHardware, 0));
+        taskList.add(new RobotSleep(1000));
         taskList.add(new LiftArmTask(robotHardware, 3281));
         taskList.add(new GrabberTask(robotHardware, true));
-        taskList.add(new RobotSleep(2000));
-        ParallelComboTask parRest = new ParallelComboTask();
-        parRest.addTask(new TurnTurretTask(robotHardware, 0));
-        parRest.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
-        parRest.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-        taskList.add(parRest);
-
+        // Done with drop
+        taskList.add(new LiftArmTask(robotHardware, 3781)); // lift up to avoid pulling the yellow pole
+        taskList.add(new TurnTurretTask(robotHardware, 925));
+        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
+        taskList.add(new LiftArmTask(robotHardware, 520));
+        TrajectorySequence trj2 = drive.trajectorySequenceBuilder(trj1.end())
+                .back(34)
+                .build();
+        SplineMoveTask moveToPick1 = new SplineMoveTask(robotHardware.mecanumDrive, trj2);
+        taskList.add(moveToPick1);
+        // Doing #2
+        taskList.add(new GrabberTask(robotHardware, false));
+        taskList.add(new LiftArmTask(robotHardware,1000));  // lift before we can rotate
+        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+        TrajectorySequence trj3 = drive.trajectorySequenceBuilder(trj2.end())
+                .forward(34)
+                .build();
+        SplineMoveTask moveToDrop2 = new SplineMoveTask(robotHardware.mecanumDrive, trj2);
+        taskList.add(moveToDrop2);
+        taskList.add(new LiftArmTask(robotHardware, 3781));
+        taskList.add(new TurnTurretTask(robotHardware, 0));
+        taskList.add(new RobotSleep(1000));
+        taskList.add(new LiftArmTask(robotHardware, 3281));
+        taskList.add(new GrabberTask(robotHardware, true));
+        // Done with drop 2
+        taskList.add(new LiftArmTask(robotHardware, 3781)); // lift up to avoid pulling the yellow pole
+        taskList.add(new TurnTurretTask(robotHardware, 925));
+        taskList.add(new LiftArmTask(robotHardware, 390));
         return taskList;
     }
 
