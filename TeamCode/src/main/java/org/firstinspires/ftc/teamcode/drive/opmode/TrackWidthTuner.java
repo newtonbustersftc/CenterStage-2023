@@ -49,6 +49,8 @@ public class TrackWidthTuner extends LinearOpMode {
         Logger.init();
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         robotHardware.resetDriveAndEncoders();
+        robotHardware.calibrateGyro(telemetry);
+        robotHardware.resetImu();
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
 
@@ -78,7 +80,8 @@ public class TrackWidthTuner extends LinearOpMode {
             drive.turnAsync(Math.toRadians(ANGLE));
 
             while (!isStopRequested() && drive.isBusy()) {
-                double heading = drive.getPoseEstimate().getHeading();
+                double heading = //drive.getPoseEstimate().getHeading();
+                            robotHardware.getGyroHeading();
                 headingAccumulator += Angle.norm(heading - lastHeading);
                 lastHeading = heading;
 

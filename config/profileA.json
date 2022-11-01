@@ -24,7 +24,7 @@
     "f": 0.0
   },
   "rrParam": {
-    "kA": 0.00145,
+    "kA": 0.00093,
     "kV": 0.01563,
     "kStatic": 0.11855,
     "lateralMultiplier": 1.0,
@@ -36,7 +36,7 @@
       "val": [
         230.0,
         60.0,
-        60.0,
+        80.0,
         0.0
       ]
     },
@@ -50,33 +50,33 @@
     },
     "greenLowerBound": {
       "val": [
-        60.0,
-        30.0,
-        60.0,
+        38.0,
+        70.0,
+        100.0,
         0.0
       ]
     },
     "greenUpperBound": {
       "val": [
-        100.0,
+        80.0,
         255.0,
         255.0,
         0.0
       ]
     },
-    "cropTopPercent": 44,
-    "cropBottomPercent": 42,
-    "cropLeftPercent": 62,
-    "cropRightPercent": 19,
-    "minArea": 200
+    "cropTopPercent": 0,
+    "cropBottomPercent": 0,
+    "cropLeftPercent": 0,
+    "cropRightPercent": 0,
+    "minArea": 100
   },
   "hardwareSpec": {
     "revHubVertical": false,
-    "trackWidth": 8.317,
+    "trackWidth": 8.179,
     "wheelBase": 4.16,
     "wheelRadius": 0.748,
     "ticksPerRev": 4000.0,
-    "forwardOffset": 0.0,
+    "forwardOffset": 4.16,
     "leftEncoderReverse": false,
     "rightEncoderReverse": true,
     "horizontalEncoderReverse": true,
@@ -103,8 +103,13 @@
       "heading": 0.0
     },
     "DROP_HIGH_1_RIGHT": {
-      "x": 0.0,
-      "y": 52.0,
+      "x": 65.0,
+      "y": 0.0,
+      "heading": 0.0
+    },
+    "DROP_HIGH_ARM_RIGHT": {
+      "x": -1850,
+      "y": 0.44,
       "heading": 0.0
     }
   }

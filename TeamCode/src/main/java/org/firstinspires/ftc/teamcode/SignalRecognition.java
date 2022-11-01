@@ -84,8 +84,8 @@ public class SignalRecognition {
          Scalar lowerBoundGreen = robotProfile.cvParam.greenLowerBound;
          Scalar upperBoundGreen = robotProfile.cvParam.greenUpperBound;
 
-         findRed = checkColor(lowerBoundRed, upperBoundRed, robotProfile.cvParam.minArea, hsvMat, input);
          findGreen = checkColor(lowerBoundGreen, upperBoundGreen, robotProfile.cvParam.minArea, hsvMat, input);
+         //findRed = checkColor(lowerBoundRed, upperBoundRed, robotProfile.cvParam.minArea, hsvMat, input);
 
 //        if (saveImage) {
 //            //need to save pic to file
@@ -96,7 +96,7 @@ public class SignalRecognition {
 //            mbgr.release();
 //        }
 
-        Imgproc.rectangle(input, new Rect(offsetX, offsetY, procMat.width(), procMat.height()), DRAW_COLOR_RED, 2);
+        Imgproc.rectangle(input, new Rect(offsetX, offsetY, procMat.width(), procMat.height()), DRAW_COLOR_RED, 1);
         return input;
     }
     boolean checkColor(Scalar lowerBound, Scalar upperBound, int minSize, Mat hsvMat, Mat input) {

@@ -79,6 +79,23 @@ public class AutonomousTaskBuilder {
                 .build();
         SplineMoveTask moveTask1 = new SplineMoveTask(robotHardware.mecanumDrive, trj);
         taskList.add(moveTask1);
+        // Lift, Rotate and Drop
+        Pose2d armHighPos = getProfilePose("DROP_HIGH_ARM" + postFix);
+        ParallelComboTask parLRD = new ParallelComboTask();
+        parLRD.addTask(new TurnTurretTask(robotHardware, (int)armHighPos.getX()));
+        parLRD.addTask(new LiftArmTask(robotHardware, 3781));
+        taskList.add(parLRD);
+        taskList.add(new ExtendArmTask(robotHardware, armHighPos.getY()));
+        taskList.add(new RobotSleep(2000));
+        taskList.add(new LiftArmTask(robotHardware, 3281));
+        taskList.add(new GrabberTask(robotHardware, true));
+        taskList.add(new RobotSleep(2000));
+        ParallelComboTask parRest = new ParallelComboTask();
+        parRest.addTask(new TurnTurretTask(robotHardware, 0));
+        parRest.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
+        parRest.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        taskList.add(parRest);
+
         return taskList;
     }
 
