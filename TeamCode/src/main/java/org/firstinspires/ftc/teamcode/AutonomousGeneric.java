@@ -57,10 +57,6 @@ public class AutonomousGeneric extends LinearOpMode {
         long loopCnt = 0;
         SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, signalRecognition);
-        taskList = builder.buildTaskList();
-        TaskReporter.report(taskList);
-        Logger.logFile("Task list items: " + taskList.size());
-        Logger.flushToFile();
         signalRecognition.startRecognition();
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();
@@ -74,6 +70,10 @@ public class AutonomousGeneric extends LinearOpMode {
             }
         }
         Logger.logFile("Recognition Result:" + signalRecognition.getRecognitionResult());
+        taskList = builder.buildTaskList();
+        TaskReporter.report(taskList);
+        Logger.logFile("Task list items: " + taskList.size());
+        Logger.flushToFile();
         if (taskList.size() > 0) {
             taskList.get(0).prepare();
         }

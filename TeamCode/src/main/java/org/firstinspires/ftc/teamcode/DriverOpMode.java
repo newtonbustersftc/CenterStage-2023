@@ -33,7 +33,7 @@ public class DriverOpMode extends OpMode {
     boolean dpadDownPressed = false;
     boolean leftTriggerPressed = false;
     boolean rightTriggerPressed = false;
-    double imuAngleOffset = 0;
+    double imuAngleOffset = Math.PI/2;
     double driveAngle = 0;
     boolean amCorrecting = true;
     int openLiftPos = 1;
