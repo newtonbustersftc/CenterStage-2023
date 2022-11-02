@@ -85,7 +85,7 @@ public class SignalRecognition {
          Scalar upperBoundGreen = robotProfile.cvParam.greenUpperBound;
 
          findGreen = checkColor(lowerBoundGreen, upperBoundGreen, robotProfile.cvParam.minArea, hsvMat, input);
-         //findRed = checkColor(lowerBoundRed, upperBoundRed, robotProfile.cvParam.minArea, hsvMat, input);
+         findRed = checkColor(lowerBoundRed, upperBoundRed, robotProfile.cvParam.minArea, hsvMat, input);
 
 //        if (saveImage) {
 //            //need to save pic to file

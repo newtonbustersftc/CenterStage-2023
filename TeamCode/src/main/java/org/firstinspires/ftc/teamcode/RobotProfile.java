@@ -22,6 +22,7 @@ public class RobotProfile {
     public HardwareSpec hardwareSpec;
     public RoadRunnerParam rrParam;
     public CVParam cvParam;
+    public AutonParam autonParam;
 
     HashMap<String, AutoPose> poses;
     Movement movement;
@@ -123,6 +124,29 @@ public class RobotProfile {
         int cropLeftPercent;
         int cropRightPercent;
         int minArea;
+    }
+
+    class AutonParam {
+        double fastVelocity;
+        double fastAngVelo;
+        double fastAcceleration;
+        double normVelocity;
+        double normAngVelo;
+        double normAcceleration;
+        int liftHighDrop;
+        int liftStack5;
+        int liftStack4;
+        int liftUpSafe;
+        double armLengthDrop;
+        double armLengthPick;
+        int turretForwardPos;
+        int turretDropPosRight;
+        int turretPickPosRight;
+        int turretDropPosLeft;
+        int turretPickPosLeft;
+        double forward1 = 61;
+        double back1 = 8;
+        double backPick = 22;
     }
 
     public void createSampleProfile() {

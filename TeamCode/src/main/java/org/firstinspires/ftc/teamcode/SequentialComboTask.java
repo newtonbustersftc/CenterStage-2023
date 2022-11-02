@@ -61,4 +61,6 @@ public class SequentialComboTask implements RobotControl {
     public void addTask(RobotControl task) {
         sqTaskList.add(task);
     }
+
+    public void add(RobotControl task) { addTask(task); }
 }

@@ -12,13 +12,13 @@
     "f": 0.0
   },
   "rrHeadingPID": {
-    "p": 5.0,
+    "p": 2.0,
     "i": 0.05,
     "d": 0.0,
     "f": 0.0
   },
   "rrTranslationPID": {
-    "p": 10.0,
+    "p": 8.0,
     "i": 0.1,
     "d": 0.0,
     "f": 0.0
@@ -51,8 +51,8 @@
     "greenLowerBound": {
       "val": [
         38.0,
-        70.0,
-        100.0,
+        50.0,
+        80.0,
         0.0
       ]
     },
@@ -66,8 +66,8 @@
     },
     "cropTopPercent": 37,
     "cropBottomPercent": 48,
-    "cropLeftPercent": 18,
-    "cropRightPercent": 59,
+    "cropLeftPercent": 10,
+    "cropRightPercent": 39,
     "minArea": 100
   },
   "hardwareSpec": {
@@ -112,5 +112,27 @@
       "y": 0.44,
       "heading": 0.0
     }
+  },
+  "autonParam": {
+    "fastVelocity": 30.0,
+    "fastAngVelo": 30.0,
+    "fastAcceleration": 30.0,
+    "normVelocity": 20.0,
+    "normAngVelo": 20.0,
+    "normAcceleration": 20.0,
+    "liftHighDrop": 3780,
+    "liftStack5": 520,
+    "liftStack4": 390,
+    "liftUpSafe": 1400,
+    "armLengthDrop": 0.55,
+    "armLengthPick": 0.43,
+    "turretForwardPos": -925,
+    "turretDropPosRight": -462,
+    "turretPickPosRight": 925,
+    "turretDropPosLeft": -1387,
+    "turretPickPosLeft": -2775,
+    "forward1": 61,
+    "back1": 8,
+    "backPick": 21
   }
 }
