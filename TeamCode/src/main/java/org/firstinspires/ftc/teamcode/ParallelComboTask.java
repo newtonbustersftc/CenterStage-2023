@@ -70,4 +70,5 @@ public class ParallelComboTask implements RobotControl {
     public void addTask(RobotControl task) {
         taskList.add(task);
     }
+    public void add(RobotControl task) { addTask(task); }
 }

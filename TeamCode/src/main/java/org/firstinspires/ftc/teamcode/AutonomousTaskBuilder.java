@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.profile.VelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
@@ -54,71 +55,91 @@ public class AutonomousTaskBuilder {
             this.delayString = "0";
         }
         Logger.logFile("Done with init in autonomous");
-        String postFix = (startPosMode.endsWith("RIGHT"))?"_RIGHT":"_LEFT";
+        boolean isRight = startPosMode.endsWith("RIGHT");
+        RobotProfile.AutonParam param = robotProfile.autonParam;
+        TrajectoryVelocityConstraint velFast = getVelocityConstraint(param.fastVelocity, Math.toRadians(param.fastAngVelo), 3);
+        TrajectoryAccelerationConstraint acceFast = getAccelerationConstraint(param.fastAcceleration);
+        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(param.normVelocity, Math.toRadians(param.normAngVelo), 3);
+        TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(param.normAcceleration);
+
         // 1. Start Delay
         if (!delayString.equals("0")) {
             taskList.add(new RobotSleep(Integer.parseInt(delayString) * 1000));
         }
         // 2. Close and Grab initial cone
         taskList.add(new GrabberTask(robotHardware, false));
-        // 3. Lift to safe height
-        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-        // 4. Rotate tullet to -90 degree
-        Pose2d turretAngle = getProfilePose("TURRET_ANGLE_1" + postFix);
-        taskList.add(new TurnTurretTask(robotHardware, (int)turretAngle.getX()));
-        // 5. Move to first position
-        Pose2d pos1 = getProfilePose("DROP_HIGH_1" + postFix);
-        TrajectoryVelocityConstraint velConstraint;
-        TrajectoryAccelerationConstraint accelConstraint;
-
-        velConstraint = getVelocityConstraint(20, 15, robotProfile.hardwareSpec.trackWidth);
-        accelConstraint = getAccelerationConstraint(15);
-        // move to first line
+        // 3. Combo 1) Lift arm to high, 2) rotate tullet forward 3) move to right place
+        ParallelComboTask initComb = new ParallelComboTask();
+        initComb.add(new LiftArmTask(robotHardware, param.liftHighDrop));
+        initComb.add(new TurnTurretTask(robotHardware, param.turretForwardPos));
         Pose2d p0 = new Pose2d(0,0,0);
         TrajectorySequence trj1 = drive.trajectorySequenceBuilder(p0)
-                .lineTo(pos1.vec(), velConstraint, accelConstraint)
-                .back(12)
-                .turn(Math.PI/2)
-                .forward(12)
+                .lineTo(new Vector2d(param.forward1, 0), velConstraint, accelConstraint)
+                .back(param.back1, velConstraint, accelConstraint)
                 .build();
         SplineMoveTask moveToDrop1 = new SplineMoveTask(robotHardware.mecanumDrive, trj1);
-        taskList.add(moveToDrop1);
-
-        // Lift, Rotate and Drop
-        Pose2d armHighPos = getProfilePose("DROP_HIGH_ARM" + postFix);
-        taskList.add(new LiftArmTask(robotHardware, 3781));
-        taskList.add(new TurnTurretTask(robotHardware, 0));
-        taskList.add(new RobotSleep(1000));
-        taskList.add(new LiftArmTask(robotHardware, 3281));
-        taskList.add(new GrabberTask(robotHardware, true));
-        // Done with drop
-        taskList.add(new LiftArmTask(robotHardware, 3781)); // lift up to avoid pulling the yellow pole
-        taskList.add(new TurnTurretTask(robotHardware, 925));
-        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
-        taskList.add(new LiftArmTask(robotHardware, 520));
-        TrajectorySequence trj2 = drive.trajectorySequenceBuilder(trj1.end())
-                .back(34)
+        initComb.add(moveToDrop1);
+        taskList.add(initComb);
+        // 4. Comb 1) Rotate robot toward center, 2) rotate arm to drop position, 3) extend the arm
+        ParallelComboTask dropComb1 = new ParallelComboTask();
+        TrajectorySequence trjRotate = drive.trajectorySequenceBuilder(trj1.end())
+                .turn((isRight)?Math.PI/2:-Math.PI/2)
                 .build();
-        SplineMoveTask moveToPick1 = new SplineMoveTask(robotHardware.mecanumDrive, trj2);
-        taskList.add(moveToPick1);
-        // Doing #2
+        SplineMoveTask rotate = new SplineMoveTask(robotHardware.mecanumDrive, trjRotate);
+        dropComb1.add(rotate);
+        dropComb1.add(new TurnTurretTask(robotHardware, (isRight)?param.turretDropPosRight:param.turretDropPosLeft));
+        dropComb1.add(new ExtendArmTask(robotHardware, param.armLengthDrop));
+        taskList.add(dropComb1);
+        // sleep
+        taskList.add(new RobotSleep(1000));
+        // 1)lower 2) wait, open grab, retract, turn, move
+        ParallelComboTask dropRetract1 = new ParallelComboTask();
+            dropRetract1.add(new LiftArmTask(robotHardware, param.liftStack5));
+            SequentialComboTask seq1 = new SequentialComboTask();
+                seq1.add(new RobotSleep(300));
+                seq1.add(new GrabberTask(robotHardware, true));
+                seq1.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+                seq1.add(new TurnTurretTask(robotHardware, (isRight)?param.turretPickPosRight:param.turretPickPosLeft));
+                TrajectorySequence toPick = drive.trajectorySequenceBuilder(trjRotate.end())
+                        .back(param.backPick)
+                        .build();
+                SplineMoveTask moveToPick1 = new SplineMoveTask(robotHardware.mecanumDrive, toPick);
+                seq1.add(moveToPick1);
+            dropRetract1.add(seq1);
+        taskList.add(dropRetract1);
+        // Doing #2 pick up
+        taskList.add(new ExtendArmTask(robotHardware, param.armLengthPick));
+        taskList.add(new RobotSleep(500));
         taskList.add(new GrabberTask(robotHardware, false));
-        taskList.add(new LiftArmTask(robotHardware,1000));  // lift before we can rotate
-        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        TrajectorySequence trj3 = drive.trajectorySequenceBuilder(trj2.end())
-                .forward(34)
-                .build();
-        SplineMoveTask moveToDrop2 = new SplineMoveTask(robotHardware.mecanumDrive, trj2);
-        taskList.add(moveToDrop2);
-        taskList.add(new LiftArmTask(robotHardware, 3781));
-        taskList.add(new TurnTurretTask(robotHardware, 0));
+        taskList.add(new LiftArmTask(robotHardware,param.liftUpSafe));  // lift before we can rotate
+        // Comb 1) Lift to high, rotate, move forward
+        ParallelComboTask dropComb2 = new ParallelComboTask();
+            dropComb2.add(new LiftArmTask(robotHardware,param.liftHighDrop));  // lift before we can rotate
+            dropComb2.add(new TurnTurretTask(robotHardware, (isRight)?param.turretDropPosRight:param.turretDropPosLeft));
+            TrajectorySequence toDrop2 = drive.trajectorySequenceBuilder(toPick.end())
+                    .forward(param.backPick)
+                    .build();
+            SplineMoveTask moveToDrop2 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop2);
+            dropComb2.add(moveToDrop2);
+        taskList.add(dropComb2);
+        // extend arm
+        taskList.add(new ExtendArmTask(robotHardware, param.armLengthDrop));
         taskList.add(new RobotSleep(1000));
-        taskList.add(new LiftArmTask(robotHardware, 3281));
-        taskList.add(new GrabberTask(robotHardware, true));
-        // Done with drop 2
-        taskList.add(new LiftArmTask(robotHardware, 3781)); // lift up to avoid pulling the yellow pole
-        taskList.add(new TurnTurretTask(robotHardware, 925));
-        taskList.add(new LiftArmTask(robotHardware, 390));
+        // 1)lower 2) wait, open grab, retract, turn, move
+        ParallelComboTask dropRetract2 = new ParallelComboTask();
+            dropRetract2.add(new LiftArmTask(robotHardware, param.liftStack4));
+            SequentialComboTask seq2 = new SequentialComboTask();
+                seq2.add(new RobotSleep(300));
+                seq2.add(new GrabberTask(robotHardware, true));
+                seq2.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+                seq2.add(new TurnTurretTask(robotHardware, (isRight)?param.turretPickPosRight:param.turretPickPosLeft));
+                TrajectorySequence toParkTrj = drive.trajectorySequenceBuilder(toDrop2.end())
+                        .back(param.backPick)
+                        .build();
+                SplineMoveTask toPark = new SplineMoveTask(robotHardware.mecanumDrive, toParkTrj);
+            seq2.add(toPark);
+            dropRetract2.add(seq2);
+        taskList.add(dropRetract2);
         return taskList;
     }
 

@@ -85,7 +85,7 @@ public class RobotVision {
                 }
             }
         );
-        while (doneOpen!=OpenState.WAIT) {
+        while (doneOpen==OpenState.WAIT) {
             try {
                 Thread.sleep(100);
             }
@@ -97,6 +97,9 @@ public class RobotVision {
         }
         catch (Exception ex) {
         }
+        int g = camera.getGainControl().getGain();
+        Logger.logFile("Current camera gain: " + g + " max gain:" + camera.getGainControl().getMaxGain());
+        camera.getGainControl().setGain(50);
         return doneOpen==OpenState.SUCCESS;
     }
 
