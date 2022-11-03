@@ -78,13 +78,14 @@ public class RobotProfile {
         public boolean horizontalEncoderReverse;
         public double grabberInitPos, grabberOpenPos, grabberClosePos;
         public double extensionInitPos, extensionFullOutPos, extensionDriverMin;
-        public double turretSlow, turretFast;
-        public int turret360;
+        public double turretPower;
         public int turretMaxAhead;
         public int turretMoveMax;
         public int liftMax;
         public int liftSafeRotate;
         public double liftPowerUp, liftPowerDown;
+        int liftPickPos[];
+        int liftDropPos[];
     }
 
     public class RoadRunnerParam {
@@ -144,14 +145,16 @@ public class RobotProfile {
         int turretPickPosRight;
         int turretDropPosLeft;
         int turretPickPosLeft;
-        double forward1 = 61;
-        double back1 = 8;
-        double backPick = 22;
+        double forward1;
+        double back1;
+        double backPick;
     }
 
     public void createSampleProfile() {
         hardwareSpec = new HardwareSpec();
         hardwareSpec.revHubVertical = true;
+        hardwareSpec.liftPickPos = new int[]{10, 12, 36, 10};
+
     }
 }
 
