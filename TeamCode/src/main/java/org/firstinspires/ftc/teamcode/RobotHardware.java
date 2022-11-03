@@ -51,6 +51,7 @@ public class RobotHardware {
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
     double gyroOffset;
+    boolean gripOpen = false;
     int turretTargetPos;
 
     RobotVision robotVision;
@@ -348,13 +349,13 @@ public class RobotHardware {
     public void resetTurretPos() {
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setTargetPosition(0);
-        turretMotor.setPower(profile.hardwareSpec.turretFast);
+        turretMotor.setPower(profile.hardwareSpec.turretPower);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void setTurretPosition(int pos) {
         turretMotor.setTargetPosition(pos);
-        turretMotor.setPower(profile.hardwareSpec.turretFast);
+        turretMotor.setPower(profile.hardwareSpec.turretPower);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
@@ -365,10 +366,11 @@ public class RobotHardware {
         }
         else {  // rotate to target updated, but not allow to target too far away
             turretTargetPos += (int) (stickPos * profile.hardwareSpec.turretMoveMax);
+            int maxAhead = (int)Math.abs(stickPos * profile.hardwareSpec.turretMaxAhead);
             if (turretTargetPos > currPos) {
-                turretTargetPos = Math.max(turretTargetPos, currPos + profile.hardwareSpec.turretMaxAhead);
+                turretTargetPos = Math.max(turretTargetPos, currPos + maxAhead);
             } else {
-                turretTargetPos = Math.min(turretTargetPos, currPos - profile.hardwareSpec.turretMaxAhead);
+                turretTargetPos = Math.min(turretTargetPos, currPos - maxAhead);
             }
         }
         setTurretPosition(turretTargetPos);
@@ -399,14 +401,21 @@ public class RobotHardware {
     }
 
     public void grabberOpen() {
+        gripOpen = true;
         grabberServo.setPosition(profile.hardwareSpec.grabberOpenPos);
     }
 
     public void grabberClose() {
+        gripOpen = false;
         grabberServo.setPosition(profile.hardwareSpec.grabberClosePos);
     }
 
+    public boolean isGripOpen() {
+        return gripOpen;
+    }
+
     public void grabberInit() {
+        gripOpen = true;
         grabberServo.setPosition(profile.hardwareSpec.grabberInitPos);
     }
 

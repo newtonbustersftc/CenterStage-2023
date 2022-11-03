@@ -86,15 +86,28 @@
     "extensionInitPos": 0.29,
     "extensionFullOutPos": 0.79,
     "extensionDriverMin": 0.43,
-    "turretSlow": 0.3,
-    "turretFast": 0.6,
+    "turretPower": 0.6,
     "turretMoveMax": 10,
     "turretMaxAhead": 100,
     "turret360": 3700,
     "liftMax": 4300,
     "liftSafeRotate": 600,
     "liftPowerUp": 0.6,
-    "liftPowerDown": 0.4
+    "liftPowerDown": 0.4,
+    "liftDropPos": [
+      65,
+      800,
+      1620,
+      2680,
+      3780
+    ],
+    "liftPickPos": [
+      0,
+      130,
+      260,
+      390,
+      520
+    ]
   },
   "poses": {
     "TURRET_ANGLE_1_RIGHT": {

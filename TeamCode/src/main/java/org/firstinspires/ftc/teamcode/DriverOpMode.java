@@ -21,7 +21,7 @@ public class DriverOpMode extends OpMode {
 
     boolean fieldMode;
     int fieldModeSign = -1;  // RED side = 1, BLUE side = -1
-    boolean isRedTeam;
+    boolean isRedTeam = true;   // always true for current autonomous set up
     boolean dpadRightPressed = false;
     boolean dpadLeftPressed = false;
     boolean leftBumperPressed = false;
@@ -36,10 +36,7 @@ public class DriverOpMode extends OpMode {
     double imuAngleOffset = Math.PI/2;
     double driveAngle = 0;
     boolean amCorrecting = true;
-    int openLiftPos = 1;
-    int closedLiftPos = 1;
     boolean liftCanChange = true;
-    boolean gripperOpen = true;
     boolean gripperCanChange = true;
 
     // DriveThru combos
@@ -70,25 +67,9 @@ public class DriverOpMode extends OpMode {
        // robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         //ensure lift is reset at the beginning and the end
         // Based on the Autonomous mode starting position, define the heading offset for field mode
-        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(hardwareMap);
-        if (prefs.getString(START_POS_MODES_PREF, "NONE").startsWith("RED")) {
-            fieldModeSign = 1;
-            isRedTeam = true;
-        }
-        else {
-            fieldModeSign = -1;
-            isRedTeam = true;
-        }
-
-        Logger.logFile("DriverOpMode: " + prefs.getString(START_POS_MODES_PREF, "NONE"));
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
         Logger.logFile("Current IMU Angle " + Math.toDegrees(robotHardware.getGyroHeading()));
-
-        //robotHardware.getRobotVision().initRearCamera(isRedTeam);
-
-        startPosStr = prefs.getString(START_POS_MODES_PREF, "NONE").contains("BLUE") ? "BLUE" : "RED";
         setupCombos();
-
     }
 
     /**
@@ -96,10 +77,6 @@ public class DriverOpMode extends OpMode {
      */
     @Override
     public void loop() {
-        //Read values from the control hub
-        robotHardware.clearBulkCache();
-
-        //currPose = new Pose2d(0,0,0);   // for now
         //Handling autonomous task loop
         if (currentTask != null) {
             //robotHardware.setLed1(true);
@@ -194,118 +171,39 @@ public class DriverOpMode extends OpMode {
 
     public void handleLift() {
         // robotHardware.isMagneticTouched() liftMax
-        /**
-         * Two sets of height positions exist:
-         * one for the open gripper and one for the closed gripper.
-         *
-         * Open Gripper (toggle between cone stack heights 1 to 5)
-         * 1 - 0
-         * 2 - 130
-         * 3 - 260
-         * 4 - 390
-         * 5 - 520
-         *
-         * Closed Gripper (toggle between junction positions):
-         * 0 - Floor (0) <-- Excluded, don't need
-         * 1 - Ground (65)
-         * 2 - Low (1619)
-         * 3 - Medium (2682)
-         * 4 - High (3781)
-         */
-
         if (liftCanChange) {
-            if (gripperOpen) {
-                if (gamepad2.right_bumper && openLiftPos < 5) {
-                    openLiftPos++;
-                    liftCanChange = false;
-                    if (openLiftPos == 1) {
-                        robotHardware.setLiftPosition(0);
-                    } else if (openLiftPos == 2) {
-                        robotHardware.setLiftPosition(130);
-                    } else if (openLiftPos == 3) {
-                        robotHardware.setLiftPosition(260);
-                    } else if (openLiftPos == 4) {
-                        robotHardware.setLiftPosition(390);
-                    } else {
-                        robotHardware.setLiftPosition(520);
-                    }
-                } else if (gamepad2.right_trigger > 0.3 && openLiftPos > 1) {
-                    openLiftPos--;
-                    liftCanChange = false;
-                    if (openLiftPos == 1) {
-                        robotHardware.setLiftPosition(0);
-                    } else if (openLiftPos == 2) {
-                        robotHardware.setLiftPosition(130);
-                    } else if (openLiftPos == 3) {
-                        robotHardware.setLiftPosition(260);
-                    } else if (openLiftPos == 4) {
-                        robotHardware.setLiftPosition(390);
-                    } else {
-                        robotHardware.setLiftPosition(520);
-                    }
+            int[] pos = (robotHardware.isGripOpen())?robotProfile.hardwareSpec.liftPickPos:robotProfile.hardwareSpec.liftDropPos;
+            int currPos = robotHardware.getLiftPosition();
+            if (gamepad2.right_bumper) {    // going up
+                int n = 0;
+                while (n<pos.length-1 && pos[n]<currPos+50) {   // need the 50 range because lift maybe shifting up/down a bit
+                    n++;
                 }
-            } else {
-                if (gamepad2.right_bumper && closedLiftPos < 4) {
-                    closedLiftPos++;
-                    liftCanChange = false;
-                    if (closedLiftPos == 1) {
-                        robotHardware.setLiftPosition(65);
-                    } else if (closedLiftPos == 2) {
-                        robotHardware.setLiftPosition(1619);
-                    } else if (closedLiftPos == 3) {
-                        robotHardware.setLiftPosition(2682);
-                    } else {
-                        robotHardware.setLiftPosition(3781);
-                    }
-                } else if (gamepad2.right_trigger > 0.3 && closedLiftPos > 1) {
-                    closedLiftPos--;
-                    liftCanChange = false;
-                    if (closedLiftPos == 1) {
-                        robotHardware.setLiftPosition(65);
-                    } else if (closedLiftPos == 2) {
-                        robotHardware.setLiftPosition(1619);
-                    } else if (closedLiftPos == 3) {
-                        robotHardware.setLiftPosition(2682);
-                    } else {
-                        robotHardware.setLiftPosition(3781);
-                    }
-                }
+                robotHardware.setLiftPosition(pos[n]);
             }
-        } else if (!liftCanChange && !gamepad2.right_bumper && !(gamepad2.right_trigger > 0.3)) {
-            liftCanChange = true;
+            else if (gamepad2.right_trigger > 0.3) { // going down
+                int n = pos.length - 1;
+                while (n>0 && pos[n] >= currPos-50) {
+                    n--;
+                }
+                robotHardware.setLiftPosition(pos[n]);
+            }
         }
+        liftCanChange = !gamepad2.right_bumper && gamepad2.right_trigger <0.3;
     }
 
     public void handleGripper() {
         if(gamepad2.left_bumper){
-            if(!gripperOpen){
-                gripperOpen = true;
+            if(!robotHardware.isGripOpen()){
                 currentTask = deliverTask;
                 currentTask.prepare();
-//                robotHardware.grabberOpen();
             }
         } else if (gamepad2.left_trigger > 0.3){
-            if (gripperOpen) {
-                gripperOpen = false;
+            if (robotHardware.isGripOpen()) {
                 currentTask = grabAndLift;
                 currentTask.prepare();
-//                robotHardware.grabberClose();
-                closedLiftPos = 2;
             }
         }
-//        if (gripperCanChange && (gamepad2.left_trigger > 0.3 || gamepad2.right_trigger > 0.3)) {
-//            if (gripperOpen) {
-//                gripperOpen = false;
-//                robotHardware.grabberClose();
-//                closedLiftPos = 2;
-//            } else {
-//                gripperOpen = true;
-//                robotHardware.grabberOpen();
-//            }
-//            gripperCanChange = false;
-//        } else if (gamepad2.left_trigger < 0.2 && gamepad2.right_trigger < 0.2) {
-//            gripperCanChange = true;
-//        }
     }
 
     /**
@@ -319,6 +217,6 @@ public class DriverOpMode extends OpMode {
 
         grabAndLift = new SequentialComboTask();
         grabAndLift.addTask(new GrabberTask(robotHardware, false));
-        grabAndLift.addTask(new LiftArmTask(robotHardware, 1619));
+        grabAndLift.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[2]));
     }
 }
