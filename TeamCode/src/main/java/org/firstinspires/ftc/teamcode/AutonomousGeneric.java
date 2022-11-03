@@ -55,9 +55,13 @@ public class AutonomousGeneric extends LinearOpMode {
         robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-        SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, signalRecognition);
-        signalRecognition.startRecognition();
+//        SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
+//        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, signalRecognition);
+
+        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
+        aprilTagSignalRecognition.startRecognition();
+        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, aprilTagSignalRecognition);
+//        signalRecognition.startRecognition();
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
@@ -65,11 +69,11 @@ public class AutonomousGeneric extends LinearOpMode {
             if (loopCnt%100==0) {
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                telemetry.addData("Recognition Result", signalRecognition.getRecognitionResult());
+                telemetry.addData("Recognition Result", aprilTagSignalRecognition.getRecognitionResult());
                 telemetry.update();
             }
         }
-        Logger.logFile("Recognition Result:" + signalRecognition.getRecognitionResult());
+        Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
         taskList = builder.buildTaskList();
         TaskReporter.report(taskList);
         Logger.logFile("Task list items: " + taskList.size());

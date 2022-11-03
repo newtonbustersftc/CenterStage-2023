@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,13 +31,13 @@ public class AutonomousTaskBuilder {
     Pose2d startPos = new Pose2d();
     String delayString;
     String startPosMode;
-    String parkingRow;
-    SignalRecognition signalRec;
+    int parkingRow;
+    AprilTagSignalRecognition aprilTagSignalRecognition;
 
-    public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile, SignalRecognition signalRec) {
+    public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile, AprilTagSignalRecognition aprilTagSignalRecognition) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
-        this.signalRec = signalRec;
+        this.aprilTagSignalRecognition = aprilTagSignalRecognition;
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
     }
 
@@ -45,7 +46,8 @@ public class AutonomousTaskBuilder {
             SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
             delayString = prefs.getString(AutonomousOptions.START_DELAY_PREF, "0").replace(" sec", "");
             startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-            parkingRow = prefs.getString(AutonomousOptions.PARKING_PREF, AutonomousOptions.PARKING_LOCATION[0]).substring(4);
+//            parkingRow = prefs.getString(AutonomousOptions.PARKING_PREF, AutonomousOptions.PARKING_LOCATION[0]).substring(4);
+            parkingRow = aprilTagSignalRecognition.getRecognitionResult();
             Logger.logFile(AutonomousOptions.START_POS_MODES_PREF + " - " + startPosMode);
             Logger.logFile(AutonomousOptions.START_DELAY_PREF + " - " + delayString);
             Logger.logFile(AutonomousOptions.PARKING_PREF + " - " + parkingRow);
