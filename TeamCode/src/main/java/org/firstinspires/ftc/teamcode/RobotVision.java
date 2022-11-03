@@ -133,7 +133,11 @@ public class RobotVision {
         OpenCvWebcam webcam = cameraMap.get(deviceName);
         if (webcam!=null) {
             webcam.setPipeline(pipeline);
-            webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            if(pipeline instanceof CVPipelineSignal) {
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }else if(pipeline instanceof AprilTagDetectionPipeline){
+                webcam.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
+            }
         }
         //rearCamera.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
     }
