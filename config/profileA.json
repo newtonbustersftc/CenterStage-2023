@@ -93,7 +93,7 @@
     "liftMax": 4300,
     "liftSafeRotate": 600,
     "liftPowerUp": 0.6,
-    "liftPowerDown": 0.4,
+    "liftPowerDown": 0.6,
     "liftDropPos": [
       65,
       800,
