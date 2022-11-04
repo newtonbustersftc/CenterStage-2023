@@ -51,11 +51,6 @@ public class AprilTagSignalRecognition  {
 
         public void startRecognition(){
             this.rVision.initWebCam("Webcam 1", false);
-//            camera = this.rVision.cameraMap.get("Webcam 1");
-            try {
-                Thread.sleep(2000);
-            }
-            catch (Exception e) {}
             rVision.startWebcam("Webcam 1", aprilTagDetectionPipeline);
         }
 
