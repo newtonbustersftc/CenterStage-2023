@@ -40,8 +40,9 @@ public class DriverOpMode extends OpMode {
     boolean gripperCanChange = true;
 
     // DriveThru combos
-    SequentialComboTask grabAndLift, deliverTask,  sharedHubTask;
+    SequentialComboTask grabAndLift, deliverTask,  forPickUp;
     RobotControl currentTask = null;
+    boolean safeDrive = false;
     String startPosStr ;
 
     @Override
@@ -70,6 +71,7 @@ public class DriverOpMode extends OpMode {
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
         Logger.logFile("Current IMU Angle " + Math.toDegrees(robotHardware.getGyroHeading()));
         setupCombos();
+        robotHardware.grabberOpen();
     }
 
     /**
@@ -164,9 +166,26 @@ public class DriverOpMode extends OpMode {
     }
 
     public void handleExtension() {
-        double extensionTempPos = Math.max(0,-gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullOutPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
-        robotHardware.setExtensionPosition(extensionTempPos);
-        telemetry.addData("Extension Pos", extensionTempPos);
+        if (currentTask!=null) {
+            return; // task going on
+        }
+        if (safeDrive) {
+            if (Math.abs(gamepad2.right_stick_y)<0.2) {
+                telemetry.addData("Extension Pos", "FOR ROTATE");
+            }
+            else {
+                safeDrive = false;
+                if (robotHardware.isGripOpen()) {
+                    currentTask = forPickUp;
+                    currentTask.prepare();
+                }
+            }
+        }
+        else {
+            double extensionTempPos = Math.max(0, -gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullOutPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
+            robotHardware.setExtensionPosition(extensionTempPos);
+            telemetry.addData("Extension Pos", extensionTempPos);
+        }
     }
 
     public void handleLift() {
@@ -193,17 +212,26 @@ public class DriverOpMode extends OpMode {
     }
 
     public void handleGripper() {
-        if(gamepad2.left_bumper){
+        if(gamepad2.left_bumper && gripperCanChange){
             if(!robotHardware.isGripOpen()){
                 currentTask = deliverTask;
                 currentTask.prepare();
+                safeDrive = true;
             }
-        } else if (gamepad2.left_trigger > 0.3){
+            else if (safeDrive) {
+                // If during safeDrive, grip open and click bumper, lower to pick up
+                currentTask = forPickUp;
+                currentTask.prepare();
+                safeDrive = false;
+            }
+        } else if (gamepad2.left_trigger > 0.3 && gripperCanChange){
             if (robotHardware.isGripOpen()) {
                 currentTask = grabAndLift;
                 currentTask.prepare();
+                safeDrive = true;
             }
         }
+        gripperCanChange = !gamepad2.left_bumper && gamepad2.left_trigger < 0.3;
     }
 
     /**
@@ -212,11 +240,17 @@ public class DriverOpMode extends OpMode {
     void setupCombos() {
         deliverTask = new SequentialComboTask();
         deliverTask.addTask(new GrabberTask(robotHardware, true));
-        deliverTask.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
-        deliverTask.addTask(new LiftArmTask(robotHardware, 0));
+        deliverTask.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+        deliverTask.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
 
         grabAndLift = new SequentialComboTask();
         grabAndLift.addTask(new GrabberTask(robotHardware, false));
-        grabAndLift.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[2]));
+        grabAndLift.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        grabAndLift.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+
+        forPickUp = new SequentialComboTask();
+        forPickUp.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
+        forPickUp.addTask(new LiftArmTask(robotHardware, 0));
+
     }
 }

@@ -32,10 +32,6 @@ public class SignalRecognition {
 
     public void startRecognition() {
         rVision.initWebCam("Webcam 1", true);
-        try {
-            Thread.sleep(2000);
-        }
-        catch (Exception e) {}
         rVision.startWebcam("Webcam 1", pipe);
     }
 
