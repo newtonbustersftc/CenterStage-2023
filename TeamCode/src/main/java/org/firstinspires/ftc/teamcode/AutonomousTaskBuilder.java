@@ -33,6 +33,7 @@ public class AutonomousTaskBuilder {
     String startPosMode;
     int parkingRow;
     AprilTagSignalRecognition aprilTagSignalRecognition;
+    boolean isRed = false;
 
     public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile, AprilTagSignalRecognition aprilTagSignalRecognition) {
         this.robotHardware = robotHardware;
@@ -58,6 +59,7 @@ public class AutonomousTaskBuilder {
         }
         Logger.logFile("Done with init in autonomous");
         boolean isRight = startPosMode.endsWith("RIGHT");
+        isRed = startPosMode.contains("RED");
         RobotProfile.AutonParam param = robotProfile.autonParam;
         TrajectoryVelocityConstraint velFast = getVelocityConstraint(param.fastVelocity, Math.toRadians(param.fastAngVelo), 3);
         TrajectoryAccelerationConstraint acceFast = getAccelerationConstraint(param.fastAcceleration);
@@ -96,7 +98,7 @@ public class AutonomousTaskBuilder {
         ParallelComboTask dropRetract1 = new ParallelComboTask();
         dropRetract1.add(new LiftArmTask(robotHardware, param.liftStack5));
         SequentialComboTask seq1 = new SequentialComboTask();
-//        seq1.add(new RobotSleep(300));
+        seq1.add(new RobotSleep(750));
         seq1.add(new GrabberTask(robotHardware, true));
         seq1.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
         seq1.add(new TurnTurretTask(robotHardware, (isRight)?param.turretPickPosRight:925));//param.turretPickPosLeft
@@ -124,7 +126,7 @@ public class AutonomousTaskBuilder {
 
         ParallelComboTask dropComb2 = new ParallelComboTask();
         dropComb2.add(new LiftArmTask(robotHardware,param.liftStack5+1400));  // param.liftHighDrop-param.liftHighDrop-lift before we can rotate
-        dropComb2.add(new TurnTurretTask(robotHardware, (isRight)?-380:-380));//param.turretDropPosRight:param.turretDropPosLeft
+        dropComb2.add(new TurnTurretTask(robotHardware, (isRight)?2220:-380));//param.turretDropPosRight:param.turretDropPosLeft
         taskList.add(dropComb2);
 
         // extend arm
@@ -135,25 +137,33 @@ public class AutonomousTaskBuilder {
         ParallelComboTask dropRetract2 = new ParallelComboTask();
             dropRetract2.add(new LiftArmTask(robotHardware, param.liftStack4));
             SequentialComboTask seq2 = new SequentialComboTask();
-                seq2.add(new RobotSleep(300));
+                seq2.add(new RobotSleep(700));
                 seq2.add(new GrabberTask(robotHardware, true));
                 seq2.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-                seq2.add(new TurnTurretTask(robotHardware, (isRight)?-925:925));//param.turretPickPosRight:param.turretPickPosLeft
-                seq2.add(new ExtendArmTask(robotHardware, param.armLengthPick));
-                seq2.add(new GrabberTask(robotHardware, false));
-                seq2.add(new RobotSleep(50));
+//                seq2.add(new TurnTurretTask(robotHardware, (isRight)?925:925));//param.turretPickPosRight:param.turretPickPosLeft
+//                seq2.add(new ExtendArmTask(robotHardware, param.armLengthPick));
+//                seq2.add(new GrabberTask(robotHardware, false));
+//                seq2.add(new RobotSleep(50));
 
-                //lift up right will hit the wall, retrieve with an angle
-                ParallelComboTask liftAndRetrieve2 = new ParallelComboTask();
-                liftAndRetrieve2.add(new LiftArmTask(robotHardware,param.liftUpSafe));
-                liftAndRetrieve2.add(new ExtendArmTask(robotHardware, param.armLengthPick+0.03));
-                seq2.add(liftAndRetrieve2);
+//                //lift up right will hit the wall, retrieve with an angle
+//                ParallelComboTask liftAndRetrieve2 = new ParallelComboTask();
+//                liftAndRetrieve2.add(new LiftArmTask(robotHardware,param.liftUpSafe));
+//                liftAndRetrieve2.add(new ExtendArmTask(robotHardware, param.armLengthPick+0.03));
+//                seq2.add(liftAndRetrieve2);
             dropRetract2.add(seq2);
         taskList.add(dropRetract2);
 
         //parking
         parkingRow = aprilTagSignalRecognition.getRecognitionResult();
         if(parkingRow ==1){
+            if(isRight && isRed || !isRight && !isRight){
+                taskList.add(new GrabberTask(robotHardware, false));
+                TrajectorySequence parking1 = drive.trajectorySequenceBuilder(toPick.end())
+                        .forward(45)
+                        .build();
+                SplineMoveTask moveToPakring1 = new SplineMoveTask(robotHardware.mecanumDrive, parking1);
+                taskList.add(moveToPakring1);
+            }
             //do nothing, stays same place
         }else if(parkingRow ==2){
             taskList.add(new GrabberTask(robotHardware, false));
@@ -163,12 +173,14 @@ public class AutonomousTaskBuilder {
             SplineMoveTask moveToPakring2 = new SplineMoveTask(robotHardware.mecanumDrive, parking2);
             taskList.add(moveToPakring2);
         }else if(parkingRow ==3){
-            taskList.add(new GrabberTask(robotHardware, false));
-            TrajectorySequence parking3 = drive.trajectorySequenceBuilder(toPick.end())
-                    .forward(45)
-                    .build();
-            SplineMoveTask moveToPakring3 = new SplineMoveTask(robotHardware.mecanumDrive, parking3);
-            taskList.add(moveToPakring3);
+            if(!isRight && isRed || isRight && !isRed) {
+                taskList.add(new GrabberTask(robotHardware, false));
+                TrajectorySequence parking3 = drive.trajectorySequenceBuilder(toPick.end())
+                        .forward(45)
+                        .build();
+                SplineMoveTask moveToPakring3 = new SplineMoveTask(robotHardware.mecanumDrive, parking3);
+                taskList.add(moveToPakring3);
+            }
         }
         return taskList;
     }
