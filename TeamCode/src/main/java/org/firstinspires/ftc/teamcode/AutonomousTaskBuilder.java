@@ -75,8 +75,8 @@ public class AutonomousTaskBuilder {
         initComb.add(new TurnTurretTask(robotHardware, param.turretForwardPos));
         Pose2d p0 = new Pose2d(0,0,0);
         TrajectorySequence trj1 = drive.trajectorySequenceBuilder(p0)
-                .lineTo(new Vector2d(40, 0), velConstraint, accelConstraint)  //param.forward1
-                .lineTo(new Vector2d(56,0), velSlow, acceSlow) //53
+                .lineTo(new Vector2d(param.forwardPre1, 0), velConstraint, accelConstraint)
+                .lineTo(new Vector2d(param.forward1,0), velSlow, acceSlow)
                 .build();
         SplineMoveTask moveToDrop1 = new SplineMoveTask(robotHardware.mecanumDrive, trj1);
         initComb.add(moveToDrop1);
@@ -84,7 +84,7 @@ public class AutonomousTaskBuilder {
 
         ParallelComboTask firstDelivery = new ParallelComboTask();
         firstDelivery.add(new TurnTurretTask(robotHardware, (isRight)?-1405:-480));//param.turretDropPosRight,param.turretDropPosLeft
-        firstDelivery.add(new ExtendArmTask(robotHardware, param.armLengthDrop-0.06));
+        firstDelivery.add(new ExtendArmTask(robotHardware, param.armLengthDrop));
         taskList.add(firstDelivery);
 
         // sleep
@@ -98,12 +98,12 @@ public class AutonomousTaskBuilder {
 
         ParallelComboTask toPickUpStackCone = new ParallelComboTask();
         toPickUpStackCone.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        toPickUpStackCone.add(new TurnTurretTask(robotHardware, (isRight) ? -480 : 925));//-2775 param.turretPickPosRight:param.turretPickPosLeft
+        toPickUpStackCone.add(new TurnTurretTask(robotHardware, (isRight) ? -2812 : 937));
         TrajectorySequence toPick = drive.trajectorySequenceBuilder(trj1.end())
-                .lineTo(new Vector2d(param.forward1), velConstraint, accelConstraint)
+                .lineTo(new Vector2d(param.forward2, 0), velConstraint, accelConstraint)
                 .back(param.back1, velConstraint, accelConstraint)
                 .turn((isRight)?Math.PI/2:-Math.PI/2)
-                .back(param.backPick-0.5)
+                .back(param.backPick)
                 .build();
         SplineMoveTask moveToPick1 = new SplineMoveTask(robotHardware.mecanumDrive, toPick);
         toPickUpStackCone.add(moveToPick1);
@@ -118,13 +118,13 @@ public class AutonomousTaskBuilder {
 
         //lift up right will hit the wall, retrieve with an angle
         ParallelComboTask liftAndRetrieve = new ParallelComboTask();
-        liftAndRetrieve.add(new ExtendArmTask(robotHardware, param.armLengthPick-0.1));
+        liftAndRetrieve.add(new ExtendArmTask(robotHardware, param.armLengthPostPick));
         liftAndRetrieve.add(new LiftArmTask(robotHardware,param.liftUpSafe)); //lift up only a height of a cone
         taskList.add(liftAndRetrieve);  // lift before we can rotate
 
         ParallelComboTask dropComb2 = new ParallelComboTask();
-        dropComb2.add(new LiftArmTask(robotHardware,param.liftStack5+1400));  // param.liftHighDrop-param.liftHighDrop-lift before we can rotate
-        dropComb2.add(new TurnTurretTask(robotHardware, (isRight)?2220:-380));//param.turretDropPosRight:param.turretDropPosLeft
+        dropComb2.add(new LiftArmTask(robotHardware,robotProfile.hardwareSpec.liftDropPos[2]));
+        dropComb2.add(new TurnTurretTask(robotHardware, (isRight)?-1550:-380));
         taskList.add(dropComb2);
 
         // extend arm
@@ -154,37 +154,42 @@ public class AutonomousTaskBuilder {
         //parking
         parkingRow = aprilTagSignalRecognition.getRecognitionResult();
         taskList.add(new GrabberTask(robotHardware, false));
-        if(parkingRow ==1){
-            if(isRight){
-                TrajectorySequence parking1 = drive.trajectorySequenceBuilder(toPick.end())
-                        .forward(45)
-                        .build();
-                SplineMoveTask moveToPakring1 = new SplineMoveTask(robotHardware.mecanumDrive, parking1);
-                taskList.add(moveToPakring1);
-            }else{
-                TrajectorySequence parking1 = drive.trajectorySequenceBuilder(toPick.end())
-                        .back(5)
-                        .build();
-                SplineMoveTask moveToPakring1 = new SplineMoveTask(robotHardware.mecanumDrive, parking1);
-                taskList.add(moveToPakring1);
-            }
-
-            //do nothing for left side, stays same place
-        }else if(parkingRow ==2){
-            TrajectorySequence parking2 = drive.trajectorySequenceBuilder(toPick.end())
-                    .forward(20)
-                    .build();
-            SplineMoveTask moveToPakring2 = new SplineMoveTask(robotHardware.mecanumDrive, parking2);
-            taskList.add(moveToPakring2);
-        }else if(parkingRow ==3){
-            if(!isRight) {
-                TrajectorySequence parking3 = drive.trajectorySequenceBuilder(toPick.end())
-                        .forward(45)
-                        .build();
-                SplineMoveTask moveToPakring3 = new SplineMoveTask(robotHardware.mecanumDrive, parking3);
-                taskList.add(moveToPakring3);
+        double parkingDist = 0;
+        if (isRight) {
+            switch (parkingRow) {
+                case 1:
+                    parkingDist = 45;
+                    break;
+                case 2:
+                    parkingDist = 20;
+                    break;
+                case 3:
+                    parkingDist = -5;
+                    break;
             }
         }
+        else {
+            switch (parkingRow) {
+                case 1:
+                    parkingDist = -5;
+                    break;
+                case 2:
+                    parkingDist = 20;
+                    break;
+                case 3:
+                    parkingDist = 45;
+                    break;
+            }
+
+        }
+        TrajectorySequence parking1 = drive.trajectorySequenceBuilder(toPick.end())
+                .forward(parkingDist)
+                .build();
+        SplineMoveTask moveToPakring1 = new SplineMoveTask(robotHardware.mecanumDrive, parking1);
+
+        taskList.add(moveToPakring1);
+        taskList.add(new TurnTurretTask(robotHardware, (isRight)?-1850:0));
+
         return taskList;
     }
 

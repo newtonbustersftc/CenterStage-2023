@@ -138,15 +138,18 @@
     "liftStack5": 520,
     "liftStack4": 390,
     "liftUpSafe": 1400,
-    "armLengthDrop": 0.55,
+    "armLengthDrop": 0.49,
     "armLengthPick": 0.43,
+    "armLengthPostPick": 0.41,
     "turretForwardPos": -925,
     "turretDropPosRight": -462,
     "turretPickPosRight": 925,
     "turretDropPosLeft": -1387,
     "turretPickPosLeft": -2775,
-    "forward1": 61,
-    "back1": 8,
+    "forwardPre1": 40,
+    "forward1": 56,
+    "forward2": 61,
+    "back1": 7.5,
     "backPick": 21
   }
 }
