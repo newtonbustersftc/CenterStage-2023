@@ -273,6 +273,16 @@ public class RobotHardware {
         rrMotor.setZeroPowerBehavior(brake?DcMotor.ZeroPowerBehavior.BRAKE:DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
+    public void enableManualCaching(boolean enable) {
+        if (enable) {
+            expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+        else {
+            expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+    }
     public void clearBulkCache() {
         expansionHub1.clearBulkCache();
         expansionHub2.clearBulkCache();
