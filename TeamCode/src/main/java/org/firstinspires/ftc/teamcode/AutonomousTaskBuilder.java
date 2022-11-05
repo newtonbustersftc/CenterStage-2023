@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
-
 import android.content.SharedPreferences;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.profile.VelocityConstraint;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
@@ -18,7 +14,6 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,7 +96,7 @@ public class AutonomousTaskBuilder {
         seq1.add(new RobotSleep(750));
         seq1.add(new GrabberTask(robotHardware, true));
         seq1.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        seq1.add(new TurnTurretTask(robotHardware, (isRight)?param.turretPickPosRight:925));//param.turretPickPosLeft
+        seq1.add(new TurnTurretTask(robotHardware, (isRight)?param.turretPickPosRight:925));//-2775 param.turretPickPosLeft
         TrajectorySequence toPick = drive.trajectorySequenceBuilder(trj1.end())
                 .lineTo(new Vector2d(param.forward1), velConstraint, accelConstraint)
                 .back(param.back1, velConstraint, accelConstraint)
@@ -155,26 +150,24 @@ public class AutonomousTaskBuilder {
 
         //parking
         parkingRow = aprilTagSignalRecognition.getRecognitionResult();
+        taskList.add(new GrabberTask(robotHardware, false));
         if(parkingRow ==1){
-            if(isRight && isRed || !isRight && !isRight){
-                taskList.add(new GrabberTask(robotHardware, false));
+            if(isRight){
                 TrajectorySequence parking1 = drive.trajectorySequenceBuilder(toPick.end())
                         .forward(45)
                         .build();
                 SplineMoveTask moveToPakring1 = new SplineMoveTask(robotHardware.mecanumDrive, parking1);
                 taskList.add(moveToPakring1);
             }
-            //do nothing, stays same place
+            //do nothing for left side, stays same place
         }else if(parkingRow ==2){
-            taskList.add(new GrabberTask(robotHardware, false));
             TrajectorySequence parking2 = drive.trajectorySequenceBuilder(toPick.end())
                     .forward(20)
                     .build();
             SplineMoveTask moveToPakring2 = new SplineMoveTask(robotHardware.mecanumDrive, parking2);
             taskList.add(moveToPakring2);
         }else if(parkingRow ==3){
-            if(!isRight && isRed || isRight && !isRed) {
-                taskList.add(new GrabberTask(robotHardware, false));
+            if(!isRight) {
                 TrajectorySequence parking3 = drive.trajectorySequenceBuilder(toPick.end())
                         .forward(45)
                         .build();
