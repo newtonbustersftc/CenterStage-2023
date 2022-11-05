@@ -95,8 +95,10 @@ public class AutonomousTaskBuilder {
         SequentialComboTask seq1 = new SequentialComboTask();
         seq1.add(new RobotSleep(750));
         seq1.add(new GrabberTask(robotHardware, true));
-        seq1.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        seq1.add(new TurnTurretTask(robotHardware, (isRight)?param.turretPickPosRight:925));//-2775 param.turretPickPosLeft
+
+        ParallelComboTask toPickUpStackCone = new ParallelComboTask();
+        toPickUpStackCone.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+        toPickUpStackCone.add(new TurnTurretTask(robotHardware, (isRight) ? -480 : 925));//-2775 param.turretPickPosRight:param.turretPickPosLeft
         TrajectorySequence toPick = drive.trajectorySequenceBuilder(trj1.end())
                 .lineTo(new Vector2d(param.forward1), velConstraint, accelConstraint)
                 .back(param.back1, velConstraint, accelConstraint)
@@ -104,19 +106,20 @@ public class AutonomousTaskBuilder {
                 .back(param.backPick-0.5)
                 .build();
         SplineMoveTask moveToPick1 = new SplineMoveTask(robotHardware.mecanumDrive, toPick);
-        seq1.add(moveToPick1);
+        toPickUpStackCone.add(moveToPick1);
+        seq1.add(toPickUpStackCone);
         dropRetract1.add(seq1);
         taskList.add(dropRetract1);
 
         // Doing #1 pick up from stack
         taskList.add(new ExtendArmTask(robotHardware, param.armLengthPick));
         taskList.add(new GrabberTask(robotHardware, false));
-//        taskList.add(new RobotSleep(100));
+        taskList.add(new RobotSleep(600));
 
         //lift up right will hit the wall, retrieve with an angle
         ParallelComboTask liftAndRetrieve = new ParallelComboTask();
         liftAndRetrieve.add(new ExtendArmTask(robotHardware, param.armLengthPick-0.1));
-        liftAndRetrieve.add(new LiftArmTask(robotHardware,param.liftUpSafe));
+        liftAndRetrieve.add(new LiftArmTask(robotHardware,param.liftUpSafe)); //lift up only a height of a cone
         taskList.add(liftAndRetrieve);  // lift before we can rotate
 
         ParallelComboTask dropComb2 = new ParallelComboTask();
@@ -158,7 +161,14 @@ public class AutonomousTaskBuilder {
                         .build();
                 SplineMoveTask moveToPakring1 = new SplineMoveTask(robotHardware.mecanumDrive, parking1);
                 taskList.add(moveToPakring1);
+            }else{
+                TrajectorySequence parking1 = drive.trajectorySequenceBuilder(toPick.end())
+                        .back(5)
+                        .build();
+                SplineMoveTask moveToPakring1 = new SplineMoveTask(robotHardware.mecanumDrive, parking1);
+                taskList.add(moveToPakring1);
             }
+
             //do nothing for left side, stays same place
         }else if(parkingRow ==2){
             TrajectorySequence parking2 = drive.trajectorySequenceBuilder(toPick.end())
