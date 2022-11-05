@@ -101,8 +101,9 @@ public class DriverOpMode extends OpMode {
 
         handleMovement();
         handleExtension();
-        handleGripper();
-        handleLift();
+        //handleGripper();
+        handleGripperV2();
+        handleLiftV2();
         handleTurret();
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
@@ -181,6 +182,9 @@ public class DriverOpMode extends OpMode {
                 }
             }
         }
+        else if (gamepad2.right_stick_y > 0.5){
+            robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionInitPos);
+        }
         else {
             double extensionTempPos = Math.max(0, -gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullOutPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
             robotHardware.setExtensionPosition(extensionTempPos);
@@ -188,7 +192,7 @@ public class DriverOpMode extends OpMode {
         }
     }
 
-    public void handleLift() {
+    /**public void handleLift() {
         // robotHardware.isMagneticTouched() liftMax
         if (liftCanChange) {
             int[] pos = (robotHardware.isGripOpen())?robotProfile.hardwareSpec.liftPickPos:robotProfile.hardwareSpec.liftDropPos;
@@ -209,10 +213,33 @@ public class DriverOpMode extends OpMode {
             }
         }
         liftCanChange = !gamepad2.right_bumper && gamepad2.right_trigger <0.3;
+    }*/
+
+    public void handleLiftV2() {
+        // robotHardware.isMagneticTouched() liftMax
+        if (liftCanChange) {
+            int[] pos = (robotHardware.isGripOpen())?robotProfile.hardwareSpec.liftPickPos:robotProfile.hardwareSpec.liftDropPos;
+            int currPos = robotHardware.getLiftPosition();
+            if (gamepad2.right_bumper) {    // going up
+                int n = 0;
+                while (n<pos.length-1 && pos[n]<currPos+50) {   // need the 50 range because lift maybe shifting up/down a bit
+                    n++;
+                }
+                robotHardware.setLiftPosition(pos[n]);
+            }
+            else if (gamepad2.left_bumper) { // going down
+                int n = pos.length - 1;
+                while (n>0 && pos[n] >= currPos-50) {
+                    n--;
+                }
+                robotHardware.setLiftPosition(pos[n]);
+            }
+        }
+        liftCanChange = !gamepad2.right_bumper && !leftBumperPressed;
     }
 
-    public void handleGripper() {
-        if(gamepad2.left_bumper && gripperCanChange){
+    /**public void handleGripper() {
+        if(gamepad2.left_trigger > 0.15 && gripperCanChange){
             if(!robotHardware.isGripOpen()){
                 currentTask = deliverTask;
                 currentTask.prepare();
@@ -224,14 +251,26 @@ public class DriverOpMode extends OpMode {
                 currentTask.prepare();
                 safeDrive = false;
             }
-        } else if (gamepad2.left_trigger > 0.3 && gripperCanChange){
-            if (robotHardware.isGripOpen()) {
+            else if (robotHardware.isGripOpen()) {
                 currentTask = grabAndLift;
                 currentTask.prepare();
                 safeDrive = true;
             }
         }
-        gripperCanChange = !gamepad2.left_bumper && gamepad2.left_trigger < 0.3;
+        if (gamepad2.left_trigger < 0.1 && gamepad2.right_trigger < 0.1 && !gripperCanChange) {gripperCanChange = true;}
+    }*/
+
+    public void handleGripperV2() {
+        if ((gamepad2.left_trigger > 0.15 || gamepad2.right_trigger > 0.15) && gripperCanChange) {
+            if (robotHardware.isGripOpen()) {
+                robotHardware.grabberClose();
+            } else {
+                robotHardware.grabberOpen();
+            }
+            gripperCanChange = false;
+        } else if ((gamepad2.left_trigger < 0.1 && gamepad2.right_trigger < 0.1) && !gripperCanChange) {
+            gripperCanChange = true;
+        }
     }
 
     /**
