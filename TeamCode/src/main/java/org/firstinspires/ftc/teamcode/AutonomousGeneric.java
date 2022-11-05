@@ -82,6 +82,8 @@ public class AutonomousGeneric extends LinearOpMode {
             taskList.get(0).prepare();
         }
         robotHardware.setMotorStopBrake(true);
+        robotHardware.enableManualCaching(true);
+        robotHardware.clearBulkCache();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size()>0) {
             loopCount++;
