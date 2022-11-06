@@ -182,8 +182,11 @@ public class DriverOpMode extends OpMode {
                 }
             }
         }
-        else if (gamepad2.right_stick_y > 0.5){
-            robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionInitPos);
+        else if (gamepad2.right_stick_y > 0){
+//            robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionInitPos);
+            double extensionTempPos = Math.max(0, gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullInPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
+            robotHardware.setExtensionPosition(extensionTempPos);
+            telemetry.addData("Extension Pos", extensionTempPos);
         }
         else {
             double extensionTempPos = Math.max(0, -gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullOutPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
