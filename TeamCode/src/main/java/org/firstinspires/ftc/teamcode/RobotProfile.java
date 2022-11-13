@@ -23,6 +23,7 @@ public class RobotProfile {
     public RoadRunnerParam rrParam;
     public CVParam cvParam;
     public AutonParam autonParam;
+    public PoleParameter poleParameter;
 
     HashMap<String, AutoPose> poses;
     Movement movement;
@@ -86,6 +87,12 @@ public class RobotProfile {
         public double liftPowerUp, liftPowerDown;
         int liftPickPos[];
         int liftDropPos[];
+    }
+
+    public class PoleParameter {
+        public int[] centerPosition;
+        public int closestPoleWidth;
+        public int farthestPoleWidth;
     }
 
     public class RoadRunnerParam {

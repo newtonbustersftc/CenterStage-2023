@@ -433,7 +433,7 @@ public class RobotHardware {
         waitforUp(opmode, "Press UP to start...");
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
-        waitforUp(opmode, "Move tullet to front, press UP ...");
+        waitforUp(opmode, "Move turret to front, press UP ...");
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         grabberOpen();

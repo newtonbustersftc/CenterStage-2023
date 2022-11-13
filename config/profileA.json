@@ -151,5 +151,22 @@
     "forward2": 61,
     "back1": 7.5,
     "backPick": 21
+  },
+  "poleParameter": {
+    "centerPosition": [
+      59,
+      88,
+      134,
+      164,
+      205,
+      233,
+      272,
+      305,
+      350,
+      384,
+      425
+    ],
+    "closestPoleWidth": 112,
+    "farthestPoleWidth": 21
   }
 }

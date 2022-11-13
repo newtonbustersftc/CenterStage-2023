@@ -70,35 +70,32 @@ public class PoleSampleOpMode extends LinearOpMode {
         int loopCnt = 0;
         long loopStart = System.currentTimeMillis();
         telemetry.setMsTransmissionInterval(250);
-        while (!isStopRequested() && !isStarted()) {
-            loopCnt++;
-            telemetry.addData("Mode", "Pre-Active");
-            telemetry.addData("X button", xPressed);
-            if (loopCnt%100==0) {
-                telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-            }
-            telemetry.update();
-            if (!xPressed && gamepad1.x) {
-                for(int i = 0; i < 6; i++){
-                    robotHardware.setTurretPosition(i * 25);
-                    Thread.sleep(1000);
-                    //pipeline.saveNextImg();
-                    Logger.logFile("Pipeline Center X " + i + ": " + poleRecog.getPoleCenterOnImg() +  " Width:" + poleRecog.getPoleWidthOnImg());
-                    Thread.sleep(500);
-                }
-                robotHardware.setTurretPosition(0);
-                Thread.sleep(3000);
-                for(int i = 1; i < 6; i++){
-                    robotHardware.setTurretPosition(-i * 25);
-                    Thread.sleep(1000);
-                    //pipeline.saveNextImg();
-                    Logger.logFile("Pipeline Center X " + i + ": " + poleRecog.getPoleCenterOnImg() +  " Width:" + poleRecog.getPoleWidthOnImg());
-                    Thread.sleep(500);
-                }
-                robotHardware.setTurretPosition(0);
-            }
-            xPressed = gamepad1.x;
+        loopCnt++;
+        telemetry.addData("Mode", "Pre-Active");
+        telemetry.addData("X button", xPressed);
+        if (loopCnt%100==0) {
+            telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
         }
+        telemetry.update();
+        for(int i = 0; i < 6; i++){
+            robotHardware.setTurretPosition(i * 25);
+            Thread.sleep(1000);
+            //pipeline.saveNextImg();
+            Logger.logFile("Pipeline Center X " + i + ": " + poleRecog.getPoleCenterOnImg() +  " Width:" + poleRecog.getPoleWidthOnImg());
+            Thread.sleep(500);
+        }
+        robotHardware.setTurretPosition(0);
+        Thread.sleep(3000);
+        for(int i = 1; i < 6; i++){
+            robotHardware.setTurretPosition(-i * 25);
+            Thread.sleep(1000);
+            //pipeline.saveNextImg();
+            Logger.logFile("Pipeline Center X " + i + ": " + poleRecog.getPoleCenterOnImg() +  " Width:" + poleRecog.getPoleWidthOnImg());
+            Thread.sleep(500);
+        }
+        robotHardware.setTurretPosition(0);
+
+        
         poleRecog.stopRecognition();
     }
 }
