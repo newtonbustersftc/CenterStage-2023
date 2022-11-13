@@ -38,6 +38,7 @@ public class DriverOpMode extends OpMode {
     boolean amCorrecting = true;
     boolean liftCanChange = true;
     boolean gripperCanChange = true;
+    PoleRecognition poleRecognition;
 
     // DriveThru combos
     SequentialComboTask grabAndLift, deliverTask,  forPickUp;
@@ -58,6 +59,8 @@ public class DriverOpMode extends OpMode {
         Logger.init();
         //Obtain the RobotHardware object from factory
         robotHardware = RobotFactory.getRobotHardware();
+        poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
+        poleRecognition.startRecognition();
         //robotHardware = new RobotHardware();
         //robotHardware.init(hardwareMap, robotProfile);
         //robotHardware.resetLiftPos();
@@ -99,12 +102,23 @@ public class DriverOpMode extends OpMode {
             //robotHardware.setLed1(false);
         }
 
+        if (currentTask instanceof AutoConePlacementTask) {
+            if (gamepad1.a) {
+                currentTask = null;
+            }
+            return;
+        }
+
         handleMovement();
         handleExtension();
         //handleGripper();
         handleGripperV2();
         handleLiftV2();
         handleTurret();
+        if (gamepad1.b) {
+            currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
+            currentTask.prepare();
+        }
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
 
@@ -117,6 +131,7 @@ public class DriverOpMode extends OpMode {
         try {
             Logger.logFile("DriverOpMode stop() called");
             //robotVision.deactivateNavigationTarget();
+            poleRecognition.stopRecognition();
             Logger.flushToFile();
         }
         catch (Exception e) {
