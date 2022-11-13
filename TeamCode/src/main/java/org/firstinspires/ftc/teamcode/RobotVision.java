@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -136,7 +137,12 @@ public class RobotVision {
             if(pipeline instanceof CVPipelineSignal) {
                 webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }else if(pipeline instanceof AprilTagDetectionPipeline){
-                webcam.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(1024, 768, OpenCvCameraRotation.UPRIGHT);
+            } else if (pipeline instanceof CVPipelinePole) {
+                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPSIDE_DOWN);
+                FocusControl fc = webcam.getFocusControl();
+                Logger.logFile("Pole Cam focus min: " + fc.getMinFocusLength() + " max:" + fc.getMaxFocusLength() + " curr:" + fc.getFocusLength());
+
             }
         }
         //rearCamera.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
