@@ -135,6 +135,10 @@ public class RobotHardware {
         return liftMotor.getCurrentPosition();
     }
 
+    public double getLiftVelocity() {
+        return liftMotor.getVelocity();
+    }
+
     public void setLiftPosition(int newLiftPos) {
         long currPos = liftMotor.getCurrentPosition();
         boolean goUp = newLiftPos>currPos;
@@ -151,6 +155,12 @@ public class RobotHardware {
         }
         liftMotor.setTargetPosition(newLiftPos);
         liftMotor.setPower(goUp?profile.hardwareSpec.liftPowerUp:profile.hardwareSpec.liftPowerDown);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void setLiftPositionUnsafe(int newLiftPos, double power) {
+        liftMotor.setTargetPosition(newLiftPos);
+        liftMotor.setPower(power);
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
