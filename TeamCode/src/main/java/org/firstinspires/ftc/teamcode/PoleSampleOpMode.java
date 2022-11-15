@@ -70,11 +70,26 @@ public class PoleSampleOpMode extends LinearOpMode {
         int loopCnt = 0;
         long loopStart = System.currentTimeMillis();
         telemetry.setMsTransmissionInterval(250);
-        loopCnt++;
         telemetry.addData("Mode", "Pre-Active");
         telemetry.addData("X button", xPressed);
-        if (loopCnt%100==0) {
-            telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
+        double armExt = robotProfile.hardwareSpec.extensionInitPos;
+        robotHardware.setExtensionPosition(armExt);
+        boolean upPressed = false;
+        while (!gamepad1.x) {
+            if (!upPressed && gamepad1.dpad_up) {
+                upPressed = true;
+                armExt = armExt + 0.05;
+                robotHardware.setExtensionPosition(armExt);
+            }
+            upPressed = gamepad1.dpad_up;
+            if (loopCnt % 100 == 0) {
+                telemetry.addData("Center:", poleRecog.getPoleCenterOnImg());
+                telemetry.addData("Width:", poleRecog.getPoleWidthOnImg());
+                telemetry.addData("Arm Extension:", armExt);
+                telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
+            }
+            loopCnt++;
+            telemetry.update();
         }
         telemetry.update();
         for(int i = 0; i < 6; i++){

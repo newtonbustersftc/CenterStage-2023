@@ -154,19 +154,20 @@
   },
   "poleParameter": {
     "centerPosition": [
-      59,
-      88,
-      134,
-      164,
-      205,
-      233,
-      272,
-      305,
-      350,
+      39,
+      70,
+      110,
+      150,
+      194,
+      228,
+      258,
+      301,
+      342,
       384,
-      425
+      427
     ],
-    "closestPoleWidth": 112,
-    "farthestPoleWidth": 21
+    "closestPoleWidth": 108,
+    "farthestPoleWidth": 57,
+    "farthestArmExtension": 0.64
   }
 }

@@ -39,6 +39,7 @@ public class DriverOpMode extends OpMode {
     boolean liftCanChange = true;
     boolean gripperCanChange = true;
     PoleRecognition poleRecognition;
+    boolean justAutoPole = false;
 
     // DriveThru combos
     SequentialComboTask grabAndLift, deliverTask,  forPickUp;
@@ -94,6 +95,9 @@ public class DriverOpMode extends OpMode {
                 if (currentTask.isDone()) {
                     currentTask.cleanUp();
                     Logger.logFile("TaskComplete: " + currentTask);
+                    if (currentTask instanceof AutoConePlacementTask) {
+                        justAutoPole = true;
+                    }
                     currentTask = null;
                 }
             }
@@ -187,7 +191,7 @@ public class DriverOpMode extends OpMode {
         }
         if (safeDrive) {
             if (Math.abs(gamepad2.right_stick_y)<0.2) {
-                telemetry.addData("Extension Pos", "FOR ROTATE");
+                //telemetry.addData("Extension Pos", "FOR ROTATE");
             }
             else {
                 safeDrive = false;
@@ -197,9 +201,12 @@ public class DriverOpMode extends OpMode {
                 }
             }
         }
+        else if (justAutoPole) {
+            justAutoPole = Math.abs(gamepad2.right_stick_y)<0.2;    // continue to hold extension until stick moved
+        }
         else if (gamepad2.right_stick_y > 0){
 //            robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionInitPos);
-            double extensionTempPos = Math.max(0, gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullInPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
+            double extensionTempPos = Math.max(0, gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionInitPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
             robotHardware.setExtensionPosition(extensionTempPos);
             telemetry.addData("Extension Pos", extensionTempPos);
         }
