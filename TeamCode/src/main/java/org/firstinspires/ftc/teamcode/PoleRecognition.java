@@ -39,6 +39,10 @@ public class PoleRecognition {
         rVision.startWebcam("Webcam 2", pipe);
     }
 
+    public void saveNextImg() {
+        pipe.saveNextImg();
+    }
+
     public int getPoleCenterOnImg() {
         return pipe.getPoleCenter();
     }
@@ -87,10 +91,12 @@ class CVPipelinePole extends OpenCvPipeline {
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(maskMat, contours, hierarchey, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         Iterator<MatOfPoint> each = contours.iterator();
+        double largest = 0;
         while (each.hasNext()) {
             MatOfPoint wrapper = each.next();
             double area = Imgproc.contourArea(wrapper);
-            if (area > PoleSampleOpMode.MIN_SIZE) {
+            if (area > PoleSampleOpMode.MIN_SIZE && area > largest) {
+                largest = area;
                 Rect rec = Imgproc.boundingRect(wrapper);
                 Imgproc.rectangle(input, new Rect(rec.x + 600, rec.y, rec.width, rec.height), DRAW_COLOR_RED, 2);
                 poleCenter = rec.y + rec.height/2;
@@ -101,7 +107,7 @@ class CVPipelinePole extends OpenCvPipeline {
         maskMat.release();
         if (saveImage) {
             //need to save pic to file
-            String timestamp = new SimpleDateFormat("MMdd-HHmmss", Locale.US).format(new Date());
+            String timestamp = new SimpleDateFormat("MMdd-HHmmss-S", Locale.US).format(new Date());
             Mat mbgr = new Mat();
             Imgproc.cvtColor(input, mbgr, Imgproc.COLOR_RGB2BGR, 3);
             Imgcodecs.imwrite("/sdcard/FIRST/S" + timestamp + ".jpg", mbgr);

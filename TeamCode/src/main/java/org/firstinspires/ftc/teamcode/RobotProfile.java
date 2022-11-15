@@ -93,6 +93,7 @@ public class RobotProfile {
         public int[] centerPosition;
         public int closestPoleWidth;
         public int farthestPoleWidth;
+        public double farthestArmExtension;
     }
 
     public class RoadRunnerParam {

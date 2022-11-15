@@ -137,7 +137,7 @@ public class RobotVision {
             if(pipeline instanceof CVPipelineSignal) {
                 webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }else if(pipeline instanceof AprilTagDetectionPipeline){
-                webcam.startStreaming(1024, 768, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             } else if (pipeline instanceof CVPipelinePole) {
                 webcam.startStreaming(640, 480, OpenCvCameraRotation.UPSIDE_DOWN);
                 FocusControl fc = webcam.getFocusControl();
