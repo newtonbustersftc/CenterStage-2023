@@ -36,6 +36,7 @@ public class AutoConePlacementTask implements RobotControl {
                 int turretPos = robotHardware.getTurretPosition();
                 if (turretPos == robotProfile.hardwareSpec.turret360) {
                     mode = Mode.DONE;   // we did not see a pole
+                    return;
                 }
                 expectedTurretPosition = turretPos + calculateTurretMovement(center);
                 Logger.logFile("Turret at: " + turretPos + " to:" + expectedTurretPosition);
@@ -79,7 +80,7 @@ public class AutoConePlacementTask implements RobotControl {
         int[] pos = robotProfile.poleParameter.centerPosition;
         while (index < pos.length - 1 ) {
             if (center > pos[index] && center < pos[index + 1]) {
-                return -((5 - index) * 25 + (center - pos[index]) * 25 / (pos[index + 1] - pos[index]));
+                return -((robotProfile.poleParameter.samplesEachSide - index) * 25 + (center - pos[index]) * 25 / (pos[index + 1] - pos[index]));
             }
             index++;
         }

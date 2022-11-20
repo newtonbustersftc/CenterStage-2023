@@ -75,7 +75,7 @@ public class PoleSampleOpMode extends LinearOpMode {
         double armExt = robotProfile.hardwareSpec.extensionInitPos;
         robotHardware.setExtensionPosition(armExt);
         boolean upPressed = false;
-        while (!gamepad1.x) {
+        while (!isStarted()) {
             if (!upPressed && gamepad1.dpad_up) {
                 upPressed = true;
                 armExt = armExt + 0.05;
@@ -92,25 +92,29 @@ public class PoleSampleOpMode extends LinearOpMode {
             telemetry.update();
         }
         telemetry.update();
-        for(int i = 0; i < 6; i++){
-            robotHardware.setTurretPosition(i * 25);
-            Thread.sleep(1000);
-            //pipeline.saveNextImg();
-            Logger.logFile("Pipeline Center X " + i + ": " + poleRecog.getPoleCenterOnImg() +  " Width:" + poleRecog.getPoleWidthOnImg());
-            Thread.sleep(500);
-        }
-        robotHardware.setTurretPosition(0);
-        Thread.sleep(3000);
-        for(int i = 1; i < 6; i++){
-            robotHardware.setTurretPosition(-i * 25);
-            Thread.sleep(1000);
-            //pipeline.saveNextImg();
-            Logger.logFile("Pipeline Center X " + i + ": " + poleRecog.getPoleCenterOnImg() +  " Width:" + poleRecog.getPoleWidthOnImg());
-            Thread.sleep(500);
-        }
-        robotHardware.setTurretPosition(0);
+        waitForStart();
+        Logger.logFile("Start sampling, sample each side:" + robotProfile.poleParameter.samplesEachSide);
 
-        
+        robotHardware.setTurretPosition(robotProfile.poleParameter.samplesEachSide * 25);
+        Thread.sleep(3000); // enough wait
+        int[] rst = new int[robotProfile.poleParameter.samplesEachSide*2+1];
+        int ndx = 0;
+        for(int i = robotProfile.poleParameter.samplesEachSide; i >= -robotProfile.poleParameter.samplesEachSide; i--){
+            robotHardware.setTurretPosition(i * 25);
+            Thread.sleep(2000);
+            poleRecog.saveNextImg();
+            rst[ndx++] = poleRecog.getPoleCenterOnImg();
+            Logger.logFile("Pipeline Center X " + i + ": " + poleRecog.getPoleCenterOnImg() +  " Width:" + poleRecog.getPoleWidthOnImg());
+            Thread.sleep(500);
+        }
+        String line = "";
+        for(int w : rst) {
+            line = line + w + ",";
+        }
+        Logger.logFile("Width list:" + line);
+        Logger.flushToFile();
+        robotHardware.setTurretPosition(0);
+        Thread.sleep(3000); // enough wait
         poleRecog.stopRecognition();
     }
 }

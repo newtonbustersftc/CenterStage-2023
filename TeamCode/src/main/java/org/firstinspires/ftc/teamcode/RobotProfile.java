@@ -91,6 +91,8 @@ public class RobotProfile {
     }
 
     public class PoleParameter {
+        public int samplesEachSide;
+        public int[] cropXywh;
         public int[] centerPosition;
         public int closestPoleWidth;
         public int farthestPoleWidth;

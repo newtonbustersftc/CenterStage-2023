@@ -75,11 +75,10 @@ class CVPipelinePole extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Mat maskMat = new Mat();
-        offsetX = 0;
-        offsetY = 0;
-        Mat procMat = input.submat(new Rect(offsetX, offsetY,
-                input.width(),
-                input.height()));
+        Mat procMat = input.submat(new Rect(robotProfile.poleParameter.cropXywh[0],
+                robotProfile.poleParameter.cropXywh[1],
+                robotProfile.poleParameter.cropXywh[2],
+                robotProfile.poleParameter.cropXywh[3]));
 
         // 1. Convert to HSV
         Imgproc.cvtColor(procMat, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
@@ -98,7 +97,8 @@ class CVPipelinePole extends OpenCvPipeline {
             if (area > PoleSampleOpMode.MIN_SIZE && area > largest) {
                 largest = area;
                 Rect rec = Imgproc.boundingRect(wrapper);
-                Imgproc.rectangle(input, new Rect(rec.x, rec.y, rec.width, rec.height), DRAW_COLOR_RED, 2);
+                Imgproc.rectangle(input, new Rect(robotProfile.poleParameter.cropXywh[0]+ rec.x,
+                        robotProfile.poleParameter.cropXywh[1] + rec.y, rec.width, rec.height), DRAW_COLOR_RED, 2);
                 poleCenter = rec.x + rec.width/2;
                 poleWidth = rec.width;
 
