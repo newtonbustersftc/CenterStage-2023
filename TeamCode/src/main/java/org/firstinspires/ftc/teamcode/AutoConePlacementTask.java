@@ -34,7 +34,7 @@ public class AutoConePlacementTask implements RobotControl {
                 int width = poleRecognition.getPoleWidthOnImg();
                 Logger.logFile("AutoCone 1st Pole Center: " + center + " Width: " + width);
                 int turretPos = robotHardware.getTurretPosition();
-                if (turretPos == -1) {
+                if (turretPos == robotProfile.hardwareSpec.turret360) {
                     mode = Mode.DONE;   // we did not see a pole
                 }
                 expectedTurretPosition = turretPos + calculateTurretMovement(center);
@@ -79,11 +79,11 @@ public class AutoConePlacementTask implements RobotControl {
         int[] pos = robotProfile.poleParameter.centerPosition;
         while (index < pos.length - 1 ) {
             if (center > pos[index] && center < pos[index + 1]) {
-                return (5 - index) * 25 + (center - pos[index]) * 25 / (pos[index + 1] - pos[index]);
+                return -((5 - index) * 25 + (center - pos[index]) * 25 / (pos[index + 1] - pos[index]));
             }
             index++;
         }
-        return -1;
+        return robotProfile.hardwareSpec.turret360;
     }
 
     private double calculateArmExtension(int width) {
