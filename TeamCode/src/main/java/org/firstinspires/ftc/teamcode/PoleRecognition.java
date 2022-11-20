@@ -35,7 +35,7 @@ public class PoleRecognition {
     }
 
     public void startRecognition() {
-        rVision.initWebCam("Webcam 2", false);
+        rVision.initWebCam("Webcam 2", true);
         rVision.startWebcam("Webcam 2", pipe);
     }
 
@@ -75,10 +75,10 @@ class CVPipelinePole extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Mat maskMat = new Mat();
-        offsetX = 600;
+        offsetX = 0;
         offsetY = 0;
         Mat procMat = input.submat(new Rect(offsetX, offsetY,
-                40,
+                input.width(),
                 input.height()));
 
         // 1. Convert to HSV
@@ -98,9 +98,9 @@ class CVPipelinePole extends OpenCvPipeline {
             if (area > PoleSampleOpMode.MIN_SIZE && area > largest) {
                 largest = area;
                 Rect rec = Imgproc.boundingRect(wrapper);
-                Imgproc.rectangle(input, new Rect(rec.x + 600, rec.y, rec.width, rec.height), DRAW_COLOR_RED, 2);
-                poleCenter = rec.y + rec.height/2;
-                poleWidth = rec.height;
+                Imgproc.rectangle(input, new Rect(rec.x, rec.y, rec.width, rec.height), DRAW_COLOR_RED, 2);
+                poleCenter = rec.x + rec.width/2;
+                poleWidth = rec.width;
 
             }
         }

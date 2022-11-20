@@ -90,7 +90,7 @@
     "turretPower": 0.6,
     "turretMoveMax": 10,
     "turretMaxAhead": 200,
-    "turret360": 3700,
+    "turret360": 3750,
     "liftMax": 4300,
     "liftSafeRotate": 600,
     "liftPowerUp": 0.8,
@@ -154,20 +154,20 @@
   },
   "poleParameter": {
     "centerPosition": [
-      39,
-      70,
-      110,
-      150,
-      194,
-      228,
-      258,
-      301,
-      342,
-      384,
-      427
+      181,
+      218,
+      254,
+      286,
+      317,
+      355,
+      383,
+      417,
+      455,
+      487,
+      527
     ],
-    "closestPoleWidth": 108,
-    "farthestPoleWidth": 57,
-    "farthestArmExtension": 0.64
+    "closestPoleWidth": 106,
+    "farthestPoleWidth": 67,
+    "farthestArmExtension": 0.59
   }
 }

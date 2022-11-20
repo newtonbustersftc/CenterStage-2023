@@ -100,7 +100,7 @@ public class RobotVision {
         }
         int g = camera.getGainControl().getGain();
         Logger.logFile("Current camera gain: " + g + " max gain:" + camera.getGainControl().getMaxGain());
-        camera.getGainControl().setGain(50);
+        //camera.getGainControl().setGain(70);
         return doneOpen==OpenState.SUCCESS;
     }
 
@@ -139,10 +139,11 @@ public class RobotVision {
             }else if(pipeline instanceof AprilTagDetectionPipeline){
                 webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             } else if (pipeline instanceof CVPipelinePole) {
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPSIDE_DOWN);
+                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
                 FocusControl fc = webcam.getFocusControl();
                 Logger.logFile("Pole Cam focus min: " + fc.getMinFocusLength() + " max:" + fc.getMaxFocusLength() + " curr:" + fc.getFocusLength());
-
+                fc.setMode(FocusControl.Mode.Fixed);
+                fc.setFocusLength(15);
             }
         }
         //rearCamera.startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);

@@ -35,12 +35,12 @@ public class PoleSampleOpMode extends LinearOpMode {
     PoleRecognition poleRecog;
     boolean xPressed = false;
     public static int MASK_LOWER_BOUND_H = 20;
-    public static int MASK_LOWER_BOUND_S = 70;
-    public static int MASK_LOWER_BOUND_V = 70;
+    public static int MASK_LOWER_BOUND_S = 90;
+    public static int MASK_LOWER_BOUND_V = 80;
     public static int MASK_UPPER_BOUND_H = 45;
     public static int MASK_UPPER_BOUND_S = 255;
     public static int MASK_UPPER_BOUND_V = 255;
-    public static int MIN_SIZE = 200;
+    public static int MIN_SIZE = 2000;
 
     public void initRobot() {
         try {
