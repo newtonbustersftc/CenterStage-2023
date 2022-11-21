@@ -94,7 +94,7 @@ class CVPipelinePole extends OpenCvPipeline {
         while (each.hasNext()) {
             MatOfPoint wrapper = each.next();
             double area = Imgproc.contourArea(wrapper);
-            if (area > PoleSampleOpMode.MIN_SIZE && area > largest) {
+            if (area > robotProfile.poleParameter.minSize && area > largest) {
                 largest = area;
                 Rect rec = Imgproc.boundingRect(wrapper);
                 Imgproc.rectangle(input, new Rect(robotProfile.poleParameter.cropXywh[0]+ rec.x,

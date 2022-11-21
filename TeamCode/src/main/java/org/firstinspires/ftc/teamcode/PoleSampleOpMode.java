@@ -77,11 +77,16 @@ public class PoleSampleOpMode extends LinearOpMode {
         boolean upPressed = false;
         while (!isStarted()) {
             if (!upPressed && gamepad1.dpad_up) {
-                upPressed = true;
                 armExt = armExt + 0.05;
                 robotHardware.setExtensionPosition(armExt);
             }
             upPressed = gamepad1.dpad_up;
+            if (!xPressed && gamepad1.x) {
+                poleRecog.saveNextImg();
+                Logger.logFile("Arm Extension:" + armExt + " Center:" + poleRecog.getPoleCenterOnImg() +
+                        " Width:" + poleRecog.getPoleWidthOnImg());
+            }
+            xPressed = gamepad1.x;
             if (loopCnt % 100 == 0) {
                 telemetry.addData("Center:", poleRecog.getPoleCenterOnImg());
                 telemetry.addData("Width:", poleRecog.getPoleWidthOnImg());

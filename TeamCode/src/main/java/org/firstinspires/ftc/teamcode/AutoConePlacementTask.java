@@ -88,13 +88,8 @@ public class AutoConePlacementTask implements RobotControl {
     }
 
     private double calculateArmExtension(int width) {
-        // calculate the ratio
-        double r = 1.0*(width - robotProfile.poleParameter.farthestPoleWidth)/
-                    (robotProfile.poleParameter.closestPoleWidth-robotProfile.poleParameter.farthestPoleWidth);
-        if (r>1 || r<0) {
-            return -1;  // no good
-        }
-        return robotProfile.poleParameter.farthestArmExtension - r *
-                (robotProfile.poleParameter.farthestArmExtension - robotProfile.hardwareSpec.extensionInitPos);
+        if (width>robotProfile.poleParameter.closestPoleWidth)
+            return -1;
+        return robotProfile.poleParameter.aFactor / width + robotProfile.poleParameter.bFactor;
     }
 }

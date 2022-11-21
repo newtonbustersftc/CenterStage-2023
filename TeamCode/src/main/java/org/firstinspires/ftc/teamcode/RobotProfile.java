@@ -92,11 +92,12 @@ public class RobotProfile {
 
     public class PoleParameter {
         public int samplesEachSide;
+        public int minSize;
         public int[] cropXywh;
         public int[] centerPosition;
         public int closestPoleWidth;
-        public int farthestPoleWidth;
-        public double farthestArmExtension;
+        public double aFactor;
+        public double bFactor;
     }
 
     public class RoadRunnerParam {

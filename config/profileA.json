@@ -153,15 +153,16 @@
     "backPick": 21
   },
   "poleParameter": {
-    "samplesEachSide": 9,
+    "samplesEachSide": 8,
+    "minSize": 1000,
     "cropXywh": [
-      0, 300, 640, 140
+      0, 300, 640, 40
     ],
     "centerPosition": [
-      17,36,75,107,147,181,215,248,276,327,355,381,407,441,475,509,547,582,611
+      27,53,89,128,165,201,229,264,299,335,365,398,433,471,506,543,577
     ],
-    "closestPoleWidth": 96,
-    "farthestPoleWidth": 46,
-    "farthestArmExtension": 0.79
+    "closestPoleWidth": 88,
+    "aFactor": 35.2,
+    "bFactor": -0.11
   }
 }
