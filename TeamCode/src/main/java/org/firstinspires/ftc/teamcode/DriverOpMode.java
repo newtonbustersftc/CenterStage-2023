@@ -59,7 +59,7 @@ public class DriverOpMode extends OpMode {
 
         Logger.init();
         //Obtain the RobotHardware object from factory
-        robotHardware = RobotFactory.getRobotHardware();
+        robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
         poleRecognition.startRecognition();
         //robotHardware = new RobotHardware();
