@@ -71,6 +71,7 @@ public class RobotProfile {
         public boolean revHubVertical;
         public double ticksPerRev;
         public double trackWidth;
+        public double encoderOffset;
         public double wheelRadius;
         public double forwardOffset;
         public double wheelBase;
