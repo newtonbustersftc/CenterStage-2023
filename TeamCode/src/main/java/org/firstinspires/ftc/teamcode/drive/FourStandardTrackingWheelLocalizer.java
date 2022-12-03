@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.drive;
 
 import androidx.annotation.NonNull;
 
@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.RobotProfile;
-import org.firstinspires.ftc.teamcode.TestEncoder;
 import org.firstinspires.ftc.teamcode.util.Encoder;
 
 import java.util.Arrays;
@@ -21,26 +20,22 @@ public class FourStandardTrackingWheelLocalizer extends FourTrackingWheelLocaliz
     //public static double LATERAL_DISTANCE = 16.14; // in; distance between the left and right wheels
     //public static double FORWARD_OFFSET = 0; // in; offset of the lateral wheel
 
-    public TestEncoder leftEncoder, rightEncoder, frontEncoder, backEncoder;
+    public Encoder leftEncoder, rightEncoder, frontEncoder, backEncoder;
     RobotProfile profile;
-
-    public FourStandardTrackingWheelLocalizer(){
-        super();
-    }
 
     public FourStandardTrackingWheelLocalizer(HardwareMap hardwareMap, RobotProfile profile) {
         super(Arrays.asList(
-                new Pose2d(0, profile.hardwareSpec.trackWidth / 2, 0), // left
-                new Pose2d(0, -profile.hardwareSpec.trackWidth / 2, 0), // right
-                new Pose2d(profile.hardwareSpec.forwardOffset, 0, Math.toRadians(90)), // front
-                new Pose2d(-profile.hardwareSpec.forwardOffset, 0, Math.toRadians(90)) // back
+                new Pose2d(profile.hardwareSpec.encoderOffset, profile.hardwareSpec.trackWidth / 2, 0), // left
+                new Pose2d(profile.hardwareSpec.encoderOffset, -profile.hardwareSpec.trackWidth / 2, 0), // right
+                new Pose2d(profile.hardwareSpec.forwardOffset, profile.hardwareSpec.encoderOffset, Math.toRadians(90)), // front
+                new Pose2d(-profile.hardwareSpec.forwardOffset, profile.hardwareSpec.encoderOffset, -Math.toRadians(90)) // back
         ));
         this.profile = profile;
 
-//        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Rear Left"));
-//        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Front Right"));
-//        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Front Left"));
-//        backEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Back Left"));
+       leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Rear Left"));
+       rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Front Right"));
+       frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Front Left"));
+       backEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "Rear Right"));
 //        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "RLMotor"));
 //        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "RRMotor"));
 //        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FRMotor"));
