@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,9 +11,8 @@ import org.firstinspires.ftc.teamcode.Logger;
 import org.firstinspires.ftc.teamcode.RobotFactory;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
+import org.firstinspires.ftc.teamcode.drive.FourStandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 
 import java.io.File;
 
@@ -82,10 +80,11 @@ public class LocalizationTest extends LinearOpMode {
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             Pose2d velo = drive.getPoseVelocity();
-            StandardTrackingWheelLocalizer ttl = (StandardTrackingWheelLocalizer) drive.getLocalizer();
-            telemetry.addData("RW:", ttl.rightEncoder.getCurrentPosition());
-            telemetry.addData("LW:", ttl.leftEncoder.getCurrentPosition());
-            telemetry.addData("HZ:", ttl.frontEncoder.getCurrentPosition());
+            FourStandardTrackingWheelLocalizer ttl = (FourStandardTrackingWheelLocalizer) drive.getLocalizer();
+            telemetry.addData("Right", ttl.rightEncoder.getCurrentPosition());
+            telemetry.addData("Left:", ttl.leftEncoder.getCurrentPosition());
+            telemetry.addData("Front", ttl.frontEncoder.getCurrentPosition());
+            telemetry.addData("Back", ttl.backEncoder.getCurrentPosition());
 //            telemetry.addData("Right: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.RIGHT));
 //            telemetry.addData("Left: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.LEFT));
 //            telemetry.addData("Horiz: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.HORIZONTAL));
