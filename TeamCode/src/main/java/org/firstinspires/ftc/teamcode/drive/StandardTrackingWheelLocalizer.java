@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.util.Encoder;
 import java.util.Arrays;
 import java.util.List;
 
+
 /*
  * Sample tracking wheel localizer implementation assuming the standard configuration:
  *
@@ -41,9 +42,9 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap, RobotProfile profile) {
         super(Arrays.asList(
-                new Pose2d(0, profile.hardwareSpec.trackWidth / 2, 0), // left
-                new Pose2d(0, -profile.hardwareSpec.trackWidth / 2, 0), // right
-                new Pose2d(profile.hardwareSpec.forwardOffset, 0, Math.toRadians(90)) // front
+                new Pose2d(profile.hardwareSpec.encoderOffset, profile.hardwareSpec.trackWidth / 2, 0), // left
+                new Pose2d(profile.hardwareSpec.encoderOffset, -profile.hardwareSpec.trackWidth / 2, 0), // right
+                new Pose2d(profile.hardwareSpec.forwardOffset, profile.hardwareSpec.encoderOffset, Math.toRadians(90)) // front
         ));
         this.profile = profile;
 
