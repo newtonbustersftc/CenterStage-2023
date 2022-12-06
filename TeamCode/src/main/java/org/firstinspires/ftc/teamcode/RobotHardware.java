@@ -40,7 +40,7 @@ public class RobotHardware {
     HardwareMap hardwareMap;
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
     private DcMotorEx turretMotor;
-    private DcMotorEx liftMotor;        // make it private so we can prevent mistakes by lift down while arm is retracted in
+    private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     private Servo grabberServo, extensionServo;
     DigitalChannel liftBottom;
     TouchSensor magneticSensor, liftTouch;
@@ -78,7 +78,10 @@ public class RobotHardware {
         liftTouch = hardwareMap.touchSensor.get("Lift Touch");
         extensionServo = hardwareMap.servo.get("Arm Extension");
         grabberServo = hardwareMap.servo.get("Gripper Open/Close");
-        liftMotor = hardwareMap.get(DcMotorEx.class,"Lift Motor");
+        liftMotors = new DcMotorEx[3];
+        liftMotors[0] = hardwareMap.get(DcMotorEx.class,"Lift Motor1");
+        liftMotors[1] = hardwareMap.get(DcMotorEx.class,"Lift Motor2");
+        liftMotors[2] = hardwareMap.get(DcMotorEx.class,"Lift Motor3");
         turretMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
         gyro = (IntegratingGyroscope)navxMicro;
@@ -132,15 +135,15 @@ public class RobotHardware {
     }
 
     public int getLiftPosition() {
-        return liftMotor.getCurrentPosition();
+        return liftMotors[0].getCurrentPosition();
     }
 
     public double getLiftVelocity() {
-        return liftMotor.getVelocity();
+        return liftMotors[0].getVelocity();
     }
 
     public void setLiftPosition(int newLiftPos) {
-        long currPos = liftMotor.getCurrentPosition();
+        long currPos = liftMotors[0].getCurrentPosition();
         boolean goUp = newLiftPos>currPos;
         if (!goUp) {
             if (extensionPos < profile.hardwareSpec.extensionDriverMin && newLiftPos < profile.hardwareSpec.liftSafeRotate) {
@@ -153,19 +156,23 @@ public class RobotHardware {
         else {
             newLiftPos = Math.min(newLiftPos, profile.hardwareSpec.liftMax);
         }
-        liftMotor.setTargetPosition(newLiftPos);
-        liftMotor.setPower(goUp?profile.hardwareSpec.liftPowerUp:profile.hardwareSpec.liftPowerDown);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        for(DcMotorEx liftMotor : liftMotors) {
+            liftMotor.setTargetPosition(newLiftPos);
+            liftMotor.setPower(goUp ? profile.hardwareSpec.liftPowerUp : profile.hardwareSpec.liftPowerDown);
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
     }
 
     public void setLiftPositionUnsafe(int newLiftPos, double power) {
-        liftMotor.setTargetPosition(newLiftPos);
-        liftMotor.setPower(power);
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        for(DcMotorEx liftMotor : liftMotors) {
+            liftMotor.setTargetPosition(newLiftPos);
+            liftMotor.setPower(power);
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
     }
 
     public boolean isLiftMoving() {
-        return Math.abs(liftMotor.getVelocity())>10;
+        return Math.abs(liftMotors[0].getVelocity())>10;
     }
 
     public int getEncoderVelocity(EncoderType encoder) {
@@ -301,7 +308,9 @@ public class RobotHardware {
 
     public void stopAll() {
         setMotorPower(0, 0, 0, 0);
-        liftMotor.setPower(0);
+        for(DcMotorEx liftMotor:liftMotors) {
+            liftMotor.setPower(0);
+        }
         turretMotor.setPower(0);
     }
 
@@ -363,7 +372,9 @@ public class RobotHardware {
     public boolean isMagneticTouched() {return magneticSensor.isPressed();}
 
     public void resetLiftPos() {
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        for(DcMotorEx liftMotor : liftMotors) {
+            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
     }
 
     public void resetTurretPos() {
@@ -447,7 +458,9 @@ public class RobotHardware {
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         grabberOpen();
-        liftMotor.setPower(0);
+        for(DcMotorEx liftMotor : liftMotors) {
+            liftMotor.setPower(0);
+        }
         turretMotor.setPower(0);
         waitforUp(opmode, "Down and Center Lift, press UP ...");
         if (opmode.isStopRequested()) return;
