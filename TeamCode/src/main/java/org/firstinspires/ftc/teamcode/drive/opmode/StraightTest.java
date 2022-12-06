@@ -73,7 +73,7 @@ public class StraightTest extends LinearOpMode {
         }
 
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
-        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(20, 180, TRACK_WIDTH);
+        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(30, 180, TRACK_WIDTH);
         TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(10);
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
                 .forward(DISTANCE, velConstraint, accelConstraint)

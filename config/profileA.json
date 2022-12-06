@@ -12,7 +12,7 @@
     "f": 0.0
   },
   "rrHeadingPID": {
-    "p": 2.0,
+    "p": 2,
     "i": 0.05,
     "d": 0.0,
     "f": 0.0
@@ -24,12 +24,12 @@
     "f": 0.0
   },
   "rrParam": {
-    "kA": 0.00093,
-    "kV": 0.01563,
-    "kStatic": 0.11855,
+    "kA": 0.001,
+    "kV": 0.0165,
+    "kStatic": 0.08,
     "lateralMultiplier": 1.0,
-    "maxVel": 30.0,
-    "maxAcc": 30.0
+    "maxVel": 20.0,
+    "maxAcc": 20.0
   },
   "cvParam": {
     "redLowerBound": {
@@ -73,7 +73,6 @@
   "hardwareSpec": {
     "revHubVertical": false,
     "trackWidth": 8.179,
-    "encoderOffset": -0.75,
     "wheelBase": 4.16,
     "wheelRadius": 0.748,
     "ticksPerRev": 4000.0,
@@ -91,24 +90,24 @@
     "turretPower": 0.6,
     "turretMoveMax": 10,
     "turretMaxAhead": 200,
-    "turret360": 3750,
-    "liftMax": 1166,
+    "turret360": 3700,
+    "liftMax": 4300,
     "liftSafeRotate": 600,
     "liftPowerUp": 0.8,
     "liftPowerDown": 0.8,
     "liftDropPos": [
-      30,
-      217,
-      440,
-      728,
-      1058
+      110,
+      800,
+      1620,
+      2680,
+      3780
     ],
     "liftPickPos": [
       0,
-      35,
-      70,
-      106,
-      141
+      130,
+      260,
+      390,
+      520
     ]
   },
   "poses": {
@@ -135,35 +134,19 @@
     "normVelocity": 20.0,
     "normAngVelo": 20.0,
     "normAcceleration": 20.0,
-    "liftHighDrop": 1026,
-    "liftStack5": 141,
-    "liftStack4": 106,
-    "liftUpSafe": 380,
-    "armLengthDrop": 0.49,
+    "liftHighDrop": 3780,
+    "liftStack5": 520,
+    "liftStack4": 390,
+    "liftUpSafe": 1400,
+    "armLengthDrop": 0.55,
     "armLengthPick": 0.43,
-    "armLengthPostPick": 0.41,
     "turretForwardPos": -925,
     "turretDropPosRight": -462,
     "turretPickPosRight": 925,
     "turretDropPosLeft": -1387,
     "turretPickPosLeft": -2775,
-    "forwardPre1": 40,
-    "forward1": 56,
-    "forward2": 61,
-    "back1": 7.5,
+    "forward1": 61,
+    "back1": 8,
     "backPick": 21
-  },
-  "poleParameter": {
-    "samplesEachSide": 8,
-    "minSize": 1000,
-    "cropXywh": [
-      0, 300, 640, 40
-    ],
-    "centerPosition": [
-      27,53,89,128,165,201,229,264,299,335,365,398,433,471,506,543,577
-    ],
-    "closestPoleWidth": 88,
-    "aFactor": 35.2,
-    "bFactor": -0.11
   }
 }
