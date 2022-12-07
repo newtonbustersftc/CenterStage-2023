@@ -91,23 +91,23 @@
     "turretMoveMax": 10,
     "turretMaxAhead": 200,
     "turret360": 3700,
-    "liftMax": 4300,
+    "liftMax": 1166,
     "liftSafeRotate": 600,
     "liftPowerUp": 0.8,
     "liftPowerDown": 0.8,
     "liftDropPos": [
-      110,
-      800,
-      1620,
-      2680,
-      3780
+      30,
+      217,
+      440,
+      728,
+      1058
     ],
     "liftPickPos": [
       0,
-      130,
-      260,
-      390,
-      520
+      35,
+      70,
+      106,
+      141
     ]
   },
   "poses": {
@@ -134,10 +134,10 @@
     "normVelocity": 20.0,
     "normAngVelo": 20.0,
     "normAcceleration": 20.0,
-    "liftHighDrop": 3780,
-    "liftStack5": 520,
-    "liftStack4": 390,
-    "liftUpSafe": 1400,
+    "liftHighDrop": 1026,
+    "liftStack5": 141,
+    "liftStack4": 106,
+    "liftUpSafe": 380,
     "armLengthDrop": 0.55,
     "armLengthPick": 0.43,
     "turretForwardPos": -925,
@@ -145,7 +145,7 @@
     "turretPickPosRight": 925,
     "turretDropPosLeft": -1387,
     "turretPickPosLeft": -2775,
-    "forward1": 61,
+    "forward1": 41.5,
     "back1": 8,
     "backPick": 21
   }
