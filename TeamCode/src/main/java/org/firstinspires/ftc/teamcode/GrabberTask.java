@@ -5,10 +5,16 @@ public class GrabberTask implements RobotControl {
     boolean isOpen;
     long startTime;
     long duration = 500;
+    double position;
 
     public GrabberTask(RobotHardware hardware, boolean isOpen) {
         this.robotHardware = hardware;
         this.isOpen = isOpen;
+    }
+
+    public GrabberTask(RobotHardware hardware, double position) {
+        this.robotHardware = hardware;
+        this.position = position;
     }
 
     public String toString() {
@@ -21,7 +27,10 @@ public class GrabberTask implements RobotControl {
         if (isOpen) {
             robotHardware.grabberOpen();
         }
-        else {
+        else if(!isOpen && position>0) {
+            robotHardware.grabberInit();
+        }
+        else{
             robotHardware.grabberClose();
         }
         Logger.logFile("Grabber open: " + isOpen);
