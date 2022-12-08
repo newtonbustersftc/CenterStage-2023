@@ -472,7 +472,7 @@ public class RobotHardware {
         waitforUp(opmode, "Press UP to start auto init...");
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
-        grabberOpen();
+        grabberClose();
         // make sure magnetic is not touched
         int tu = getTurretPosition();
         if (isMagneticTouched()) {
