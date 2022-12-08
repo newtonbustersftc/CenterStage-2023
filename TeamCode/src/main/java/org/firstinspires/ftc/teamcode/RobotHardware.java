@@ -472,18 +472,48 @@ public class RobotHardware {
         waitforUp(opmode, "Press UP to start...");
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
-        waitforUp(opmode, "Move turret to front, press UP ...");
+        grabberOpen();
+        // make sure magnetic is not touched
+        int tu = getTurretPosition();
+        if (isMagneticTouched()) {
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            try {
+                Thread.sleep(2000);
+            }
+            catch (Exception ex) {
+            }
+        }
+        while (!isMagneticTouched() && !opmode.isStopRequested()) {
+            tu = getTurretPosition();
+            setTurretPosition(tu + 1);
+            try {
+                Thread.sleep(20);
+            }
+            catch (Exception ex) {
+            }
+        }
+        if (opmode.isStopRequested()) return;
+        tu = getTurretPosition();
+        setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+        try {
+            Thread.sleep(2000);
+        }
+        catch (Exception ex) {
+        }
+        resetTurretPos();
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
-        grabberOpen();
-        for(DcMotorEx liftMotor : liftMotors) {
-            liftMotor.setPower(0);
+        setLiftPositionUnsafe(-5000, 0.3);
+        long t = System.currentTimeMillis();
+        while (!isLiftTouched() && (System.currentTimeMillis()-t)<3000) {
+            try {
+                Thread.sleep(100);
+            }
+            catch (Exception ex) {
+            }
         }
-        turretMotor.setPower(0);
-        waitforUp(opmode, "Down and Center Lift, press UP ...");
         if (opmode.isStopRequested()) return;
         resetLiftPos();
-        resetTurretPos();
         grabberInit();
     }
 
