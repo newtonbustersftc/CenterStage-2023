@@ -84,6 +84,7 @@ public class RobotProfile {
         public int turretMaxAhead;
         public int turretMoveMax;
         public int turret360;
+        public int turretOffset;
         public int liftMax;
         public int liftSafeRotate;
         public double liftPowerUp, liftPowerDown;
