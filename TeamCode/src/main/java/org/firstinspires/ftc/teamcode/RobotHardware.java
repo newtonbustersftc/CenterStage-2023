@@ -152,9 +152,11 @@ public class RobotHardware {
             else {
                 newLiftPos = Math.max(0, newLiftPos);
             }
+            Logger.logFile("lift down new liftPos:"+ newLiftPos);
         }
         else {
             newLiftPos = Math.min(newLiftPos, profile.hardwareSpec.liftMax);
+            Logger.logFile("lift up new liftPos:"+newLiftPos);
         }
         for(DcMotorEx liftMotor : liftMotors) {
             liftMotor.setTargetPosition(newLiftPos);
@@ -370,6 +372,22 @@ public class RobotHardware {
     public boolean isLiftTouched() {return liftTouch.isPressed();}
 
     public boolean isMagneticTouched() {return magneticSensor.isPressed();}
+
+    public int getFLMotorEncoderCnt(){
+        return this.flMotor.getCurrentPosition();
+    }
+    public int getFRMotorEncoderCnt(){
+        return this.frMotor.getCurrentPosition();
+    }
+
+    public int getRlMotorEncoderCnt(){
+        return this.rlMotor.getCurrentPosition();
+    }
+
+    public int getRRMotorEncoderCnt(){
+        return this.rrMotor.getCurrentPosition();
+    }
+
 
     public void resetLiftPos() {
         for(DcMotorEx liftMotor : liftMotors) {
