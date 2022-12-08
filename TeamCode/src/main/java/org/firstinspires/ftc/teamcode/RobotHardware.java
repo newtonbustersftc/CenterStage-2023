@@ -469,7 +469,7 @@ public class RobotHardware {
     }
 
     public void initSetup(LinearOpMode opmode) {
-        waitforUp(opmode, "Press UP to start...");
+        waitforUp(opmode, "Press UP to start auto init...");
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
         grabberOpen();
@@ -483,11 +483,14 @@ public class RobotHardware {
             catch (Exception ex) {
             }
         }
+        opmode.telemetry.clearAll();
         while (!isMagneticTouched() && !opmode.isStopRequested()) {
             tu = getTurretPosition();
-            setTurretPosition(tu + 1);
+            opmode.telemetry.addData("Tullett position", tu);
+            opmode.telemetry.update();
+            setTurretPosition(tu + 5);
             try {
-                Thread.sleep(20);
+                Thread.sleep(5);
             }
             catch (Exception ex) {
             }
@@ -502,7 +505,6 @@ public class RobotHardware {
         }
         resetTurretPos();
         if (opmode.isStopRequested()) return;
-        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         setLiftPositionUnsafe(-5000, 0.3);
         long t = System.currentTimeMillis();
         while (!isLiftTouched() && (System.currentTimeMillis()-t)<3000) {
@@ -514,6 +516,7 @@ public class RobotHardware {
         }
         if (opmode.isStopRequested()) return;
         resetLiftPos();
+        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         grabberInit();
     }
 
