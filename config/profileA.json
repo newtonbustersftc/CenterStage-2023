@@ -95,7 +95,7 @@
     "liftMax": 1166,
     "liftSafeRotate": 600,
     "liftPowerUp": 0.8,
-    "liftPowerDown": 0.8,
+    "liftPowerDown": 0.5,
     "liftDropPos": [
       30,
       217,
@@ -132,9 +132,9 @@
     "fastVelocity": 30.0,
     "fastAngVelo": 30.0,
     "fastAcceleration": 30.0,
-    "normVelocity": 20.0,
-    "normAngVelo": 20.0,
-    "normAcceleration": 20.0,
+    "normVelocity": 25.0,
+    "normAngVelo": 25.0,
+    "normAcceleration": 25.0,
     "liftHighDrop": 1026,
     "liftStack5": 141,
     "liftStack4": 106,
@@ -146,7 +146,7 @@
     "turretPickPosRight": 925,
     "turretDropPosLeft": -1387,
     "turretPickPosLeft": -2775,
-    "forward1": 41.5,
+    "forward1": 32,
     "back1": 8,
     "backPick": 21
   }
