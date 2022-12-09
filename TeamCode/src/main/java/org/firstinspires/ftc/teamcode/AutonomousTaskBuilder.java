@@ -180,7 +180,7 @@ public class AutonomousTaskBuilder {
         // 1)lower 2) wait, open grab, retract, turn, move
         ParallelComboTask dropRetract3 = new ParallelComboTask();
         SequentialComboTask seq3 = new SequentialComboTask();
-        seq3.add(new LiftArmTask(robotHardware,param.liftGroundJDrop));//todo, combine to above??
+        seq3.add(new LiftArmTask(robotHardware,param.liftGroundDrop));//todo, combine to above??
         seq3.add(new RobotSleep(300));
         seq3.add(new GrabberTask(robotHardware, true));
         dropRetract3.add(seq3);

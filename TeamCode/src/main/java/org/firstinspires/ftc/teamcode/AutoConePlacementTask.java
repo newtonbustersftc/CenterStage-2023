@@ -8,6 +8,7 @@ public class AutoConePlacementTask implements RobotControl {
     PoleRecognition poleRecognition;
     RobotProfile robotProfile;
     int expectedTurretPosition;
+    int offset, initialWidth;
 
     public AutoConePlacementTask(RobotHardware hardware, RobotProfile robotProfile, PoleRecognition poleRecognition) {
         this.robotHardware = hardware;
@@ -31,14 +32,15 @@ public class AutoConePlacementTask implements RobotControl {
         if (mode == Mode.WAIT) {
             if (System.currentTimeMillis() - startTime > 100) {
                 int center = poleRecognition.getPoleCenterOnImg();
-                int width = poleRecognition.getPoleWidthOnImg();
-                Logger.logFile("AutoCone 1st Pole Center: " + center + " Width: " + width);
+                initialWidth = poleRecognition.getPoleWidthOnImg();
+                Logger.logFile("AutoCone 1st Pole Center: " + center + " Width: " + initialWidth);
                 int turretPos = robotHardware.getTurretPosition();
-                if (turretPos == robotProfile.hardwareSpec.turret360) {
+                offset = calculateTurretMovement(center);
+                if (offset == robotProfile.hardwareSpec.turret360) {
                     mode = Mode.DONE;   // we did not see a pole
                     return;
                 }
-                expectedTurretPosition = turretPos + calculateTurretMovement(center);
+                expectedTurretPosition = turretPos + offset;
                 Logger.logFile("Turret at: " + turretPos + " to:" + expectedTurretPosition);
                 robotHardware.setTurretPosition(expectedTurretPosition);
                 mode = Mode.MOVE_TURRET;
@@ -46,16 +48,37 @@ public class AutoConePlacementTask implements RobotControl {
         }
         else if (mode == Mode.MOVE_TURRET) {
             if (Math.abs(expectedTurretPosition - robotHardware.getTurretPosition()) <= 5) {
-                startTime = System.currentTimeMillis();
-                mode = Mode.WAIT2;
-                poleRecognition.saveNextImg();
+                // if first time within 50 already, no need to recalculate
+                if (Math.abs(offset)<=55) {
+                    double armPos = calculateArmExtension(initialWidth);
+                    Logger.logFile("Need arm extension: " + armPos);
+                    if (armPos!=-1) {
+                        robotHardware.setExtensionPosition(armPos);
+                    }
+                    mode = Mode.DONE;
+                }
+                else {
+                    startTime = System.currentTimeMillis();
+                    mode = Mode.WAIT2;
+                    poleRecognition.saveNextImg();
+                }
             }
             // else - continue to turn
         }
         else if (mode == Mode.WAIT2) {
             if (System.currentTimeMillis() - startTime > 300) {
+                // now we should be close with the pole, take another picture for final position & dist
                 int center = poleRecognition.getPoleCenterOnImg();
                 int width = poleRecognition.getPoleWidthOnImg();
+                int turretPos = robotHardware.getTurretPosition();
+                offset = calculateTurretMovement(center);
+                if (offset == robotProfile.hardwareSpec.turret360) {
+                    mode = Mode.DONE;   // we did not see a pole
+                    return;
+                }
+                expectedTurretPosition = turretPos + offset;
+                Logger.logFile("Turret at: " + turretPos + " to:" + expectedTurretPosition);
+                robotHardware.setTurretPosition(expectedTurretPosition);
                 Logger.logFile("AutoCone 1st Pole Center: " + center + " Width: " + width);
                 double armPos = calculateArmExtension(width);
                 Logger.logFile("Need arm extension: " + armPos);

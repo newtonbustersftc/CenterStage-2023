@@ -94,12 +94,12 @@ public class RobotVision {
             }
         }
         try {
-            Thread.sleep(100);
+            Thread.sleep(300);
         }
         catch (Exception ex) {
         }
-        int g = camera.getGainControl().getGain();
-        Logger.logFile("Current camera gain: " + g + " max gain:" + camera.getGainControl().getMaxGain());
+        //int g = camera.getGainControl().getGain();
+        //Logger.logFile("Current camera gain: " + g + " max gain:" + camera.getGainControl().getMaxGain());
         //camera.getGainControl().setGain(70);
         return doneOpen==OpenState.SUCCESS;
     }

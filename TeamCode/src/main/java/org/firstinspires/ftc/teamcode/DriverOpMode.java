@@ -107,7 +107,7 @@ public class DriverOpMode extends OpMode {
         }
 
         if (currentTask instanceof AutoConePlacementTask) {
-            if (gamepad1.a) {
+            if (gamepad1.a || gamepad2.a) {
                 currentTask = null;
             }
             return;
@@ -119,7 +119,7 @@ public class DriverOpMode extends OpMode {
         handleGripperV2();
         handleLiftV2();
         handleTurret();
-        if (gamepad1.b) {
+        if (gamepad1.b || gamepad2.b) {
             currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
             currentTask.prepare();
         }
