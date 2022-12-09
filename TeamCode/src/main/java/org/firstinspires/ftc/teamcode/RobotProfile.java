@@ -149,6 +149,9 @@ public class RobotProfile {
         double normAngVelo;
         double normAcceleration;
         int liftHighDrop;
+        int liftMidDrop;
+        int liftLowDrop;
+        int liftGroundDrop;
         int liftStack5;
         int liftStack4;
         int liftUpSafe;

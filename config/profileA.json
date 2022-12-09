@@ -136,7 +136,10 @@
     "normVelocity": 25.0,
     "normAngVelo": 25.0,
     "normAcceleration": 25.0,
-    "liftHighDrop": 1026,
+    "liftHighDrop": 1158,
+    "liftMidDrop": 780,
+    "LifeLowDrop": 440,
+    "lifeGroundDrop": 30,
     "liftStack5": 141,
     "liftStack4": 106,
     "liftUpSafe": 380,
@@ -155,13 +158,13 @@
     "samplesEachSide": 8,
     "minSize": 1000,
     "cropXywh": [
-      0, 300, 640, 40
+      0, 260, 640, 40
     ],
     "centerPosition": [
-      27,53,89,128,165,201,229,264,299,335,365,398,433,471,506,543,577
+      34,68,107,148,186,222,258,288,326,359,395,428,462,501,546,581,613
     ],
-    "closestPoleWidth": 88,
-    "aFactor": 35.2,
-    "bFactor": -0.11
+    "closestPoleWidth": 104,
+    "aFactor": 35.657,
+    "bFactor": -0.052
   }
 }
