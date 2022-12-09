@@ -73,6 +73,7 @@
   "hardwareSpec": {
     "revHubVertical": false,
     "trackWidth": 8.179,
+    "encoderOffset": -0.75,
     "wheelBase": 4.16,
     "wheelRadius": 0.748,
     "ticksPerRev": 4000.0,
@@ -149,5 +150,18 @@
     "forward1": 32,
     "back1": 8,
     "backPick": 21
+  },
+  "poleParameter": {
+    "samplesEachSide": 8,
+    "minSize": 1000,
+    "cropXywh": [
+      0, 300, 640, 40
+    ],
+    "centerPosition": [
+      27,53,89,128,165,201,229,264,299,335,365,398,433,471,506,543,577
+    ],
+    "closestPoleWidth": 88,
+    "aFactor": 35.2,
+    "bFactor": -0.11
   }
 }
