@@ -150,7 +150,7 @@
     "armLengthDropGround": 0.54,
     "armLengthDrop": 0.55,
     "armLengthPickLeft": 0.375,
-    "armLengthPickRight": 0.375,
+    "armLengthPickRight": 0.350,
     "armLengthPostPick": 0.1,
     "turretForwardPos": -925,
     "turretDropPosRight": -462,
