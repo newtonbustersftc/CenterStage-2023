@@ -225,23 +225,29 @@ public class AutonomousTaskBuilder {
 //                seqParking.add(new RobotSleep(300)); ??
             seqOpen.add(new GrabberTask(robotHardware, robotProfile.hardwareSpec.grabberInitPos));
             seqOpen.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullInPos));
+            ParallelComboTask finalPos = new ParallelComboTask();
+            finalPos.add(new GrabberTask(robotHardware, false));
+            finalPos.add(new TurnTurretTask(robotHardware,  (isRight)?1097:-2900));
+            seqOpen.add(finalPos);
             dropLowPole.add(seqOpen);
             taskList.add(dropLowPole);
         }
         else {
+            ParallelComboTask parkingComb = new ParallelComboTask();
             TrajectorySequence parking;
             if(isRight){
                 parking = drive.trajectorySequenceBuilder(toPick.end())
-                        .strafeLeft((parkingRow==2)?25:49)   //y=54
+                        .strafeLeft((parkingRow==2)?24:48)   //y=54
                         .build();
             }else {
                 parking = drive.trajectorySequenceBuilder(toPick.end())
-                        .strafeRight((parkingRow==2)?25:49)   //y=54
+                        .strafeRight((parkingRow==2)?24:48)   //y=54
                         .build();
             }
             SplineMoveTask moveToPakring = new SplineMoveTask(robotHardware.mecanumDrive, parking);
-            taskList.add(moveToPakring);
-            taskList.add(new TurnTurretTask(robotHardware, 925));
+            parkingComb.add(moveToPakring);
+            parkingComb.add(new TurnTurretTask(robotHardware, 925));
+            taskList.add(parkingComb);
         }
         return taskList;
     }

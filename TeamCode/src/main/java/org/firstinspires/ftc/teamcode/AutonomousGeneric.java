@@ -61,12 +61,16 @@ public class AutonomousGeneric extends LinearOpMode {
         AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
         aprilTagSignalRecognition.startRecognition();
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, aprilTagSignalRecognition);
+        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
+        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+
 //        signalRecognition.startRecognition();
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
             if (loopCnt%100==0) {
+                telemetry.addData("Start Position", startPosMode);
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("Recognition Result", aprilTagSignalRecognition.getRecognitionResult());
