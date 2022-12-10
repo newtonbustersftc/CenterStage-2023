@@ -32,6 +32,12 @@ public class TurnTurretTask implements RobotControl {
 
     @Override
     public boolean isDone() {
-        return (System.currentTimeMillis()-startTime)>100 && !robotHardware.isTurretTurning();
+        int currPos = robotHardware.getTurretPosition();
+        boolean done = (System.currentTimeMillis()-startTime)>100 && !robotHardware.isTurretTurning() &&
+                Math.abs(currPos - turretPos)<20;
+        if (done) {
+            Logger.logFile("Turret pos " + currPos);
+        }
+        return done;
     }
 }

@@ -155,9 +155,17 @@ public class RobotProfile {
         int liftStack5;
         int liftStack4;
         int liftUpSafe;
+        double armLengthDrop1;
+        double armLengthDropLow;
+        double armLengthDropGround;
         double armLengthDrop;
-        double armLengthPick;
+        double armLengthPickLeft;
+        double armLengthPickRight;
         double armLengthPostPick;
+        double pickStraftLeft;
+        double pickStraftRight;
+        int turretGroundLeft;
+        int turretGroundRight;
         int turretForwardPos;
         int turretDropPosRight;
         int turretPickPosRight;

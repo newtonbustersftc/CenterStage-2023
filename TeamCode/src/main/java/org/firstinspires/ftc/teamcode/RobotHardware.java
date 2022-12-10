@@ -505,6 +505,7 @@ public class RobotHardware {
         }
         resetTurretPos();
         if (opmode.isStopRequested()) return;
+        // Goes down to touch first
         setLiftPositionUnsafe(-5000, 0.3);
         long t = System.currentTimeMillis();
         while (!isLiftTouched() && (System.currentTimeMillis()-t)<3000) {
@@ -514,8 +515,21 @@ public class RobotHardware {
             catch (Exception ex) {
             }
         }
-        if (opmode.isStopRequested()) return;
         resetLiftPos();
+        setLiftPosition(0);
+        // goes up again until touch no more
+        int i = 0;
+        while (isLiftTouched() && !opmode.isStopRequested()) {
+            i = i+1;
+            setLiftPosition(i);
+            try {
+                Thread.sleep(10);
+            }
+            catch (Exception ex) {
+            }
+        }
+        resetLiftPos();
+        if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         grabberInit();
     }
