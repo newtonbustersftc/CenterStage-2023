@@ -26,7 +26,7 @@ public class ExtendArmTask implements RobotControl {
     public void prepare() {
         startTime = System.currentTimeMillis();
         robotHardware.setExtensionPosition(armPos);
-        Logger.logFile("Turret turn to: " + armPos);
+        Logger.logFile("Extension Arm to: " + armPos);
     }
 
     @Override

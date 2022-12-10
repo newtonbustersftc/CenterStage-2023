@@ -247,14 +247,14 @@ public class DriverOpMode extends OpMode {
             int currPos = robotHardware.getLiftPosition();
             if (gamepad2.right_bumper) {    // going up
                 int n = 0;
-                while (n<pos.length-1 && pos[n]<currPos+50) {   // need the 50 range because lift maybe shifting up/down a bit
+                while (n<pos.length-1 && pos[n]<currPos+15) {   // need the 50 range because lift maybe shifting up/down a bit
                     n++;
                 }
                 robotHardware.setLiftPosition(pos[n]);
             }
             else if (gamepad2.left_bumper) { // going down
                 int n = pos.length - 1;
-                while (n>0 && pos[n] >= currPos-50) {
+                while (n>0 && pos[n] >= currPos-15) {
                     n--;
                 }
                 robotHardware.setLiftPosition(pos[n]);
