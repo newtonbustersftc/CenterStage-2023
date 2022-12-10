@@ -246,8 +246,9 @@ public class AutonomousTaskBuilder {
             }
             SplineMoveTask moveToPakring = new SplineMoveTask(robotHardware.mecanumDrive, parking);
             parkingComb.add(moveToPakring);
-            parkingComb.add(new TurnTurretTask(robotHardware, 925));
+            parkingComb.add(new TurnTurretTask(robotHardware, 0));
             taskList.add(parkingComb);
+            taskList.add(new TurnTurretTask(robotHardware, 925));
         }
         return taskList;
     }
