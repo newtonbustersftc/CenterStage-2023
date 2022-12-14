@@ -145,7 +145,7 @@ public class AutonomousTaskBuilder {
         // Lift and go to pick up #2 from stack
         ParallelComboTask upRetract = new ParallelComboTask();
         upRetract.add(new LiftArmTask(robotHardware, param.liftLowDrop));
-        upRetract.add(new GrabberTask(robotHardware,robotProfile.hardwareSpec.grabberInitPos));
+        upRetract.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
 //        upRetract.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullInPos));
         upRetract.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
         upRetract.add(new TurnTurretTask(robotHardware, (isRight)? 0 :-1850));//param.turretDropPosRight,param.turretDropPosLeft
@@ -223,7 +223,7 @@ public class AutonomousTaskBuilder {
             dropLowPole.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[4]));
             SequentialComboTask seqOpen = new SequentialComboTask();
 //                seqParking.add(new RobotSleep(300)); ??
-            seqOpen.add(new GrabberTask(robotHardware, robotProfile.hardwareSpec.grabberInitPos));
+            seqOpen.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
             seqOpen.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullInPos));
             ParallelComboTask finalPos = new ParallelComboTask();
             finalPos.add(new GrabberTask(robotHardware, false));

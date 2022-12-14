@@ -1,39 +1,45 @@
 package org.firstinspires.ftc.teamcode;
 
 public class GrabberTask implements RobotControl {
+    public enum GrabberState { OPEN, CLOSE, INIT };
+
     RobotHardware robotHardware;
-    boolean isOpen;
     long startTime;
     long duration = 500;
-    double position;
+    GrabberState state;
 
     public GrabberTask(RobotHardware hardware, boolean isOpen) {
         this.robotHardware = hardware;
-        this.isOpen = isOpen;
+        if (isOpen) {
+            state = GrabberState.OPEN;
+        }
+        else {
+            state = GrabberState.CLOSE;
+        }
     }
 
-    public GrabberTask(RobotHardware hardware, double position) {
+    public GrabberTask(RobotHardware hardware, GrabberState state) {
         this.robotHardware = hardware;
-        this.position = position;
+        this.state = state;
     }
 
     public String toString() {
-        return "GrabberTask open:" + isOpen;
+        return "GrabberTask State: " + state;
     }
 
     @Override
     public void prepare() {
         startTime = System.currentTimeMillis();
-        if (isOpen) {
+        if (state==GrabberState.OPEN) {
             robotHardware.grabberOpen();
         }
-        else if(!isOpen && position>0) {
+        else if(state==GrabberState.INIT) {
             robotHardware.grabberInit();
         }
         else{
             robotHardware.grabberClose();
         }
-        Logger.logFile("Grabber open: " + isOpen);
+        Logger.logFile("Grabber state: " + state);
     }
 
     @Override

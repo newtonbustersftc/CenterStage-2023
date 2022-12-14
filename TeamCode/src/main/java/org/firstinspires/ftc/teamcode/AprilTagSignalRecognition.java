@@ -82,39 +82,11 @@ public class AprilTagSignalRecognition  {
                         break;
                     }
                 }
-
-                if (tagFound) {
-                    Logger.logFile("Tag of interest is in sight!\n\nLocation data:" + tagOfInterest);
-                } else {
-                    Logger.logFile("Don't see tag of interest :(");
-
-                    if (tagOfInterest == null) {
-                        Logger.logFile("(The tag has never been seen)");
-                    } else {
-                        Logger.logFile("\nBut we HAVE seen the tag before; last seen at:" + tagOfInterest);
-                    }
-                }
-            } else {
-                Logger.logFile("Don't see tag of interest :(");
-
-                if (tagOfInterest == null) {
-                    Logger.logFile("(The tag has never been seen)");
-                } else {
-                    Logger.logFile("\nBut we HAVE seen the tag before; last seen at:" + tagOfInterest);
-                }
             }
-
             /*
              * The START command just came in: now work off the latest snapshot acquired
              * during the init loop.
              */
-
-            /* Update the telemetry */
-            if (tagOfInterest != null) {
-                Logger.logFile("Tag snapshot:\n" + tagOfInterest);
-            } else {
-                Logger.logFile("No tag snapshot available, it was never sighted during the init loop :(");
-            }
 
             /* Actually do something useful */
             if (tagOfInterest == null) {
@@ -126,18 +98,6 @@ public class AprilTagSignalRecognition  {
             }else{
                 return RIGHT;
             }
-
-        }
-
-        void tagToLogger(AprilTagDetection detection)
-        {
-            Logger.logFile(String.format("\nDetected tag ID=%d", detection.id));
-            Logger.logFile(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
-            Logger.logFile(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
-            Logger.logFile(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
-            Logger.logFile(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
-            Logger.logFile(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
-            Logger.logFile(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
         }
     }
 
