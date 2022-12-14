@@ -152,11 +152,9 @@ public class RobotHardware {
             else {
                 newLiftPos = Math.max(0, newLiftPos);
             }
-            Logger.logFile("lift down new liftPos:"+ newLiftPos);
         }
         else {
             newLiftPos = Math.min(newLiftPos, profile.hardwareSpec.liftMax);
-            Logger.logFile("lift up new liftPos:"+newLiftPos);
         }
         for(DcMotorEx liftMotor : liftMotors) {
             liftMotor.setTargetPosition(newLiftPos);

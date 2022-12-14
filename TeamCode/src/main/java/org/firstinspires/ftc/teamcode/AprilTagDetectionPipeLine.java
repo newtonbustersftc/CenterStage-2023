@@ -95,7 +95,7 @@ class AprilTagDetectionPipeline extends OpenCvPipeline
         }
         else
         {
-            System.out.println("AprilTagDetectionPipeline.finalize(): nativeApriltagPtr was NULL");
+            Logger.logFile("AprilTagDetectionPipeline.finalize(): nativeApriltagPtr was NULL");
         }
     }
 

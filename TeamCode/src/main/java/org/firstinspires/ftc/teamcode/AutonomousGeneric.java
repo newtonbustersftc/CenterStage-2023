@@ -99,7 +99,9 @@ public class AutonomousGeneric extends LinearOpMode {
                 taskList.get(0).execute();
 
                 if (taskList.get(0).isDone()) {
-                    Logger.logFile("MainTaskComplete: " + taskList.get(0) + " Pose:" + robotHardware.getLocalizer().getPoseEstimate());
+                    String status = "MainTaskComplete: " + taskList.get(0) + " Pose:" + robotHardware.getLocalizer().getPoseEstimate();
+                    RobotLog.ii("RobotTask", status);
+                    Logger.logFile(status);
                     Logger.flushToFile();
 
                     taskList.get(0).cleanUp();
@@ -109,7 +111,9 @@ public class AutonomousGeneric extends LinearOpMode {
                     telemetry.update();
 
                     if (taskList.size() > 0) {
-                        taskList.get(0).prepare();
+                        RobotControl task = taskList.get(0);
+                        task.prepare();
+                        RobotLog.ii("RobotTask", "TaskPrepare " + task);
                     }
                 }
             }
