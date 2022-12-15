@@ -20,6 +20,10 @@ public class SoloDriverOpMode extends OpMode {
     boolean gripperCanChange = true;
     PoleRecognition poleRecognition;
     boolean justAutoPole = false;
+    boolean touching = false;
+    double touchX, touchY;
+    int touchTurret;
+    double touchExtension;
 
     // DriveThru combos
     RobotControl grabAndLift, deliverTask,  forPickUp, forGroundJunction;
@@ -140,8 +144,18 @@ public class SoloDriverOpMode extends OpMode {
     // Use touch pad to control lift with 1 finger
     public void handleTurret() {
         if (gamepad1.touchpad_finger_1) {
-            robotHardware.turnTurret(gamepad1.touchpad_finger_1_x);
+            if (!touching) {
+                touchX = gamepad1.touchpad_finger_1_x;
+                touchY = gamepad1.touchpad_finger_1_y;
+                touchTurret = robotHardware.getTurretPosition();
+                touchExtension = robotHardware.getExtensionPosition();
+            }
+            else {
+                robotHardware.setTurretPosition(touchTurret + (int)((gamepad1.touchpad_finger_1_x - touchX) * robotProfile.hardwareSpec.turret360/16));
+                robotHardware.setExtensionPosition(touchExtension + (gamepad1.touchpad_finger_1_y - touchY)/8);
+            }
         }
+        touching = gamepad1.touchpad_finger_1;
     }
 
     public void handleLift() {

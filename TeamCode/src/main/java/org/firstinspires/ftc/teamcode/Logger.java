@@ -25,10 +25,11 @@ public class Logger {
 
     public static void init() {
         try {
-            folderCleanup("driver", ".txt");
-            folderCleanup("MASK", ".jpg");
-            folderCleanup("REAR", ".jpg");
-            folderCleanup("GOAL", ".jpg");
+            folderCleanup("driver", ".txt", 30);
+            folderCleanup("MASK", ".jpg", 30);
+            folderCleanup("REAR", ".jpg", 30);
+            folderCleanup("GOAL", ".jpg", 30);
+            folderCleanup("S", ".jpg", 20);
             String timestamp = new SimpleDateFormat("yyyyMMdd-HHmm", Locale.US).format(new Date());
             File file = new File(Environment.getExternalStorageDirectory().getPath() + "/FIRST/driver_" + timestamp + ".txt");
 
@@ -61,7 +62,7 @@ public class Logger {
     }
 
     /** Delete files more than 30 minutes old */
-    public static void folderCleanup(String startsWith, String endsWith) {
+    public static void folderCleanup(String startsWith, String endsWith, int maxCnt) {
         // could use wildcardfilter, but not want to include another Library
         File file = new File(Environment.getExternalStorageDirectory().getPath() + "/FIRST/");
         ArrayList<File> fileList = new ArrayList<File>();
@@ -71,7 +72,16 @@ public class Logger {
                     RobotLog.i("Deleting " + f.getName());
                     f.delete();
                 }
+                else {
+                    fileList.add(f);
+                }
             }
+        }
+        int extra = fileList.size() - maxCnt;
+        for(int i=0; i<extra; i++) {
+            File f = fileList.remove(0);
+            RobotLog.i("Deleting " + f.getName());
+            f.delete();
         }
     }
 }
