@@ -447,6 +447,10 @@ public class RobotHardware {
         extensionServo.setPosition(this.extensionPos);
     }
 
+    public double getExtensionPosition() {
+        return extensionPos;
+    }
+
     public void grabberOpen() {
         gripOpen = true;
         grabberServo.setPosition(profile.hardwareSpec.grabberOpenPos);
