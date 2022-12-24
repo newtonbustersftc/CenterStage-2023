@@ -23,6 +23,7 @@ public class PoleRecognition {
     RobotProfile rProfile;
 
     CVPipelinePole pipe;
+    public static String CAMERA_NAME = "Webcam 2";
 
     public PoleRecognition(RobotVision rVision, RobotProfile rProfile) {
         this.rVision = rVision;
@@ -31,12 +32,15 @@ public class PoleRecognition {
     }
 
     public void stopRecognition() {
-        rVision.stopWebcam("Webcam 2");
+        rVision.stopWebcam(CAMERA_NAME);
     }
 
     public void startRecognition() {
-        rVision.initWebCam("Webcam 2", true);
-        rVision.startWebcam("Webcam 2", pipe);
+        rVision.initWebCam(CAMERA_NAME, true);
+        rVision.setGain(CAMERA_NAME, rProfile.poleParameter.gain);
+        rVision.setExposureMS(CAMERA_NAME, rProfile.poleParameter.exposureMs);
+        rVision.setManualFocusLength(CAMERA_NAME, rProfile.poleParameter.focus);
+        rVision.startWebcam(CAMERA_NAME, pipe);
     }
 
     public void saveNextImg() {
@@ -83,8 +87,8 @@ class CVPipelinePole extends OpenCvPipeline {
         // 1. Convert to HSV
         Imgproc.cvtColor(procMat, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
         // 2. Create MASK
-        Scalar lowerBound = new Scalar(PoleSampleOpMode.MASK_LOWER_BOUND_H, PoleSampleOpMode.MASK_LOWER_BOUND_S, PoleSampleOpMode.MASK_LOWER_BOUND_V);
-        Scalar upperBound = new Scalar(PoleSampleOpMode.MASK_UPPER_BOUND_H, PoleSampleOpMode.MASK_UPPER_BOUND_S, PoleSampleOpMode.MASK_UPPER_BOUND_V);
+        Scalar lowerBound = robotProfile.poleParameter.lowerBound;
+        Scalar upperBound = robotProfile.poleParameter.upperBound;
 
         Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();

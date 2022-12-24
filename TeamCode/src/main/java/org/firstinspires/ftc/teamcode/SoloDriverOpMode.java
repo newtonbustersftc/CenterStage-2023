@@ -41,8 +41,14 @@ public class SoloDriverOpMode extends OpMode {
         fieldMode = true; //robot starts in field orientation
 
         Logger.init();
+        Logger.logFile("OpMode - DriverOpMode");
+
         //Obtain the RobotHardware object from factory
         robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware.resetDriveAndEncoders();
+        robotHardware.enableManualCaching(true);
+        robotHardware.clearBulkCache();
+        robotHardware.getLocalizer().update();
         poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
         poleRecognition.startRecognition();
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
@@ -56,6 +62,7 @@ public class SoloDriverOpMode extends OpMode {
      */
     @Override
     public void loop() {
+        robotHardware.clearBulkCache();
         //Handling autonomous task loop
         if (currentTask != null) {
             if (gamepad1.left_bumper && gamepad1.right_bumper) {
@@ -96,6 +103,8 @@ public class SoloDriverOpMode extends OpMode {
             currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
             currentTask.prepare();
         }
+        telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
+        telemetry.update();
     }
 
     @Override
@@ -132,6 +141,11 @@ public class SoloDriverOpMode extends OpMode {
             power = power / 3;
             turn = turn / 3;
         }
+        telemetry.addData("Power:", power);
+        telemetry.addData("Move Angle:", movAngle);
+        telemetry.addData("Turn:", turn);
+        telemetry.addData("RL Dir:", robotHardware.rlMotor.getDirection());
+        telemetry.addData("RR Dir:", robotHardware.rrMotor.getDirection());
         robotHardware.mecanumDrive2(power, movAngle, turn);
 
         if(gamepad1.share){
@@ -193,8 +207,14 @@ public class SoloDriverOpMode extends OpMode {
                     }
                 }
             }
+            else if(gamepad1.dpad_up) {
+                robotHardware.setLiftPosition(currPos + 100);
+            }
+            else if (!gamepad1.share && gamepad1.dpad_down) {
+                robotHardware.setLiftPosition(currPos - 100);
+            }
         }
-        liftCanChange = !gamepad1.right_bumper && !gamepad1.left_bumper;
+        liftCanChange = !gamepad1.right_bumper && !gamepad1.left_bumper && !gamepad1.dpad_up && !gamepad1.dpad_down;
     }
 
     public void handleGripper() {
@@ -240,6 +260,7 @@ public class SoloDriverOpMode extends OpMode {
         forPickUp = new SequentialComboTask();
         ((SequentialComboTask)forPickUp).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
         ((SequentialComboTask)forPickUp).add(new LiftArmTask(robotHardware, 0));
+        ((SequentialComboTask)forPickUp).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.OPEN));
 
         forGroundJunction = new SequentialComboTask();
         ((SequentialComboTask)forGroundJunction).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));

@@ -93,6 +93,10 @@ public class RobotProfile {
     }
 
     public class PoleParameter {
+        public int gain;
+        public int focus;
+        public int exposureMs;
+        public Scalar lowerBound, upperBound;
         public int samplesEachSide;
         public int minSize;
         public int[] cropXywh;

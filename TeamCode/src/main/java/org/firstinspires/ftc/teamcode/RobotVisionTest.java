@@ -45,6 +45,8 @@ public class RobotVisionTest extends LinearOpMode {
     public static int H1 = 100;
     public static int H2 = 255;
     public static int H3 = 255;
+    public static int TOP = 240;
+    public static int HEIGHT=40;
     public static int MIN_AREA = 100;
 
     // GREEN: 60, 30, 60 -> 100, 255, 255
@@ -68,11 +70,11 @@ public class RobotVisionTest extends LinearOpMode {
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
-        robotVision.initWebCam("Webcam 1", true);
+        robotVision.initWebCam("Webcam 2", true);
 
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-        robotVision.startWebcam("Webcam 1", new CVPipeline());
+        robotVision.startWebcam("Webcam 2", new CVTestPipeline());
         while (!isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
@@ -137,7 +139,7 @@ public class RobotVisionTest extends LinearOpMode {
         }
     }
 }
- class CVPipeline extends OpenCvPipeline {
+ class CVTestPipeline extends OpenCvPipeline {
 
     Mat hsvMat = new Mat();
     Mat maskMat = new Mat();
@@ -149,7 +151,13 @@ public class RobotVisionTest extends LinearOpMode {
 
      @Override
     public Mat processFrame(Mat input) {
-        // 1. Convert to HSV
+        // 0. Crop
+        Mat procMat = input.submat(new Rect(0,
+                 RobotVisionTest.TOP,
+                 input.width(),
+                 RobotVisionTest.HEIGHT));
+
+         // 1. Convert to HSV
         Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
         // 2. Create MASK
          Scalar lowerBound = new Scalar(RobotVisionTest.L1, RobotVisionTest.L2, RobotVisionTest.L3);
@@ -178,8 +186,9 @@ public class RobotVisionTest extends LinearOpMode {
             double area = Imgproc.contourArea(wrapper);
             if (area > RobotVisionTest.MIN_AREA) {
                 Rect rec = Imgproc.boundingRect(wrapper);
+                Rect drawRect = new Rect(rec.x, rec.y + RobotVisionTest.TOP, rec.width, rec.height);
                 //Rect drawRec = new Rect(rec.x*DIM_MULTIPLIER, rec.y*DIM_MULTIPLIER, rec.width*DIM_MULTIPLIER, rec.height*DIM_MULTIPLIER);
-                Imgproc.rectangle(input, rec, DRAW_COLOR_RED, 2);
+                Imgproc.rectangle(input, drawRect, DRAW_COLOR_RED, 2);
             }
         }
         if (saveImage) {

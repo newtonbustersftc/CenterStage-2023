@@ -58,8 +58,13 @@ public class DriverOpMode extends OpMode {
         fieldMode = true; //robot starts in field orientation
 
         Logger.init();
+        Logger.logFile("OpMode - DriverOpMode");
         //Obtain the RobotHardware object from factory
         robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware.resetDriveAndEncoders();
+        robotHardware.enableManualCaching(true);
+        robotHardware.clearBulkCache();
+        robotHardware.getLocalizer().update();
         poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
         poleRecognition.startRecognition();
         //robotHardware = new RobotHardware();
@@ -83,6 +88,7 @@ public class DriverOpMode extends OpMode {
      */
     @Override
     public void loop() {
+        robotHardware.clearBulkCache();
         //Handling autonomous task loop
         if (currentTask != null) {
             //robotHardware.setLed1(true);
@@ -125,8 +131,7 @@ public class DriverOpMode extends OpMode {
         }
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
-
-
+        telemetry.update();
     }
 
     @Override
@@ -170,6 +175,11 @@ public class DriverOpMode extends OpMode {
             imuAngleOffset = 0;
             fieldMode = true;
         }
+        telemetry.addData("Power:", power);
+        telemetry.addData("Move Angle:", movAngle);
+        telemetry.addData("Turn:", turn);
+        telemetry.addData("RL Dir:", robotHardware.rlMotor.getDirection());
+        telemetry.addData("RR Dir:", robotHardware.rrMotor.getDirection());
     }
 
     public void handleTurret() {

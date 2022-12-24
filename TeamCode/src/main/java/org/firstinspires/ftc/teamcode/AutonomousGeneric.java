@@ -39,6 +39,7 @@ public class AutonomousGeneric extends LinearOpMode {
         }
 
         Logger.init();
+        Logger.logFile("OpMode - Newton Autonomous");
 
         RobotFactory.reset();
 
@@ -50,6 +51,7 @@ public class AutonomousGeneric extends LinearOpMode {
     public void runOpMode() {
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
+        robotHardware.enableManualCaching(false);
         robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
@@ -78,6 +80,7 @@ public class AutonomousGeneric extends LinearOpMode {
             }
         }
         Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
+        robotHardware.resetDriveAndEncoders();
         taskList = builder.buildTaskList();
         TaskReporter.report(taskList);
         Logger.logFile("Task list items: " + taskList.size());
