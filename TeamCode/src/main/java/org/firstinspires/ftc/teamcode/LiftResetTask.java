@@ -22,7 +22,7 @@ public class LiftResetTask implements RobotControl {
         startTime = System.currentTimeMillis();
         robotHardware.setExtensionPosition(profile.hardwareSpec.extensionDriverMin);
         int currPos = robotHardware.getLiftPosition();
-        robotHardware.setLiftPosition(currPos - 5000);
+        robotHardware.setLiftPositionUnsafe(currPos - 5000, 0.3);
         mode = Mode.DOWN;
     }
 

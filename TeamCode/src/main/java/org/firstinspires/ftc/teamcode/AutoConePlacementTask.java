@@ -30,7 +30,7 @@ public class AutoConePlacementTask implements RobotControl {
     @Override
     public void execute() {
         if (mode == Mode.WAIT) {
-            if (System.currentTimeMillis() - startTime > 100) {
+            if (System.currentTimeMillis() - startTime > 200) {
                 int center = poleRecognition.getPoleCenterOnImg();
                 initialWidth = poleRecognition.getPoleWidthOnImg();
                 Logger.logFile("AutoCone 1st Pole Center: " + center + " Width: " + initialWidth);
@@ -49,7 +49,7 @@ public class AutoConePlacementTask implements RobotControl {
         else if (mode == Mode.MOVE_TURRET) {
             if (Math.abs(expectedTurretPosition - robotHardware.getTurretPosition()) <= 5) {
                 // if first time within 50 already, no need to recalculate
-                if (Math.abs(offset)<=55) {
+                if (Math.abs(offset)<=45) {
                     double armPos = calculateArmExtension(initialWidth);
                     Logger.logFile("Need arm extension: " + armPos);
                     if (armPos!=-1) {

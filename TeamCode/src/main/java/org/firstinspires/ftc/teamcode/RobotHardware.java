@@ -36,18 +36,16 @@ import java.util.List;
 
 public class RobotHardware {
     public double extensionPos;
-
     HardwareMap hardwareMap;
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
     private DcMotorEx turretMotor;
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     private Servo grabberServo, extensionServo;
-    DigitalChannel liftBottom;
     TouchSensor magneticSensor, liftTouch;
     LynxModule expansionHub1;
     LynxModule expansionHub2;
     NBMecanumDrive mecanumDrive;
-    BNO055IMU imu;
+    //BNO055IMU imu;        // not available on our Expansion Hub
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
     double gyroOffset;
@@ -56,9 +54,6 @@ public class RobotHardware {
 
     RobotVision robotVision;
     DecimalFormat nf2 = new DecimalFormat("#.##");
-    //Servo ;
-    //DigitalChannel ;
-    //Rev2mDistanceSensor ;
     RobotProfile profile;
 
     public void init(HardwareMap hardwareMap, RobotProfile profile) {
@@ -188,58 +183,7 @@ public class RobotHardware {
         return 0;
     }
 
-    public void mecanumDriveTest(double power, double angle, double rotation, int sign){
-        double frontLeft = 0;
-        double frontRight = 0;
-        double rearLeft = 0;
-        double rearRight = 0;
-        //10/28/2019, Will, Ian Athena implemented and tested the drive method
-        //double robotAngle = Math.PI / 2 - angle - Math.PI / 4;
-        if(sign == 0) {
-            frontLeft = power * Math.cos(angle) + rotation;
-            frontRight = power * Math.sin(angle) - rotation;
-            rearLeft = power * Math.sin(angle) + rotation;
-            rearRight = power * Math.cos(angle) - rotation;
-        }
-        else if(sign ==1){  //left side less encoder counts
-            frontLeft = power *0.95 * Math.cos(angle) + rotation;
-            frontRight = power * Math.sin(angle) - rotation;
-            rearLeft = power * 0.95 * Math.sin(angle) + rotation;
-            rearRight = power * Math.cos(angle) - rotation;
-        }
-        else if(sign == 2){   //right side less encoder counts
-            frontLeft = power * Math.cos(angle) + rotation;
-            frontRight = power * 0.95 * Math.sin(angle) - rotation;
-            rearLeft = power * Math.sin(angle) + rotation;
-            rearRight = power * 0.95 * Math.cos(angle) - rotation;
-        }
-
-        double biggest = 0.1;
-        if (Math.abs(frontRight) > biggest){
-            biggest = Math.abs(frontRight);
-        }
-        if (Math.abs(rearLeft) > biggest){
-            biggest = Math.abs(rearLeft);
-        }
-        if (Math.abs(rearRight) > biggest){
-            biggest = Math.abs(rearRight);
-        }
-        if (Math.abs(frontLeft) > biggest){
-            biggest = Math.abs(frontLeft);
-        }
-
-        power = (power == 0 && rotation !=0) ? 1 : power;
-        frontLeft = frontLeft/biggest*power;
-        frontRight = frontRight/biggest*power;
-        rearLeft = rearLeft/biggest*power;
-        rearRight = rearRight/biggest*power;
-//        Logger.logFile("Power - FL" + nf2.format(frontLeft) + " FR:"+ nf2.format(frontRight) +
-//                        " RL:" + nf2.format(rearLeft) + " RR:" + nf2.format(rearRight));
-        setMotorPower(frontLeft, frontRight, rearLeft, rearRight);
-    }
-
     public void mecanumDrive2(double power, double angle, double rotation){
-
         //10/28/2019, Will, Ian Athena implemented and tested the drive method
         double robotAngle = Math.PI / 2 + angle - Math.PI / 4;
         double frontLeft = power * Math.cos(robotAngle) + rotation;
@@ -268,7 +212,7 @@ public class RobotHardware {
         rearLeft = rearLeft/biggest*power;
         rearRight = rearRight/biggest*power;
 
-        setMotorPower(-frontLeft, frontRight, -rearLeft, rearRight);        // TO FIX!!!
+        setMotorPower(frontLeft, frontRight, rearLeft, rearRight);        // TO FIX!!!
     }
 
     public void setMotorPower(double flPower, double frPower, double rlPower, double rrPower) {
@@ -300,11 +244,11 @@ public class RobotHardware {
             expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
     }
+
     public void clearBulkCache() {
         expansionHub1.clearBulkCache();
         expansionHub2.clearBulkCache();
     }
-
 
     public void stopAll() {
         setMotorPower(0, 0, 0, 0);
@@ -317,32 +261,32 @@ public class RobotHardware {
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
 
     public double getGyroHeading() {
+//      return imu.getAngularOrientation().firstAngle;
         Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         return angles.firstAngle - gyroOffset;
-        //return imu.getAngularOrientation().firstAngle;
     }
 
     public double getGyroVelocity() {
+//        AngularVelocity angles = imu.getAngularVelocity();
+//        return angles.zRotationRate;
         AngularVelocity angles = gyro.getAngularVelocity(AngleUnit.RADIANS);
-        //AngularVelocity angles = imu.getAngularVelocity();
         return angles.zRotationRate;
     }
 
     public void resetImu() {
-        gyroOffset = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
-//        if (imu!=null) {
-//            Logger.logFile("Resetting IMU");
-//            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-//            parameters.mode = BNO055IMU.SensorMode.IMU;
-//            parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-//            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-//            parameters.loggingEnabled = false;
-//            imu.initialize(parameters);
-//            //If Robot Controller is vertically placed, uncomment the following line
-//            if (profile.hardwareSpec.revHubVertical) {
-//                BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
-//            }
+//        Logger.logFile("Resetting Built-in IMU");
+//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+//        parameters.mode = BNO055IMU.SensorMode.IMU;
+//        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+//        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+//        parameters.loggingEnabled = true;
+//        boolean result = imu.initialize(parameters);
+//        //If Robot Controller is vertically placed, uncomment the following line
+//        if (profile.hardwareSpec.revHubVertical) {
+//            BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 //        }
+//        Logger.logFile("Reset Built-in IMU " + result);
+        gyroOffset = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
     }
 
     public void calibrateGyro(Telemetry telemetry) {
@@ -480,7 +424,29 @@ public class RobotHardware {
         if (isMagneticTouched()) {
             setTurretPosition(tu - profile.hardwareSpec.turretOffset);
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
+            }
+            catch (Exception ex) {
+            }
+        }
+        else {
+            // fast rotate first
+            while (!isMagneticTouched() && !opmode.isStopRequested()) {
+                tu = getTurretPosition();
+                opmode.telemetry.addData("Tullett position", tu);
+                opmode.telemetry.update();
+                setTurretPosition(tu + 50);
+                try {
+                    Thread.sleep(5);
+                }
+                catch (Exception ex) {
+                }
+            }
+            //rotate back
+            tu = getTurretPosition();
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            try {
+                Thread.sleep(500);
             }
             catch (Exception ex) {
             }
@@ -501,7 +467,7 @@ public class RobotHardware {
         tu = getTurretPosition();
         setTurretPosition(tu - profile.hardwareSpec.turretOffset);
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         }
         catch (Exception ex) {
         }

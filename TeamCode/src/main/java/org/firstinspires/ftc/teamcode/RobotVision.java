@@ -8,7 +8,10 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.PtzControl;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -34,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  2020.11.05
@@ -67,7 +71,6 @@ public class RobotVision {
         else {
             camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, deviceName));
         }
-        cameraMap.put(deviceName, camera);
         doneOpen = OpenState.WAIT;
         camera.openCameraDeviceAsync(
             new OpenCvCamera.AsyncCameraOpenListener() {
@@ -80,28 +83,45 @@ public class RobotVision {
 
                 @Override
                 public void onError(int errorCode) {
-                    Logger.logFile("Failed to open Webcam: " + deviceName);
-                    RobotLog.e("Failed to open Webcam: " + deviceName);
+                    Logger.logFile("Failed to open Webcam: " + deviceName + " Error:" + errorCode);
+                    RobotLog.e("Failed to open Webcam: " + deviceName + " Error:" + errorCode);
                     doneOpen = OpenState.FAILURE;
                 }
             }
         );
-        while (doneOpen==OpenState.WAIT) {
+        while (doneOpen == OpenState.WAIT) {
             try {
                 Thread.sleep(100);
             }
             catch (Exception ex) {
             }
         }
+        if (doneOpen==OpenState.FAILURE) {
+            return false;
+        }
         try {
-            Thread.sleep(300);
+            Thread.sleep(200);
         }
         catch (Exception ex) {
         }
+        cameraMap.put(deviceName, camera);
         //int g = camera.getGainControl().getGain();
         //Logger.logFile("Current camera gain: " + g + " max gain:" + camera.getGainControl().getMaxGain());
         //camera.getGainControl().setGain(70);
-        return doneOpen==OpenState.SUCCESS;
+        FocusControl fc = camera.getFocusControl();
+        Logger.logFile(deviceName + " Focus Fix mode support:" + fc.isModeSupported(FocusControl.Mode.Fixed));
+        ExposureControl ec = camera.getExposureControl();
+        Logger.logFile(deviceName + " Manual Exposure support:" + ec.isModeSupported(ExposureControl.Mode.Manual));
+        GainControl gc = camera.getGainControl();
+        Logger.logFile(deviceName + " Gain min:" + gc.getMinGain() + " max:" + gc.getMaxGain());
+        PtzControl pc = camera.getPtzControl();
+        if (pc!=null) {
+            Logger.logFile(deviceName + " Ptz support min-zoom:" + pc.getMinZoom() + " max-zoom:" + pc.getMaxZoom());
+        }
+        else {
+            Logger.logFile(deviceName + " no Ptz Control");
+        }
+        return true;
     }
 
     class SavePicturePipeline extends OpenCvPipeline {
@@ -134,8 +154,27 @@ public class RobotVision {
         OpenCvWebcam webcam = cameraMap.get(deviceName);
         if (webcam!=null) {
             webcam.setPipeline(pipeline);
-            if(pipeline instanceof CVPipelineSignal) {
-                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            if(pipeline instanceof CVTestPipeline) {  // RobotVisionTest
+                webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+//                FocusControl fc = webcam.getFocusControl();
+//                Logger.logFile("Pole Cam focus min: " + fc.getMinFocusLength() + " max:" + fc.getMaxFocusLength() + " curr:" + fc.getFocusLength());
+//                fc.setMode(FocusControl.Mode.Fixed);
+//                ExposureControl ec = webcam.getExposureControl();
+//                Logger.logFile("Exposure supported:" + ec.isExposureSupported());
+//                Logger.logFile("Exposure Manual Mode Supported:" + ec.isModeSupported(ExposureControl.Mode.Manual));
+//                Logger.logFile("Exposure AP Mode Supported:" + ec.isModeSupported(ExposureControl.Mode.AperturePriority));
+//                Logger.logFile("Exposure SP Mode Supported:" + ec.isModeSupported(ExposureControl.Mode.ShutterPriority));
+//                Logger.logFile("Exposure Manual Mode Supported:" + ec.isModeSupported(ExposureControl.Mode.Manual));
+//                ec.setMode(ExposureControl.Mode.Manual);
+//                Logger.logFile("Manual EC min:" + ec.getMinExposure(TimeUnit.MILLISECONDS) + " max:" + ec.getMaxExposure(TimeUnit.MILLISECONDS)+
+//                        " curr:" + ec.getExposure(TimeUnit.MILLISECONDS));
+//                ec.setExposure(20, TimeUnit.MILLISECONDS);
+//
+//                fc.setFocusLength(15);
+//                GainControl gc = webcam.getGainControl();
+//                Logger.logFile("Pole Cam Gain min:" + gc.getMinGain() + " max:" + gc.getMaxGain() + " curr:" + gc.getGain());
+//                gc.setGain(64);
+//
             }else if(pipeline instanceof AprilTagDetectionPipeline){
                 webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             } else if (pipeline instanceof CVPipelinePole) {
@@ -154,6 +193,31 @@ public class RobotVision {
         if (webcam!=null) {
             webcam.stopStreaming();
             webcam.closeCameraDevice();
+        }
+    }
+
+    public void setExposureMS(String deviceName, int timeMs) {
+        OpenCvWebcam webcam = cameraMap.get(deviceName);
+        if (webcam!=null) {
+            ExposureControl ec = webcam.getExposureControl();
+            ec.setExposure(timeMs, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    public void setGain(String deviceName, int gain) {
+        OpenCvWebcam webcam = cameraMap.get(deviceName);
+        if (webcam != null) {
+            GainControl gc = webcam.getGainControl();
+            gc.setGain(gain);
+        }
+    }
+
+    public void setManualFocusLength(String deviceName, int focus) {
+        OpenCvWebcam webcam = cameraMap.get(deviceName);
+        if (webcam != null) {
+            FocusControl fc = webcam.getFocusControl();
+            fc.setMode(FocusControl.Mode.Fixed);
+            fc.setFocusLength(focus);
         }
     }
 }
