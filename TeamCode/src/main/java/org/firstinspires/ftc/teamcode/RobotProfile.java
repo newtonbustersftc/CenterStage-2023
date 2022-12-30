@@ -96,6 +96,7 @@ public class RobotProfile {
         public int gain;
         public int focus;
         public int exposureMs;
+        public int whiteBalance;
         public Scalar lowerBound, upperBound;
         public int samplesEachSide;
         public int minSize;

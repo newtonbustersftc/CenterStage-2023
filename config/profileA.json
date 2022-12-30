@@ -94,12 +94,13 @@
     "turretOffset": 136,
     "turret360": 3700,
     "liftMax": 1166,
-    "liftSafeRotate": 150,
+    "liftSafeRotate": 250,
     "liftPowerUp": 0.8,
     "liftPowerDown": 0.5,
     "liftDropPos": [
-      30,
-      60,
+      40,
+      200,
+      245,
       455,
       780,
       1073
@@ -166,11 +167,12 @@
   "poleParameter": {
     "gain": 64,
     "focus": 15,
-    "exposureMs": 25,
+    "exposureMs": 30,
+    "whiteBalance": 5000,
     "lowerBound": {
       "val": [
         20.0,
-        90.0,
+        100.0,
         80.0,
         0.0
       ]
@@ -184,9 +186,9 @@
       ]
     },
     "samplesEachSide": 8,
-    "minSize": 1000,
+    "minSize": 600,
     "cropXywh": [
-      0, 260, 640, 40
+      0, 220, 640, 40
     ],
     "centerPosition": [
       17,38,73,111,156,190,229,261,298,330,370,405,447,483,523,566,603

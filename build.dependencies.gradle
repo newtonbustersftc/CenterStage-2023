@@ -21,6 +21,7 @@ dependencies {
     implementation 'org.firstinspires.ftc:gameAssets-PowerPlay:1.0.0'
 
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.5'
-    implementation 'org.openftc:easyopencv:1.5.2'
+    implementation(name:'easyopencv-release', ext:'aar')
+    //implementation 'org.openftc:easyopencv:1.5.3'
 }
 

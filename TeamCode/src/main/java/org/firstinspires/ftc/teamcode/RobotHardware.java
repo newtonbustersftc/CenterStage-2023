@@ -166,6 +166,10 @@ public class RobotHardware {
         }
     }
 
+    public int getTargetLiftPosition() {
+        return liftMotors[0].getTargetPosition();
+    }
+
     public boolean isLiftMoving() {
         return Math.abs(liftMotors[0].getVelocity())>10;
     }
@@ -414,6 +418,83 @@ public class RobotHardware {
         grabberServo.setPosition(profile.hardwareSpec.grabberInitPos);
     }
 
+    public void initSetupNoAuto(OpMode opmod) {
+        extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
+        grabberClose();
+        int tu = getTurretPosition();
+        if (isMagneticTouched()) {
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            try {
+                Thread.sleep(500);
+            }
+            catch (Exception ex) {
+            }
+        }
+        else {
+            // fast rotate first
+            while (!isMagneticTouched()) {
+                tu = getTurretPosition();
+                setTurretPosition(tu + 50);
+                try {
+                    Thread.sleep(5);
+                }
+                catch (Exception ex) {
+                }
+            }
+            //rotate back
+            tu = getTurretPosition();
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            try {
+                Thread.sleep(500);
+            }
+            catch (Exception ex) {
+            }
+        }
+        while (!isMagneticTouched()) {
+            tu = getTurretPosition();
+            setTurretPosition(tu + 5);
+            try {
+                Thread.sleep(5);
+            }
+            catch (Exception ex) {
+            }
+        }
+        tu = getTurretPosition();
+        setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception ex) {
+        }
+        resetTurretPos();
+        // Goes down to touch first
+        setLiftPositionUnsafe(-5000, 0.3);
+        long t = System.currentTimeMillis();
+        while (!isLiftTouched() && (System.currentTimeMillis()-t)<3000) {
+            try {
+                Thread.sleep(100);
+            }
+            catch (Exception ex) {
+            }
+        }
+        resetLiftPos();
+        setLiftPosition(0);
+        // goes up again until touch no more
+        int i = 0;
+        while (isLiftTouched()) {
+            i = i+1;
+            setLiftPosition(i);
+            try {
+                Thread.sleep(10);
+            }
+            catch (Exception ex) {
+            }
+        }
+        resetLiftPos();
+        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
+        grabberInit();
+    }
+
     public void initSetup(LinearOpMode opmode) {
         waitforUp(opmode, "Press UP to start auto init...");
         if (opmode.isStopRequested()) return;
@@ -467,7 +548,7 @@ public class RobotHardware {
         tu = getTurretPosition();
         setTurretPosition(tu - profile.hardwareSpec.turretOffset);
         try {
-            Thread.sleep(1000);
+            Thread.sleep(500);
         }
         catch (Exception ex) {
         }

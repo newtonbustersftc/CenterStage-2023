@@ -254,7 +254,7 @@ public class DriverOpMode extends OpMode {
         // robotHardware.isMagneticTouched() liftMax
         if (liftCanChange) {
             int[] pos = (robotHardware.isGripOpen())?robotProfile.hardwareSpec.liftPickPos:robotProfile.hardwareSpec.liftDropPos;
-            int currPos = robotHardware.getLiftPosition();
+            int currPos = robotHardware.getTargetLiftPosition();
             if (gamepad2.right_bumper) {    // going up
                 int n = 0;
                 while (n<pos.length-1 && pos[n]<currPos+15) {   // need the 50 range because lift maybe shifting up/down a bit

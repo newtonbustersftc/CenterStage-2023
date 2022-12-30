@@ -26,7 +26,7 @@ public class SoloDriverOpMode extends OpMode {
     double touchExtension;
 
     // DriveThru combos
-    RobotControl grabAndLift, deliverTask,  forPickUp, forGroundJunction;
+    RobotControl grabAndLift, poleDeliverTask, groundDeliverTask, forPickUp, forGroundJunction;
     RobotControl currentTask = null;
     boolean safeDrive = false;
 
@@ -103,6 +103,10 @@ public class SoloDriverOpMode extends OpMode {
             currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
             currentTask.prepare();
         }
+        if (gamepad1.x) {
+            currentTask = forPickUp;
+            currentTask.prepare();
+        }
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
         telemetry.update();
     }
@@ -148,9 +152,9 @@ public class SoloDriverOpMode extends OpMode {
         telemetry.addData("RR Dir:", robotHardware.rrMotor.getDirection());
         robotHardware.mecanumDrive2(power, movAngle, turn);
 
-        if(gamepad1.share){
+        if(gamepad1.share && gamepad1.dpad_right){
             robotHardware.resetImu();
-            imuAngleOffset = 0;
+            imuAngleOffset = -Math.PI/2;
             fieldMode = true;
         }
     }
@@ -176,7 +180,7 @@ public class SoloDriverOpMode extends OpMode {
         // robotHardware.isMagneticTouched() liftMax
         if (liftCanChange) {
             int[] pos = (robotHardware.isGripOpen())?robotProfile.hardwareSpec.liftPickPos:robotProfile.hardwareSpec.liftDropPos;
-            int currPos = robotHardware.getLiftPosition();
+            int currPos = robotHardware.getTargetLiftPosition();
             if (gamepad1.right_bumper) {    // going up
                 int n = 0;
                 while (n<pos.length-1 && pos[n]<currPos+15) {   // need the 15 range because lift maybe shifting up/down a bit
@@ -192,7 +196,7 @@ public class SoloDriverOpMode extends OpMode {
                     safeDrive = false;
                 }
                 else {
-                    if ((robotProfile.hardwareSpec.liftDropPos[1] - currPos) > -10) {
+                    if (currPos<robotProfile.hardwareSpec.liftDropPos[3]) { // less than the low pole
                         // going to ground junction
                         currentTask = forGroundJunction;
                         currentTask.prepare();
@@ -220,7 +224,12 @@ public class SoloDriverOpMode extends OpMode {
     public void handleGripper() {
         if((gamepad1.left_trigger > 0.15 || gamepad1.right_trigger > 0.15) && gripperCanChange){
             if(!robotHardware.isGripOpen()){
-                currentTask = deliverTask;
+                if (robotHardware.getTargetLiftPosition()>robotProfile.hardwareSpec.liftSafeRotate) {
+                    currentTask = poleDeliverTask;
+                }
+                else {
+                    currentTask = groundDeliverTask;
+                }
                 currentTask.prepare();
                 safeDrive = true;
             }
@@ -243,18 +252,23 @@ public class SoloDriverOpMode extends OpMode {
      * Define combo task for driver op mode
      */
     void setupCombos() {
-        deliverTask = new ParallelComboTask();
-        ((ParallelComboTask)deliverTask).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
+        poleDeliverTask = new ParallelComboTask(); // push down, open, retract
+        ((ParallelComboTask)poleDeliverTask).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
         SequentialComboTask dropSeq = new SequentialComboTask();
         dropSeq.add(new RobotSleep((100)));
-        dropSeq.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        dropSeq.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
         dropSeq.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        ((ParallelComboTask)deliverTask).add(dropSeq);
+        ((ParallelComboTask)poleDeliverTask).add(dropSeq);
+
+        groundDeliverTask = new SequentialComboTask();  // simple open, lift up, and retract
+        ((SequentialComboTask)groundDeliverTask).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
+        ((SequentialComboTask)groundDeliverTask).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        ((SequentialComboTask)groundDeliverTask).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
 
         grabAndLift = new SequentialComboTask();
         ((SequentialComboTask)grabAndLift).add(new GrabberTask(robotHardware, false));
         ((SequentialComboTask)grabAndLift).add(new RobotSleep(200));
-        ((SequentialComboTask)grabAndLift).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        ((SequentialComboTask)grabAndLift).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate, false, true));
         ((SequentialComboTask)grabAndLift).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
 
         forPickUp = new SequentialComboTask();
