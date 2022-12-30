@@ -33,6 +33,7 @@ public class RobotVisionTest extends LinearOpMode {
     RobotHardware robotHardware;
     RobotProfile robotProfile;
     RobotVision robotVision;
+    public static String CAMERA_NAME = "Webcam 2";
 
     ArrayList<RobotControl> taskList;
 
@@ -70,11 +71,15 @@ public class RobotVisionTest extends LinearOpMode {
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
-        robotVision.initWebCam("Webcam 2", true);
+        robotVision.initWebCam(CAMERA_NAME, true);
+        robotVision.setGain(CAMERA_NAME, robotProfile.poleParameter.gain);
+        robotVision.setExposureMS(CAMERA_NAME, robotProfile.poleParameter.exposureMs);
+        robotVision.setManualFocusLength(CAMERA_NAME, robotProfile.poleParameter.focus);
+        robotVision.setWhiteBalance(CAMERA_NAME, robotProfile.poleParameter.whiteBalance);
 
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-        robotVision.startWebcam("Webcam 2", new CVTestPipeline());
+        robotVision.startWebcam(CAMERA_NAME, new CVTestPipeline());
         while (!isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
@@ -158,7 +163,7 @@ public class RobotVisionTest extends LinearOpMode {
                  RobotVisionTest.HEIGHT));
 
          // 1. Convert to HSV
-        Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
+        Imgproc.cvtColor(procMat, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
         // 2. Create MASK
          Scalar lowerBound = new Scalar(RobotVisionTest.L1, RobotVisionTest.L2, RobotVisionTest.L3);
          Scalar upperBound = new Scalar(RobotVisionTest.H1, RobotVisionTest.H2, RobotVisionTest.H3);

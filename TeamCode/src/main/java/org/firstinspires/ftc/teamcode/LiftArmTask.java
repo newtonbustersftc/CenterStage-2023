@@ -6,16 +6,27 @@ public class LiftArmTask implements RobotControl {
         int liftPos;
         long startTime;
         boolean isUnsafe;
+        boolean isAddition;
 
     public LiftArmTask(RobotHardware hardware, int liftPos) {
         this.robotHardware = hardware;
         this.liftPos = liftPos;
+        this.isAddition = false;
+        this.isUnsafe = false;
     }
 
     public LiftArmTask(RobotHardware hardware, int liftPos, boolean isUnsafe){
         this.robotHardware = hardware;
         this.liftPos = liftPos;
         this.isUnsafe = isUnsafe;
+        isAddition = false;
+    }
+
+    public LiftArmTask(RobotHardware hardware, int deltaPos, boolean isUnsafe, boolean isAddition) {
+        this.robotHardware = hardware;
+        this.liftPos = deltaPos;
+        this.isUnsafe = isUnsafe;
+        this.isAddition = isAddition;
     }
 
     public String toString() {
@@ -26,12 +37,13 @@ public class LiftArmTask implements RobotControl {
     public void prepare() {
         startTime = System.currentTimeMillis();
         currPos = robotHardware.getLiftPosition();
+        int newPos = isAddition ? currPos + liftPos : liftPos;
         if(isUnsafe){
-            robotHardware.setLiftPositionUnsafe(liftPos,0.5);
+            robotHardware.setLiftPositionUnsafe(newPos,0.5);
         }else {
-            robotHardware.setLiftPosition(liftPos);
+            robotHardware.setLiftPosition(newPos);
         }
-        Logger.logFile("LiftBucketTask: lift pos = " + liftPos);
+        Logger.logFile("LiftBucketTask: lift pos = " + newPos);
     }
 
     @Override

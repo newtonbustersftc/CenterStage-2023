@@ -12,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.Exposur
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.FocusControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.PtzControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.WhiteBalanceControl;
+import org.firstinspires.ftc.robotcore.internal.camera.CameraManagerInternal;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -51,6 +53,7 @@ public class RobotVision {
     public enum AutonomousGoal { NONE }
     enum OpenState { WAIT, SUCCESS, FAILURE}
     OpenState doneOpen;
+    CameraManagerInternal cameraManager;
 
 //    CVPipeline pipeline = new CVPipeline();
 //    int imgcnt = 0;
@@ -59,6 +62,7 @@ public class RobotVision {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         this.hardwareMap = robotHardware.getHardwareMap();
+        this.cameraManager = (CameraManagerInternal) ClassFactory.getInstance().getCameraManager();
     }
 
     HashMap<String, OpenCvWebcam> cameraMap = new HashMap<String, OpenCvWebcam>();
@@ -200,6 +204,7 @@ public class RobotVision {
         OpenCvWebcam webcam = cameraMap.get(deviceName);
         if (webcam!=null) {
             ExposureControl ec = webcam.getExposureControl();
+            ec.setMode(ExposureControl.Mode.Manual);
             ec.setExposure(timeMs, TimeUnit.MILLISECONDS);
         }
     }
@@ -218,6 +223,15 @@ public class RobotVision {
             FocusControl fc = webcam.getFocusControl();
             fc.setMode(FocusControl.Mode.Fixed);
             fc.setFocusLength(focus);
+        }
+    }
+
+    public void setWhiteBalance(String deviceName, int temp) {
+        OpenCvWebcam webcam = cameraMap.get(deviceName);
+        if (webcam != null) {
+            WhiteBalanceControl wb = webcam.getWhiteBalanceControl();
+            wb.setMode(WhiteBalanceControl.Mode.MANUAL);
+            wb.setWhiteBalanceTemperature(temp);
         }
     }
 }

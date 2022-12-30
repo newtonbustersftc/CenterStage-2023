@@ -13,7 +13,10 @@ public class XDriveOpMode extends OpMode {
     RobotHardware robotHardware;
     RobotProfile robotProfile;
     double targetHeading;
+    double imuAngleOffset = Math.PI/2;
     double headingOffset;
+    boolean fieldMode = true;
+    boolean isRedTeam = true;
 
     @Override
     public void init() {
@@ -26,14 +29,26 @@ public class XDriveOpMode extends OpMode {
         Logger.init();
         robotHardware = new RobotHardware();
         robotHardware.init(hardwareMap, robotProfile);
+        robotHardware.resetDriveAndEncoders();
+
+        robotHardware.initSetupNoAuto(this);
+        robotHardware.setLiftPosition(robotProfile.hardwareSpec.liftSafeRotate);
+        robotHardware.grabberInit();
+        robotHardware.enableManualCaching(true);
+        robotHardware.clearBulkCache();
+        robotHardware.getLocalizer().update();
+
         targetHeading = 0;
         headingOffset = robotHardware.getGyroHeading();
     }
 
+
+
     @Override
     public void loop() {
         robotHardware.clearBulkCache();
-        handleMovement();
+        handleMovement2();
+        telemetry.update();
     }
 
     @Override
@@ -70,6 +85,32 @@ public class XDriveOpMode extends OpMode {
         telemetry.addData("Stick", "x:" + gamepad1.left_stick_x + " y:" + gamepad1.left_stick_y);
         telemetry.addData("Turn:", turn);
         telemetry.addData("IMU:", Math.toDegrees(currHeading));
+    }
+
+    private void handleMovement2() {
+        double turn = gamepad1.right_stick_x / 2;
+        double power = Math.hypot(gamepad1.left_stick_x, gamepad1.left_stick_y);
+        double padAngle = Math.atan2(gamepad1.left_stick_y, -gamepad1.left_stick_x) + Math.PI / 2;
+        double currHeading = robotHardware.getGyroHeading();
+
+        double movAngle;
+        if (fieldMode) {
+            movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - robotHardware.getGyroHeading()-imuAngleOffset;
+        } else {
+            movAngle = padAngle;
+        }
+        telemetry.addData("Stick", "x:" + gamepad1.left_stick_x + " y:" + gamepad1.left_stick_y);
+        telemetry.addData("Power:", power);
+        telemetry.addData("Move Angle:", Math.toDegrees(movAngle));
+        telemetry.addData("Turn:", turn);
+        telemetry.addData("IMU:", Math.toDegrees(currHeading));
+        robotHardware.mecanumDrive2(power, movAngle, turn);
+
+        if(gamepad1.share){
+            robotHardware.resetImu();
+            imuAngleOffset = 0;
+            fieldMode = true;
+        }
     }
 
 

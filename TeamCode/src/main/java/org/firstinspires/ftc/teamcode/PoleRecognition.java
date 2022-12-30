@@ -40,6 +40,7 @@ public class PoleRecognition {
         rVision.setGain(CAMERA_NAME, rProfile.poleParameter.gain);
         rVision.setExposureMS(CAMERA_NAME, rProfile.poleParameter.exposureMs);
         rVision.setManualFocusLength(CAMERA_NAME, rProfile.poleParameter.focus);
+        rVision.setWhiteBalance(CAMERA_NAME, rProfile.poleParameter.whiteBalance);
         rVision.startWebcam(CAMERA_NAME, pipe);
     }
 
