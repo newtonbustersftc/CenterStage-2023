@@ -17,6 +17,8 @@ public class HardwareOpModeTest extends OpMode {
     RobotProfile robotProfile;
 
     Pose2d currPose;
+    double grabberPos = 0.5;
+    boolean grabberChange =  false;
     double fieldHeadingOffset;
     RobotControl currentTask = null;
 
@@ -65,10 +67,13 @@ public class HardwareOpModeTest extends OpMode {
         telemetry.addData("Turret Position", robotHardware.getTurretPosition());
         telemetry.addData("Extension Position", robotHardware.extensionPos);
         telemetry.addData("Gyro", Math.toDegrees(robotHardware.getGyroHeading()));
+        telemetry.addData("ConeRef", robotHardware.getConeReflection());
+        telemetry.addData("Grabber", grabberPos);
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
                 .addData("RL:", robotHardware.rlMotor.getCurrentPosition())
                 .addData("RR:", robotHardware.rrMotor.getCurrentPosition())
                 .addData("FR:", robotHardware.frMotor.getCurrentPosition());
+        telemetry.update();
 
         robotHardware.turnTurret(gamepad1.left_stick_x);
 
@@ -83,6 +88,20 @@ public class HardwareOpModeTest extends OpMode {
         } else if (gamepad1.dpad_right) {
             robotHardware.extensionRetract();
         }
+
+        if (!grabberChange) {
+            if (gamepad1.right_bumper) {
+                grabberPos += 0.01;
+                robotHardware.grabberServo.setPosition(grabberPos);
+            }
+            if (gamepad1.left_bumper) {
+                grabberPos -= 0.01;
+                robotHardware.grabberServo.setPosition(grabberPos);
+            }
+        }
+        grabberChange = (gamepad1.left_bumper || gamepad1.right_bumper);
+
+        robotHardware.turnOnLight(gamepad1.left_trigger>0.3);
 
         if (robotHardware.isLiftTouched()) {robotHardware.resetLiftPos();}
 
@@ -101,7 +120,6 @@ public class HardwareOpModeTest extends OpMode {
         } catch (Exception e) {
             Log.e("DriverOpMode", Log.getStackTraceString(e));
         }
-
     }
 
     private void testHardware() {
