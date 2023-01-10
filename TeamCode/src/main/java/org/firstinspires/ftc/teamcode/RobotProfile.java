@@ -78,9 +78,10 @@ public class RobotProfile {
         public boolean leftEncoderReverse;
         public boolean rightEncoderReverse;
         public boolean horizontalEncoderReverse;
-        public double grabberInitPos, grabberOpenPos, grabberClosePos;
+        public double grabberInitPos, grabberOpenPos, grabberClosePos, grabberSafePos;
         public double extensionInitPos, extensionFullOutPos, extensionDriverMin, extensionFullInPos;
         public double turretPower;
+        public double lightPower;
         public int turretMaxAhead;
         public int turretMoveMax;
         public int turret360;

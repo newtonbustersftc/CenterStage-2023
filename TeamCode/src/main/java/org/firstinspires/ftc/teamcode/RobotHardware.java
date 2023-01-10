@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -40,8 +41,11 @@ public class RobotHardware {
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
     private DcMotorEx turretMotor;
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
-    private Servo grabberServo, extensionServo;
+    //private
+    Servo grabberServo, extensionServo, lightServo;
     TouchSensor magneticSensor, liftTouch;
+    NormalizedColorSensor coneSensor;
+
     LynxModule expansionHub1;
     LynxModule expansionHub2;
     NBMecanumDrive mecanumDrive;
@@ -73,6 +77,7 @@ public class RobotHardware {
         liftTouch = hardwareMap.touchSensor.get("Lift Touch");
         extensionServo = hardwareMap.servo.get("Arm Extension");
         grabberServo = hardwareMap.servo.get("Gripper Open/Close");
+        lightServo = hardwareMap.servo.get("LightControl");
         liftMotors = new DcMotorEx[3];
         liftMotors[0] = hardwareMap.get(DcMotorEx.class,"Lift Motor1");
         liftMotors[1] = hardwareMap.get(DcMotorEx.class,"Lift Motor2");
@@ -81,6 +86,7 @@ public class RobotHardware {
         navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
         gyro = (IntegratingGyroscope)navxMicro;
         calibrateGyro(null);
+        coneSensor = hardwareMap.get(NormalizedColorSensor.class, "ConeDistance");
 
         // Use manual cache mode for most efficiency, but each program
         // needs to call clearBulkCache() in the while loop
@@ -168,6 +174,15 @@ public class RobotHardware {
 
     public int getTargetLiftPosition() {
         return liftMotors[0].getTargetPosition();
+    }
+
+    public double getConeReflection() {
+        return coneSensor.getNormalizedColors().alpha;
+    }
+
+    public void turnOnLight(boolean isOn) {
+        double p = (isOn) ? 0.9 : 0.3;
+        lightServo.setPosition(p);
     }
 
     public boolean isLiftMoving() {
