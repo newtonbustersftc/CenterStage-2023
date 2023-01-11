@@ -246,6 +246,12 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         gripperCanChange = (gamepad1.left_trigger < 0.1) && (gamepad1.right_trigger < 0.1);
+        if (robotHardware.isGripOpen() && robotHardware.getLiftPosition() < robotProfile.hardwareSpec.liftPickPos[4]+20
+                && robotHardware.getConeReflection()>robotProfile.hardwareSpec.coneGrabColor) {
+            currentTask = grabAndLift;
+            currentTask.prepare();
+            safeDrive = true;
+        }
     }
 
     /**
@@ -261,7 +267,7 @@ public class SoloDriverOpMode extends OpMode {
         ((ParallelComboTask)poleDeliverTask).add(dropSeq);
 
         groundDeliverTask = new SequentialComboTask();  // simple open, lift up, and retract
-        ((SequentialComboTask)groundDeliverTask).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
+        ((SequentialComboTask)groundDeliverTask).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.SAFE));
         ((SequentialComboTask)groundDeliverTask).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
         ((SequentialComboTask)groundDeliverTask).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
 

@@ -89,6 +89,7 @@
     "extensionFullOutPos": 0.79,
     "extensionDriverMin": 0.43,
     "extensionFullInPos": 0.08,
+    "coneGrabColor": 0.1,
     "lightPower": 0.75,
     "turretPower": 0.6,
     "turretMoveMax": 10,
@@ -96,7 +97,7 @@
     "turretOffset": 136,
     "turret360": 3700,
     "liftMax": 1166,
-    "liftSafeRotate": 250,
+    "liftSafeRotate": 350,
     "liftPowerUp": 0.8,
     "liftPowerDown": 0.5,
     "liftDropPos": [
