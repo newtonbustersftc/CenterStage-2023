@@ -82,6 +82,7 @@ public class RobotProfile {
         public double extensionInitPos, extensionFullOutPos, extensionDriverMin, extensionFullInPos;
         public double turretPower;
         public double lightPower;
+        public double coneGrabColor;
         public int turretMaxAhead;
         public int turretMoveMax;
         public int turret360;

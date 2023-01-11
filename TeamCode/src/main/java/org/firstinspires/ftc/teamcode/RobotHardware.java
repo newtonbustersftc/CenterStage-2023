@@ -424,6 +424,11 @@ public class RobotHardware {
         grabberServo.setPosition(profile.hardwareSpec.grabberClosePos);
     }
 
+    public void grabberMoveSafe() {
+        gripOpen = false;
+        grabberServo.setPosition(profile.hardwareSpec.grabberSafePos);
+    }
+
     public boolean isGripOpen() {
         return gripOpen;
     }
