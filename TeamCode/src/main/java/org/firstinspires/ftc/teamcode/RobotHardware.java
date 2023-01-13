@@ -417,16 +417,19 @@ public class RobotHardware {
     public void grabberOpen() {
         gripOpen = true;
         grabberServo.setPosition(profile.hardwareSpec.grabberOpenPos);
+        turnOffLight();
     }
 
     public void grabberClose() {
         gripOpen = false;
         grabberServo.setPosition(profile.hardwareSpec.grabberClosePos);
+        turnOnLight();
     }
 
     public void grabberMoveSafe() {
-        gripOpen = false;
+        gripOpen = true;
         grabberServo.setPosition(profile.hardwareSpec.grabberSafePos);
+        turnOffLight();
     }
 
     public boolean isGripOpen() {
@@ -436,6 +439,15 @@ public class RobotHardware {
     public void grabberInit() {
         gripOpen = true;
         grabberServo.setPosition(profile.hardwareSpec.grabberInitPos);
+        turnOffLight();
+    }
+
+    public void turnOnLight() {
+        lightServo.setPosition(profile.hardwareSpec.lightPower);
+    }
+
+    public void turnOffLight() {
+        lightServo.setPosition(0);
     }
 
     public void initSetupNoAuto(OpMode opmod) {
