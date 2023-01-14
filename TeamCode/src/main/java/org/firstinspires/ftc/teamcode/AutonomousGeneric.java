@@ -80,6 +80,7 @@ public class AutonomousGeneric extends LinearOpMode {
             }
         }
         Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
+        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         robotHardware.resetDriveAndEncoders();
         taskList = builder.buildTaskList();
         TaskReporter.report(taskList);
