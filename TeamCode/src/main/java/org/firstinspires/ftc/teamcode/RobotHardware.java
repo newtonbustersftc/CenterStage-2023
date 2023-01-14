@@ -26,6 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AxesSigns;
@@ -363,10 +364,14 @@ public class RobotHardware {
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void setTurretPosition(int pos) {
+    public void setTurretPosition(int pos, double power) {
         turretMotor.setTargetPosition(pos);
-        turretMotor.setPower(profile.hardwareSpec.turretPower);
+        turretMotor.setPower(power);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void setTurretPosition(int pos) {
+        setTurretPosition(pos, profile.hardwareSpec.turretPower);
     }
 
     public void turnTurret(double stickPos) {
@@ -455,9 +460,9 @@ public class RobotHardware {
         grabberClose();
         int tu = getTurretPosition();
         if (isMagneticTouched()) {
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             }
             catch (Exception ex) {
             }
@@ -475,9 +480,9 @@ public class RobotHardware {
             }
             //rotate back
             tu = getTurretPosition();
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset,0.15);
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             }
             catch (Exception ex) {
             }
@@ -492,9 +497,9 @@ public class RobotHardware {
             }
         }
         tu = getTurretPosition();
-        setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+        setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
         try {
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }
         catch (Exception ex) {
         }
@@ -528,14 +533,44 @@ public class RobotHardware {
     }
 
     public void initSetup(LinearOpMode opmode) {
-        waitforUp(opmode, "Press UP to start auto init...");
+        resetDriveAndEncoders();
+        opmode.telemetry.addLine("PLEASE MOVE THE ROBOT AROUND");
+        boolean done = false;
+        int frMin = 0, frMax = 0, rrMin = 0, rrMax = 0, flMin = 0, flMax = 0, rlMin = 0, rlMax = 0;
+        int MIN_MAX = 5000;
+        while (!opmode.isStopRequested() && !done) {
+            opmode.telemetry.addData("FR", frMotor.getCurrentPosition());
+            opmode.telemetry.addData("FL", flMotor.getCurrentPosition());
+            opmode.telemetry.addData("RR", rrMotor.getCurrentPosition());
+            opmode.telemetry.addData("RL", rlMotor.getCurrentPosition());
+            opmode.telemetry.addData("VOLT", expansionHub1.getInputVoltage(VoltageUnit.VOLTS));
+            frMin = Math.min(frMin, frMotor.getCurrentPosition());
+            frMax = Math.max(frMax, frMotor.getCurrentPosition());
+            flMin = Math.min(flMin, flMotor.getCurrentPosition());
+            flMax = Math.max(flMax, flMotor.getCurrentPosition());
+            rrMin = Math.min(rrMin, rrMotor.getCurrentPosition());
+            rrMax = Math.max(rrMax, rrMotor.getCurrentPosition());
+            rlMin = Math.min(rlMin, rlMotor.getCurrentPosition());
+            rlMax = Math.max(rlMax, rlMotor.getCurrentPosition());
+            done = (frMax - frMin > MIN_MAX) && (flMax - flMin > MIN_MAX) &&
+                    (rlMax - rlMin > MIN_MAX) && (rrMax - rrMin > MIN_MAX);
+            opmode.telemetry.update();
+        }
+        String text;
+        if (expansionHub1.getInputVoltage(VoltageUnit.VOLTS) < 12.8) {
+            text = "******************\nCHANGE BATTERY NOW\n******************";
+        }
+        else{
+            text = "Press UP to start auto init ...";
+        }
+        waitforUp(opmode, text);
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
         grabberClose();
         // make sure magnetic is not touched
         int tu = getTurretPosition();
         if (isMagneticTouched()) {
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
             try {
                 Thread.sleep(500);
             }
@@ -548,7 +583,7 @@ public class RobotHardware {
                 tu = getTurretPosition();
                 opmode.telemetry.addData("Tullett position", tu);
                 opmode.telemetry.update();
-                setTurretPosition(tu + 50);
+                setTurretPosition(tu + 15);
                 try {
                     Thread.sleep(5);
                 }
@@ -557,7 +592,7 @@ public class RobotHardware {
             }
             //rotate back
             tu = getTurretPosition();
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+            setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
             try {
                 Thread.sleep(500);
             }
@@ -578,7 +613,7 @@ public class RobotHardware {
         }
         if (opmode.isStopRequested()) return;
         tu = getTurretPosition();
-        setTurretPosition(tu - profile.hardwareSpec.turretOffset);
+        setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
         try {
             Thread.sleep(500);
         }
@@ -616,7 +651,7 @@ public class RobotHardware {
     }
 
     void waitforUp(LinearOpMode opmode, String text) {
-        opmode.telemetry.clearAll();
+        //opmode.telemetry.clearAll();
         opmode.telemetry.addLine(text);
         opmode.telemetry.update();
         // wait until dpad-up pressed
