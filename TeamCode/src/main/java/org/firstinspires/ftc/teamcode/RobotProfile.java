@@ -169,6 +169,7 @@ public class RobotProfile {
         double armLengthPickLeft;
         double armLengthPickRight;
         double armLengthPostPick;
+        double armLengthPostRightPickHighPole;
         double pickStraftLeft;
         double pickStraftRight;
         int turretGroundLeft;
@@ -178,6 +179,7 @@ public class RobotProfile {
         int turretPickPosRight;
         int turretDropPosLeft;
         int turretPickPosLeft;
+        int turretDropPosRightHighPole;
         double forwardPre1;
         double forward1;
         double forward2;

@@ -224,7 +224,7 @@ public class SoloDriverOpMode extends OpMode {
     public void handleGripper() {
         if((gamepad1.left_trigger > 0.15 || gamepad1.right_trigger > 0.15) && gripperCanChange){
             if(!robotHardware.isGripOpen()){
-                if (robotHardware.getTargetLiftPosition()>robotProfile.hardwareSpec.liftSafeRotate) {
+                if (robotHardware.getTargetLiftPosition()>robotProfile.hardwareSpec.liftDropPos[2] + 50) {
                     currentTask = poleDeliverTask;
                 }
                 else {
@@ -246,7 +246,7 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         gripperCanChange = (gamepad1.left_trigger < 0.1) && (gamepad1.right_trigger < 0.1);
-        if (robotHardware.isGripOpen() && robotHardware.getLiftPosition() < robotProfile.hardwareSpec.liftPickPos[4]+20
+        if (currentTask==null && robotHardware.isGripOpen() && robotHardware.getLiftPosition() < robotProfile.hardwareSpec.liftPickPos[4]+20
                 && robotHardware.getConeReflection()>robotProfile.hardwareSpec.coneGrabColor) {
             currentTask = grabAndLift;
             currentTask.prepare();
