@@ -23,6 +23,9 @@ public class SoloDriverOpMode extends OpMode {
     boolean touching = false;
     double touchX, touchY;
     int touchTurret;
+    long loopCnt;
+    double currHeading;
+    double coneReflection;
     double touchExtension;
 
     // DriveThru combos
@@ -51,10 +54,13 @@ public class SoloDriverOpMode extends OpMode {
         robotHardware.getLocalizer().update();
         poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
         poleRecognition.startRecognition();
+        currHeading = robotHardware.getGyroHeading();
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
-        Logger.logFile("Current IMU Angle " + Math.toDegrees(robotHardware.getGyroHeading()));
+        Logger.logFile("Current IMU Angle " + Math.toDegrees(currHeading));
         setupCombos();
         robotHardware.grabberOpen();
+        coneReflection = 0;
+        loopCnt = 0;
     }
 
     /**
@@ -62,7 +68,11 @@ public class SoloDriverOpMode extends OpMode {
      */
     @Override
     public void loop() {
+        loopCnt++;
         robotHardware.clearBulkCache();
+        if (loopCnt % 10==0) {
+            currHeading = robotHardware.getGyroHeading();   // only use Gyro heading every 10 times
+        }
         //Handling autonomous task loop
         if (currentTask != null) {
             if (gamepad1.left_bumper && gamepad1.right_bumper) {
@@ -107,7 +117,7 @@ public class SoloDriverOpMode extends OpMode {
             currentTask = forPickUp;
             currentTask.prepare();
         }
-        telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
+        telemetry.addData("Heading", Math.toDegrees(currHeading));
         telemetry.update();
     }
 
@@ -137,7 +147,7 @@ public class SoloDriverOpMode extends OpMode {
 
         double movAngle;
         if (fieldMode) {
-            movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - robotHardware.getGyroHeading()-imuAngleOffset;
+            movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - currHeading -imuAngleOffset;
         } else {
             movAngle = padAngle;
         }
@@ -145,11 +155,9 @@ public class SoloDriverOpMode extends OpMode {
             power = power / 3;
             turn = turn / 3;
         }
-        telemetry.addData("Power:", power);
-        telemetry.addData("Move Angle:", movAngle);
-        telemetry.addData("Turn:", turn);
-        telemetry.addData("RL Dir:", robotHardware.rlMotor.getDirection());
-        telemetry.addData("RR Dir:", robotHardware.rrMotor.getDirection());
+//        telemetry.addData("Power:", power);
+//        telemetry.addData("Move Angle:", movAngle);
+//        telemetry.addData("Turn:", turn);
         robotHardware.mecanumDrive2(power, movAngle, turn);
 
         if(gamepad1.share && gamepad1.dpad_right){
@@ -246,11 +254,15 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         gripperCanChange = (gamepad1.left_trigger < 0.1) && (gamepad1.right_trigger < 0.1);
-        if (currentTask==null && robotHardware.isGripOpen() && robotHardware.getLiftPosition() < robotProfile.hardwareSpec.liftPickPos[4]+20
-                && robotHardware.getConeReflection()>robotProfile.hardwareSpec.coneGrabColor) {
-            currentTask = grabAndLift;
-            currentTask.prepare();
-            safeDrive = true;
+        if (currentTask==null && robotHardware.isGripOpen() && robotHardware.getLiftPosition() < robotProfile.hardwareSpec.liftPickPos[4]+20) {
+            if (loopCnt % 10==5) {  // let's read I2C only 1 in 10 times
+                coneReflection = robotHardware.getConeReflection();
+                if (coneReflection > robotProfile.hardwareSpec.coneGrabColor) {
+                    currentTask = grabAndLift;
+                    currentTask.prepare();
+                    safeDrive = true;
+                }
+            }
         }
     }
 
