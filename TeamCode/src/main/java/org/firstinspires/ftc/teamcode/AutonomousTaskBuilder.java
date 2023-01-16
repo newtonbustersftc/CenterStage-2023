@@ -69,39 +69,38 @@ public class AutonomousTaskBuilder {
 
         ParallelComboTask initComb = new ParallelComboTask();
         initComb.add(new LiftArmTask(robotHardware,param.liftMidDrop ));//it's mid pole
-        initComb.add(new TurnTurretTask(robotHardware, (isRight) ? -1458: -455)); //param.turretDropPosLeft
+        initComb.add(new TurnTurretTask(robotHardware, (isRight) ? -1515: -475)); //param.turretDropPosLeft
         Pose2d p0 = new Pose2d(0,0,0);
         TrajectorySequence trj1 = drive.trajectorySequenceBuilder(p0)
                                 .lineTo(new Vector2d(param.forward1, 0), velConstraint, accelConstraint)  //param.forward1, 54 high, 32 mid,
                                 .build();
         SplineMoveTask moveToDrop1 = new SplineMoveTask(robotHardware.mecanumDrive, trj1);
         initComb.add(moveToDrop1);
-        initComb.add(new ExtendArmTask(robotHardware, param.armLengthDrop1));
+        initComb.add(new ExtendArmTask(robotHardware, isRight? param.armLengthRightDrop1 : param.armLengthDrop1));
         taskList.add(initComb);
         // sleep
-        taskList.add(new RobotSleep(250)); //test:robot stay here longer than 500ms
+        taskList.add(new RobotSleep(300)); //test:robot stay here longer than 500ms
 //         1)lower 2) wait, open grab, retract, turn, move
         ParallelComboTask dropRetract1 = new ParallelComboTask();
         dropRetract1.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[4]));
         SequentialComboTask seq1 = new SequentialComboTask();
-        seq1.add(new RobotSleep(150));
-//        seq1.add(new GrabberTask(robotHardware, true));
+        seq1.add(new RobotSleep(200));
+        seq1.add(new GrabberTask(robotHardware, true));
 
         ParallelComboTask toPickUpStackCone = new ParallelComboTask();
-        toPickUpStackCone.add(new GrabberTask(robotHardware, true));
         toPickUpStackCone.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
         toPickUpStackCone.add(new TurnTurretTask(robotHardware, (isRight) ? 0 : -1850));//-2775 param.turretPickPosRight:param.turretPickPosLeft
         TrajectorySequence toPick ;
         if(isRight){
             toPick = drive.trajectorySequenceBuilder(trj1.end())
-                    .lineTo(new Vector2d(57, 0), velConstraint, accelConstraint)  //param.forward1, 56 high, 41.5 mid,
-                    .back(4, velConstraint, accelConstraint)
+                    .lineTo(new Vector2d(53, 0), velConstraint, accelConstraint)  //param.forward1, 56 high, 41.5 mid,
+//                    .back(4, velConstraint, accelConstraint)
                     .strafeRight(param.pickStraftRight)
                     .build();
         }else {
             toPick = drive.trajectorySequenceBuilder(trj1.end())
-                    .lineTo(new Vector2d(57, 0), velConstraint, accelConstraint)  //param.forward1, 56 high, 41.5 mid,
-                    .back(3, velConstraint, accelConstraint)
+                    .lineTo(new Vector2d(53, 0), velConstraint, accelConstraint)  //param.forward1, 56 high, 41.5 mid,
+//                    .back(3, velConstraint, accelConstraint)
                     .strafeLeft(param.pickStraftLeft)
                     .build();
         }
@@ -126,8 +125,8 @@ public class AutonomousTaskBuilder {
         // Drop to low pole
         ParallelComboTask dropComb2 = new ParallelComboTask();
         dropComb2.add(new LiftArmTask(robotHardware,param.liftLowDrop));
-        dropComb2.add(new TurnTurretTask(robotHardware, (isRight)?1297:-3147));
-        dropComb2.add(new ExtendArmTask(robotHardware,param.armLengthDropLow ));
+        dropComb2.add(new TurnTurretTask(robotHardware, (isRight)?param.turretDropPosRightLowPole:param.turretDropPosLeftLowPole)); //3195,3147
+        dropComb2.add(new ExtendArmTask(robotHardware,isRight? param.armLengthDropLowRight : param.armLengthDropLow ));
         pickup_delivery2.add(dropComb2);
         taskList.add(pickup_delivery2);
 
@@ -135,11 +134,11 @@ public class AutonomousTaskBuilder {
         ParallelComboTask dropRetract2 = new ParallelComboTask();
         dropRetract2.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[3]));
         SequentialComboTask seq2 = new SequentialComboTask();
-        seq2.add(new RobotSleep(200));
+        seq2.add(new RobotSleep(250));
+        seq2.add(new GrabberTask(robotHardware, true));
 
         // Lift and go to pick up #2 from stack
         ParallelComboTask upRetract = new ParallelComboTask();
-        upRetract.add(new GrabberTask(robotHardware, true));
         upRetract.add(new LiftArmTask(robotHardware, param.liftLowDrop));
         upRetract.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
         upRetract.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
@@ -157,7 +156,7 @@ public class AutonomousTaskBuilder {
         // Doing #2 pick up from stack
         SequentialComboTask seqPick2 = new SequentialComboTask();
         seqPick2.add(new GrabberTask(robotHardware, false));
-        seqPick2.add(new RobotSleep(150));
+        seqPick2.add(new RobotSleep(130));
         taskList.add(seqPick2);
 
         // Deliver to ground junction
@@ -170,14 +169,14 @@ public class AutonomousTaskBuilder {
 
         ParallelComboTask dropComb3 = new ParallelComboTask();
         dropComb3.add(new TurnTurretTask(robotHardware, isRight ? param.turretGroundRight:param.turretGroundLeft));//-1470
-        dropComb3.add(new ExtendArmTask(robotHardware, param.armLengthDropGround));
+        dropComb3.add(new ExtendArmTask(robotHardware, isRight? param.armLengthDropGroundRight : param.armLengthDropGround));
         delivery3.add(dropComb3);
         taskList.add(delivery3);
 
         // 1)lower 2) wait, open grab, retract, turn, move
         SequentialComboTask dropGroundJunction = new SequentialComboTask();
-        dropGroundJunction.add(new LiftArmTask(robotHardware,param.liftGroundJDrop));
-        dropGroundJunction.add(new RobotSleep(50));
+        dropGroundJunction.add(new LiftArmTask(robotHardware,param.liftGroundDrop));
+        dropGroundJunction.add(new RobotSleep(100));
         dropGroundJunction.add(new GrabberTask(robotHardware, true));
         taskList.add(dropGroundJunction);
 
@@ -208,19 +207,20 @@ public class AutonomousTaskBuilder {
 
             ParallelComboTask rotateLowPole = new ParallelComboTask();
             rotateLowPole.add(new LiftArmTask(robotHardware, param.liftLowDrop));
-            rotateLowPole.add(new TurnTurretTask(robotHardware,  (isRight)?1297:-3147));
-            rotateLowPole.add(new ExtendArmTask(robotHardware, param.armLengthDropLow));
+            rotateLowPole.add(new TurnTurretTask(robotHardware,  (isRight)?param.turretDropPosRightLowPole:param.turretDropPosLeftLowPole));//3147
+            rotateLowPole.add(new ExtendArmTask(robotHardware, isRight? param.armLengthDropLowRight:param.armLengthDropLow));
             taskList.add(rotateLowPole);
 
             ParallelComboTask dropLowPole = new ParallelComboTask();
             dropLowPole.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[4]));
             SequentialComboTask seqOpen = new SequentialComboTask();
-//                seqParking.add(new RobotSleep(300)); ??
+            seqOpen.add(new RobotSleep(180));
             seqOpen.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
-            seqOpen.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
             ParallelComboTask finalPos = new ParallelComboTask();
+            finalPos.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+
 //            finalPos.add(new GrabberTask(robotHardware, false));
-            finalPos.add(new TurnTurretTask(robotHardware,  (isRight)?1097:-1850));
+            finalPos.add(new TurnTurretTask(robotHardware,  (isRight)?param.turretRight1FinalPos:param.turretLeft1FinalPos));
             seqOpen.add(finalPos);
             dropLowPole.add(seqOpen);
             taskList.add(dropLowPole);
@@ -249,53 +249,60 @@ public class AutonomousTaskBuilder {
             SequentialComboTask finalSeq = new SequentialComboTask();
             ParallelComboTask liftAndTurnAndPark = new ParallelComboTask();
             liftAndTurnAndPark.add(new LiftArmTask(robotHardware,param.liftHighDrop ));//it's mid pole
-            liftAndTurnAndPark.add(new TurnTurretTask(robotHardware, (isRight) ? -1458 : param.turretDropPosRightHighPole)); //450 param.turretDropPosLeft
-            liftAndTurnAndPark.add(new ExtendArmTask(robotHardware, param.armLengthPostRightPickHighPole)); //0.05
+            liftAndTurnAndPark.add(new TurnTurretTask(robotHardware, (isRight) ? param.turretDropPosRightHighPole : param.turretDropPosLeftHighPole)); //450 param.turretDropPosLeft
+            liftAndTurnAndPark.add(new ExtendArmTask(robotHardware, (isRight) ? param.armLengthPostRightPickHighPole :param.armLengthPostLeftPickHighPole)); //0.05
 
             TrajectorySequence parking;
             if(isRight){
                 parking = drive.trajectorySequenceBuilder(toPick.end())
-                        .back(4, velFast, acceFast)
                         .strafeLeft(24)   //y=54,(parkingRow==2)?24:48
                         .build();
             }else {
                 parking = drive.trajectorySequenceBuilder(toPick.end())
-                        .back(4,velFast,acceFast)
                         .strafeRight(24)   //y=54, (parkingRow==2)?24:48
                         .build();
             }
-            SplineMoveTask moveToPakring = new SplineMoveTask(robotHardware.mecanumDrive, parking);
-            liftAndTurnAndPark.add(moveToPakring);
+            SplineMoveTask moveToParking = new SplineMoveTask(robotHardware.mecanumDrive, parking);
+            liftAndTurnAndPark.add(moveToParking);
             finalSeq.add(liftAndTurnAndPark);
-            finalSeq.add(new RobotSleep(250));
+            finalSeq.add(new RobotSleep(270));
             taskList.add(finalSeq);
 
             ParallelComboTask dropRetract4 = new ParallelComboTask();
             dropRetract4.add(new LiftArmTask(robotHardware, param.liftMidDrop));
             SequentialComboTask seq4 = new SequentialComboTask();
             seq4.add(new RobotSleep(150));
-//            seq4.add(new GrabberTask(robotHardware, true));
+            seq4.add(new GrabberTask(robotHardware, true));
 
             ParallelComboTask finalMove = new ParallelComboTask();
-            finalMove.add(new GrabberTask(robotHardware, true));
             finalMove.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullInPos));
-            finalMove.add(new TurnTurretTask(robotHardware, -925));//-2775 param.turretPickPosRight:param.turretPickPosLeft
 
             TrajectorySequence finalParking_3 = null;
-            if(parkingRow==3){
+            SplineMoveTask moveToFianlPakring_3 = null;
+            if(isRight && parkingRow==1 || !isRight && parkingRow==3){
+                finalMove.add(new TurnTurretTask(robotHardware, param.turretLeft3FinalPos));//-2775 param.turretPickPosRight:param.turretPickPosLeft
+
                 if(isRight) {
                     finalParking_3 = drive.trajectorySequenceBuilder(parking.end(), velFast)
-                            .strafeLeft(24)   //y=52
+                            .strafeLeft(24)   //y=46
+                            .back(6)
                             .build();
                 }else{
                     finalParking_3 = drive.trajectorySequenceBuilder(parking.end(), velFast)
-                            .strafeRight(24)   //y=52
+                            .strafeRight(24)   //y=46
+                            .back(6)
                             .build();
                 }
-                SplineMoveTask moveToFianlPakring_3 = new SplineMoveTask(robotHardware.mecanumDrive, finalParking_3);
-                finalMove.add(moveToFianlPakring_3);
-            }
 
+
+            }else{ //#2
+                finalMove.add(new TurnTurretTask(robotHardware, param.turretLeft2FinalPos));//-2775 param.turretPickPosRight:param.turretPickPosLeft
+                finalParking_3 = drive.trajectorySequenceBuilder(parking.end(), velFast)
+                        .back(6)
+                        .build();
+            }
+            moveToFianlPakring_3 = new SplineMoveTask(robotHardware.mecanumDrive, finalParking_3);
+            finalMove.add(moveToFianlPakring_3);
             finalMove.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
             seq4.add(finalMove);
             dropRetract4.add(seq4);
