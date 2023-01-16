@@ -79,7 +79,7 @@ public class AutonomousTaskBuilder {
         initComb.add(new ExtendArmTask(robotHardware, param.armLengthDrop1));
         taskList.add(initComb);
         // sleep
-        taskList.add(new RobotSleep(250)); //test:robot stay here longer than 500ms
+        taskList.add(new RobotSleep(300)); //test:robot stay here longer than 500ms
 //         1)lower 2) wait, open grab, retract, turn, move
         ParallelComboTask dropRetract1 = new ParallelComboTask();
         dropRetract1.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[4]));
@@ -176,7 +176,7 @@ public class AutonomousTaskBuilder {
 
         // 1)lower 2) wait, open grab, retract, turn, move
         SequentialComboTask dropGroundJunction = new SequentialComboTask();
-        dropGroundJunction.add(new LiftArmTask(robotHardware,param.liftGroundJDrop));
+        dropGroundJunction.add(new LiftArmTask(robotHardware,param.liftGroundDrop));
         dropGroundJunction.add(new RobotSleep(50));
         dropGroundJunction.add(new GrabberTask(robotHardware, true));
         taskList.add(dropGroundJunction);
