@@ -38,6 +38,7 @@ public class LiftResetTask implements RobotControl {
         else {
             if (!robotHardware.isLiftTouched()) {
                 robotHardware.resetLiftPos();
+                robotHardware.setLiftPosition(0);
                 mode = Mode.DONE;
             }
         }
