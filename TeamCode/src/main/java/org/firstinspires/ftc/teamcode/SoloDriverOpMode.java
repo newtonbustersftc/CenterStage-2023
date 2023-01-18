@@ -102,7 +102,7 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         else {
-            if (gamepad1.share && gamepad1.dpad_down) {
+            if (gamepad1.options && gamepad1.dpad_down) {
                 currentTask = new LiftResetTask(robotHardware, robotProfile);
                 currentTask.prepare();
             }
@@ -179,7 +179,7 @@ public class SoloDriverOpMode extends OpMode {
 //        telemetry.addData("Turn:", turn);
         robotHardware.mecanumDrive2(power, movAngle, turn);
 
-        if(gamepad1.share && gamepad1.dpad_right){
+        if(gamepad1.options && gamepad1.dpad_right){
             robotHardware.resetImu();
             imuAngleOffset = -Math.PI/2;
             fieldMode = true;
@@ -196,8 +196,22 @@ public class SoloDriverOpMode extends OpMode {
                 touchExtension = robotHardware.getExtensionPosition();
             }
             else {
-                robotHardware.setTurretPosition(touchTurret + (int)((gamepad1.touchpad_finger_1_x - touchX) * robotProfile.hardwareSpec.turret360/16));
-                robotHardware.setExtensionPosition(touchExtension + (gamepad1.touchpad_finger_1_y - touchY)/8);
+                if (Math.abs(gamepad1.touchpad_finger_1_x) > 0.95) {
+                    touchX = gamepad1.touchpad_finger_1_x;
+                    touchTurret = robotHardware.getTurretPosition() + robotProfile.hardwareSpec.turret360/24 * (int)Math.signum(touchX);
+                    robotHardware.setTurretPosition(touchTurret);
+                }
+                else {
+                    robotHardware.setTurretPosition(touchTurret + (int) ((gamepad1.touchpad_finger_1_x - touchX) * robotProfile.hardwareSpec.turret360 / 16));
+                }
+                if (Math.abs(gamepad1.touchpad_finger_1_y) > 0.95) {
+                    touchY = gamepad1.touchpad_finger_1_y;
+                    touchExtension = robotHardware.getExtensionPosition() + 0.01 * Math.signum(touchY);
+                    robotHardware.setExtensionPosition(touchExtension);
+                }
+                else{
+                    robotHardware.setExtensionPosition(touchExtension + (gamepad1.touchpad_finger_1_y - touchY) / 8);
+                }
             }
         }
         touching = gamepad1.touchpad_finger_1;
@@ -241,7 +255,7 @@ public class SoloDriverOpMode extends OpMode {
             else if(gamepad1.dpad_up) {
                 robotHardware.setLiftPosition(currPos + 100);
             }
-            else if (!gamepad1.share && gamepad1.dpad_down) {
+            else if (!gamepad1.options && gamepad1.dpad_down) {
                 robotHardware.setLiftPosition(currPos - 100);
             }
         }
@@ -340,13 +354,13 @@ public class SoloDriverOpMode extends OpMode {
         dropSeq2.add(new RobotSleep((100)));
         dropSeq2.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
         dropSeq2.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        dropSeq2.add(new RobotSleep((500)));
         ((ParallelComboTask)repeatToPick).add(dropSeq2);
 
         repeatPick = new SequentialComboTask();
         repeatPick.setTaskName("Repeat Pick");
         repeatPick.add(repeatToPick);
         repeatPick.add(new LiftExtTutTask(robotHardware, lastPick));
+        repeatPick.add(new RobotSleep(300));
         repeatPick.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
         repeatPick.add(new LiftExtTutTask(robotHardware, lastDrop));
     }
