@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.util.Log;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.io.File;
 
@@ -18,6 +23,9 @@ public class HardwareOpModeTest extends OpMode {
 
     Pose2d currPose;
     double grabberPos = 0.5;
+    double gain;
+    boolean gainChange;
+    float[] hsvValues = new float[3];
     boolean grabberChange =  false;
     double fieldHeadingOffset;
     RobotControl currentTask = null;
@@ -36,7 +44,9 @@ public class HardwareOpModeTest extends OpMode {
 
         Logger.init();
         robotHardware = new RobotHardware();
+        gainChange = false;
         robotHardware.init(hardwareMap, robotProfile);
+        gain = robotHardware.coneSensor.getGain();
         robotHardware.grabberOpen();
         robotHardware.calibrateGyro(telemetry);
         robotVision = robotHardware.getRobotVision();
@@ -66,13 +76,18 @@ public class HardwareOpModeTest extends OpMode {
         telemetry.addData("Lift Position", robotHardware.getLiftPosition());
         telemetry.addData("Turret Position", robotHardware.getTurretPosition());
         telemetry.addData("Extension Position", robotHardware.extensionPos);
-        telemetry.addData("Gyro", Math.toDegrees(robotHardware.getGyroHeading()));
-        telemetry.addData("ConeRef", robotHardware.getConeReflection());
         telemetry.addData("Grabber", grabberPos);
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
-                .addData("RL:", robotHardware.rlMotor.getCurrentPosition())
-                .addData("RR:", robotHardware.rrMotor.getCurrentPosition())
-                .addData("FR:", robotHardware.frMotor.getCurrentPosition());
+                .addData("RL", robotHardware.rlMotor.getCurrentPosition())
+                .addData("RR", robotHardware.rrMotor.getCurrentPosition())
+                .addData("FR", robotHardware.frMotor.getCurrentPosition());
+        NormalizedRGBA rgba = robotHardware.coneSensor.getNormalizedColors();
+        telemetry.addData("Gain", gain);
+        double allcolor = rgba.red + rgba.blue + rgba.green;
+        telemetry.addData("RED%", rgba.red / allcolor);
+        telemetry.addData("BLUE%", rgba.blue / allcolor);
+        telemetry.addData("Green%", rgba.green / allcolor);
+        telemetry.addData("Dist inch", ((DistanceSensor)robotHardware.coneSensor).getDistance(DistanceUnit.INCH));
         telemetry.update();
 
         robotHardware.turnTurret(gamepad1.left_stick_x);
@@ -82,6 +97,13 @@ public class HardwareOpModeTest extends OpMode {
         } else if (gamepad1.y) { // Triangle
             robotHardware.grabberOpen();
         }
+        if (!gainChange && gamepad1.dpad_up) {
+            gain = gain + 0.1;
+        }
+        else if (!gainChange && gamepad1.dpad_down) {
+            gain = gain - 0.1;
+        }
+        gainChange = gamepad1.dpad_up || gamepad1.dpad_down;
 
         if (gamepad1.dpad_left) {
             robotHardware.extensionExtend();
