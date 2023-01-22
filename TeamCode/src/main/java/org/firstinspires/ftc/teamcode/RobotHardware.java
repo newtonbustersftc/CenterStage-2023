@@ -173,6 +173,13 @@ public class RobotHardware {
         }
     }
 
+    public void setLiftPower(double power) {
+        for(DcMotorEx liftMotor : liftMotors) {
+            liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            liftMotor.setPower(power);
+        }
+    }
+
     public int getTargetLiftPosition() {
         return liftMotors[0].getTargetPosition();
     }
@@ -602,7 +609,7 @@ public class RobotHardware {
         opmode.telemetry.clearAll();
         while (!isMagneticTouched() && !opmode.isStopRequested()) {
             tu = getTurretPosition();
-            opmode.telemetry.addData("Tullett position", tu);
+            opmode.telemetry.addData("Turret position", tu);
             opmode.telemetry.update();
             setTurretPosition(tu + 5);
             try {
@@ -621,30 +628,52 @@ public class RobotHardware {
         }
         resetTurretPos();
         if (opmode.isStopRequested()) return;
-        // Goes down to touch first
-        setLiftPositionUnsafe(-5000, 0.3);
-        long t = System.currentTimeMillis();
-        while (!isLiftTouched() && (System.currentTimeMillis()-t)<3000) {
-            try {
-                Thread.sleep(100);
-            }
-            catch (Exception ex) {
-            }
-        }
-        resetLiftPos();
-        setLiftPosition(0);
-        // goes up again until touch no more
-        int i = 0;
-        while (isLiftTouched() && !opmode.isStopRequested()) {
-            i = i+1;
-            setLiftPosition(i);
+
+        // Lift position reset
+        long startTime = System.currentTimeMillis();
+        setLiftPower(-0.3);
+        while (!isLiftTouched() && (System.currentTimeMillis() - startTime<3000) && !opmode.isStopRequested()) {
             try {
                 Thread.sleep(10);
             }
             catch (Exception ex) {
             }
         }
+        // continue to hold for half a second
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception ex) {
+        }
+        // now let's tension for go up
+        Logger.logFile("Lift reset up tension");
         resetLiftPos();
+        setLiftPosition(0); // holding
+        // tension for lift motor 0, holding position 0 using motor 1,2
+        liftMotors[0].setPower(0.2);
+        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception ex) {
+        }
+        // using motor 0 to hold position
+        liftMotors[0].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotors[0].setTargetPosition(0);
+        liftMotors[0].setPower(0.8);
+        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotors[1].setPower(0.1);
+        liftMotors[2].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotors[2].setPower(0.1);
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception ex) {
+        }
+        resetLiftPos();
+        setLiftPositionUnsafe(0, 0.5);
+
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         grabberInit();
@@ -662,5 +691,9 @@ public class RobotHardware {
         while (!opmode.isStopRequested() && opmode.gamepad1.dpad_up) {
             opmode.sleep(50);
         }
+    }
+
+    DcMotorEx[] getLiftMotors() {
+        return liftMotors;
     }
 }
