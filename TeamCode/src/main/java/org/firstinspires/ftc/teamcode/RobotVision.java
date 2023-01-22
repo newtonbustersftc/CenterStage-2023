@@ -112,6 +112,8 @@ public class RobotVision {
         //int g = camera.getGainControl().getGain();
         //Logger.logFile("Current camera gain: " + g + " max gain:" + camera.getGainControl().getMaxGain());
         //camera.getGainControl().setGain(70);
+        //camera.getExposureControl().setMode(ExposureControl.Mode.Auto);
+        //camera.getWhiteBalanceControl().setMode(WhiteBalanceControl.Mode.AUTO);
         FocusControl fc = camera.getFocusControl();
         Logger.logFile(deviceName + " Focus Fix mode support:" + fc.isModeSupported(FocusControl.Mode.Fixed));
         ExposureControl ec = camera.getExposureControl();

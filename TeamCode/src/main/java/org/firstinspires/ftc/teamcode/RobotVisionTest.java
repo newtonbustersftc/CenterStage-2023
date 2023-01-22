@@ -40,15 +40,15 @@ public class RobotVisionTest extends LinearOpMode {
     long loopCount = 0;
     int countTasks = 0;
 
-    public static int L1 = 70;
+    public static int L1 = 20;
     public static int L2 = 100;
-    public static int L3 = 50;
-    public static int H1 = 100;
+    public static int L3 = 80;
+    public static int H1 = 45;
     public static int H2 = 255;
     public static int H3 = 255;
-    public static int TOP = 240;
+    public static int TOP = 220;
     public static int HEIGHT=40;
-    public static int MIN_AREA = 100;
+    public static int MIN_AREA = 800;
 
     // GREEN: 60, 30, 60 -> 100, 255, 255
     // RED: 230, 60, 60 -> 15, 255, 255
@@ -69,6 +69,7 @@ public class RobotVisionTest extends LinearOpMode {
     public void runOpMode() {
 
         initRobot();
+        robotHardware.grabberClose();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
         robotVision.initWebCam(CAMERA_NAME, true);
@@ -136,7 +137,7 @@ public class RobotVisionTest extends LinearOpMode {
                 }
             }
         }
-        robotVision.stopWebcam("Webcam 1");
+        robotVision.stopWebcam(CAMERA_NAME);
         try {
             Logger.flushToFile();
         }
