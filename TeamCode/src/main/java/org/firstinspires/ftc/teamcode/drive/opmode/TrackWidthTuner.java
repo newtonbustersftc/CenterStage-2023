@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.io.File;
 
@@ -49,7 +48,7 @@ public class TrackWidthTuner extends LinearOpMode {
         Logger.init();
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         robotHardware.resetDriveAndEncoders();
-        robotHardware.calibrateGyro(telemetry);
+        //robotHardware.calibrateNavxGyro(telemetry);
         robotHardware.resetImu();
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
