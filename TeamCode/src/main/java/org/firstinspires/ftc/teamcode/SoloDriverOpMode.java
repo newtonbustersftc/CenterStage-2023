@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.content.SharedPreferences;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -18,7 +20,7 @@ public class SoloDriverOpMode extends OpMode {
     RobotProfile robotProfile;
 
     boolean fieldMode;
-    boolean isRedTeam = true;   // always true for current autonomous set up
+    boolean isRedTeam;   // always true for current autonomous set up
     boolean leftBumperPressed = false;
     double imuAngleOffset = Math.PI/2;
     boolean liftCanChange = true;
@@ -65,8 +67,13 @@ public class SoloDriverOpMode extends OpMode {
         poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
         poleRecognition.startRecognition();
         currHeading = robotHardware.getGyroHeading();
+        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
+        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        isRedTeam = startPosMode.startsWith("RED");
+
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
         Logger.logFile("Current IMU Angle " + Math.toDegrees(currHeading));
+        Logger.logFile("StartPos: " + startPosMode);
         setupCombos();
         robotHardware.grabberOpen();
         coneReflection = 0;
@@ -166,7 +173,7 @@ public class SoloDriverOpMode extends OpMode {
 
         double movAngle;
         if (fieldMode) {
-            movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - currHeading -imuAngleOffset;
+            movAngle = padAngle + Math.PI / 2 - currHeading -imuAngleOffset;
         } else {
             movAngle = padAngle;
         }
@@ -291,8 +298,7 @@ public class SoloDriverOpMode extends OpMode {
         gripperCanChange = (gamepad1.left_trigger < 0.1) && (gamepad1.right_trigger < 0.1);
         if (currentTask==null && robotHardware.isGripOpen() && robotHardware.getLiftPosition() < robotProfile.hardwareSpec.liftPickPos[4]+20) {
             if (loopCnt % 10==5) {  // let's read I2C only 1 in 10 times
-                coneReflection = robotHardware.getConeReflection();
-                if (coneReflection > robotProfile.hardwareSpec.coneGrabColor) {
+                if (robotHardware.pickUpCheck(isRedTeam)) {
                     recordLiftExtTut("pick", lastPick);
                     currentTask = grabAndLift;
                     currentTask.prepare();

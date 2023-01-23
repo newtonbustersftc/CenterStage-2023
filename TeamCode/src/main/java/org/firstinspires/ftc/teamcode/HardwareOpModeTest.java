@@ -85,6 +85,8 @@ public class HardwareOpModeTest extends OpMode {
         telemetry.addData("BLUE%", rgba.blue / allcolor);
         telemetry.addData("Green%", rgba.green / allcolor);
         telemetry.addData("Dist inch", ((DistanceSensor)robotHardware.coneSensor).getDistance(DistanceUnit.INCH));
+        telemetry.addData("PickRed", robotHardware.pickUpCheck(true));
+        telemetry.addData("PickBlue", robotHardware.pickUpCheck(false));
         telemetry.update();
 
         if (gamepad1.x) { // Square
