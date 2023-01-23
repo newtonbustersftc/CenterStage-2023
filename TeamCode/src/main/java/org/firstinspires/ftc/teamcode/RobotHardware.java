@@ -10,9 +10,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,6 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
@@ -190,8 +193,22 @@ public class RobotHardware {
         return liftMotors[0].getTargetPosition();
     }
 
-    public double getConeReflection() {
-        return coneSensor.getNormalizedColors().alpha;
+    public boolean pickUpCheck(boolean isRed) {
+        if (((DistanceSensor)coneSensor).getDistance(DistanceUnit.INCH)>profile.hardwareSpec.coneDistInch) {
+            return false;
+        }
+        NormalizedRGBA rgba = coneSensor.getNormalizedColors();
+        double total = rgba.red + rgba.blue + rgba.green;
+        double rp = rgba.red/total;
+        double bp = rgba.blue/total;
+        double gp = rgba.green/total;
+        if (isRed && rp>profile.hardwareSpec.mainColorMin && bp<profile.hardwareSpec.otherColorMax && gp<profile.hardwareSpec.otherColorMax) {
+            return true;
+        }
+        if (!isRed && bp>profile.hardwareSpec.mainColorMin && rp<profile.hardwareSpec.otherColorMax && gp<profile.hardwareSpec.otherColorMax) {
+            return true;
+        }
+        return false;
     }
 
     public void turnOnLight(boolean isOn) {
