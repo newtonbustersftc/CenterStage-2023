@@ -73,10 +73,10 @@ public class RobotVisionTest extends LinearOpMode {
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
         robotVision.initWebCam(CAMERA_NAME, true);
-        robotVision.setGain(CAMERA_NAME, robotProfile.poleParameter.gain);
-        robotVision.setExposureMS(CAMERA_NAME, robotProfile.poleParameter.exposureMs);
-        robotVision.setManualFocusLength(CAMERA_NAME, robotProfile.poleParameter.focus);
-        robotVision.setWhiteBalance(CAMERA_NAME, robotProfile.poleParameter.whiteBalance);
+        //robotVision.setGain(CAMERA_NAME, robotProfile.poleParameter.gain);
+        //robotVision.setExposureMS(CAMERA_NAME, robotProfile.poleParameter.exposureMs);
+        //robotVision.setManualFocusLength(CAMERA_NAME, robotProfile.poleParameter.focus);
+        //robotVision.setWhiteBalance(CAMERA_NAME, robotProfile.poleParameter.whiteBalance);
 
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;

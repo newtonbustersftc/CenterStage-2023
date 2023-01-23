@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -11,7 +10,6 @@ import org.firstinspires.ftc.teamcode.RobotFactory;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.io.File;
@@ -37,7 +35,7 @@ public class StrafeTest extends LinearOpMode {
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         robotHardware.resetDriveAndEncoders();
-        robotHardware.calibrateGyro(telemetry);
+        //robotHardware.calibrateNavxGyro(telemetry);
         robotHardware.resetImu();
 
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
