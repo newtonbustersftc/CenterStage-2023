@@ -69,6 +69,7 @@ public class RobotProfile {
 
     public class HardwareSpec {
         public boolean revHubVertical;
+        public boolean useControlHubImu;
         public double ticksPerRev;
         public double trackWidth;
         public double encoderOffset;
@@ -82,7 +83,9 @@ public class RobotProfile {
         public double extensionInitPos, extensionFullOutPos, extensionDriverMin, extensionFullInPos;
         public double turretPower;
         public double lightPower;
-        public double coneGrabColor;
+        public double coneDistInch;
+        public double mainColorMin;
+        public double otherColorMax;
         public int turretMaxAhead;
         public int turretMoveMax;
         public int turret360;

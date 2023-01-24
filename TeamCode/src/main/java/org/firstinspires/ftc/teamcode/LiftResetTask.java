@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 public class LiftResetTask implements RobotControl {
-    enum Mode { DOWN, UP, DONE };
+    enum Mode { DOWN, UP1, UP2, DONE };
     Mode mode;
     RobotHardware robotHardware;
     long startTime;
@@ -21,8 +23,7 @@ public class LiftResetTask implements RobotControl {
         Logger.logFile("Resetting Lift Position");
         startTime = System.currentTimeMillis();
         robotHardware.setExtensionPosition(profile.hardwareSpec.extensionDriverMin);
-        int currPos = robotHardware.getLiftPosition();
-        robotHardware.setLiftPositionUnsafe(currPos - 5000, 0.3);
+        robotHardware.setLiftPower(-0.3);
         mode = Mode.DOWN;
     }
 
@@ -31,13 +32,32 @@ public class LiftResetTask implements RobotControl {
         if (mode==Mode.DOWN) {
             if (robotHardware.isLiftTouched()) {
                 robotHardware.resetLiftPos();
-                robotHardware.setLiftPositionUnsafe(100, 0.2);
-                mode = Mode.UP;
+                robotHardware.setLiftPositionUnsafe(0, 0.8);
+                startTime = System.currentTimeMillis();
+                mode = Mode.UP1;
+                // use motor 1, 2 to hold position, lift motor 0 for tension
+                robotHardware.getLiftMotors()[0].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robotHardware.getLiftMotors()[0].setPower(0.2);
             }
         }
-        else {
-            if (!robotHardware.isLiftTouched()) {
+        if (mode==Mode.UP1) {
+            if (System.currentTimeMillis() - startTime > 500) {
+                // use motor 0 to hold position, lift motor 1, 2 for tension
+                robotHardware.getLiftMotors()[0].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robotHardware.getLiftMotors()[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robotHardware.getLiftMotors()[0].setPower(0.8);
+                robotHardware.getLiftMotors()[0].setTargetPosition(0);
+                robotHardware.getLiftMotors()[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robotHardware.getLiftMotors()[1].setPower(0.1);
+                robotHardware.getLiftMotors()[2].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robotHardware.getLiftMotors()[2].setPower(0.1);
+                mode = Mode.UP2;
+            }
+        }
+        else if (mode==Mode.UP2) {
+            if (System.currentTimeMillis() - startTime > 1000) {
                 robotHardware.resetLiftPos();
+                robotHardware.setLiftPositionUnsafe(0, 0.5);
                 mode = Mode.DONE;
             }
         }
