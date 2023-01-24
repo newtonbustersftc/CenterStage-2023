@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.content.SharedPreferences;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,11 +11,16 @@ import java.io.File;
 
 @TeleOp(name="SOLO DriverOpMode", group="Main")
 public class SoloDriverOpMode extends OpMode {
+    class LastLiftExtTut {
+        double extension = -1;
+        int liftPos = -1;
+        int tutPos = -1;
+    }
     RobotHardware robotHardware;
     RobotProfile robotProfile;
 
     boolean fieldMode;
-    boolean isRedTeam = true;   // always true for current autonomous set up
+    boolean isRedTeam;   // always true for current autonomous set up
     boolean leftBumperPressed = false;
     double imuAngleOffset = Math.PI/2;
     boolean liftCanChange = true;
@@ -28,8 +35,13 @@ public class SoloDriverOpMode extends OpMode {
     double coneReflection;
     double touchExtension;
 
+    // Auto pick up & drop REST IN PEACE
+    LastLiftExtTut lastPick = new LastLiftExtTut();
+    LastLiftExtTut lastDrop = new LastLiftExtTut();
+
     // DriveThru combos
     RobotControl grabAndLift, poleDeliverTask, groundDeliverTask, forPickUp, forGroundJunction;
+    SequentialComboTask repeatPick;
     RobotControl currentTask = null;
     boolean safeDrive = false;
 
@@ -55,8 +67,13 @@ public class SoloDriverOpMode extends OpMode {
         poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
         poleRecognition.startRecognition();
         currHeading = robotHardware.getGyroHeading();
+        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
+        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        isRedTeam = startPosMode.startsWith("RED");
+
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
         Logger.logFile("Current IMU Angle " + Math.toDegrees(currHeading));
+        Logger.logFile("StartPos: " + startPosMode);
         setupCombos();
         robotHardware.grabberOpen();
         coneReflection = 0;
@@ -92,7 +109,7 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         else {
-            if (gamepad1.share && gamepad1.dpad_down) {
+            if (gamepad1.options && gamepad1.dpad_down) {
                 currentTask = new LiftResetTask(robotHardware, robotProfile);
                 currentTask.prepare();
             }
@@ -103,6 +120,15 @@ public class SoloDriverOpMode extends OpMode {
                 currentTask = null;
             }
             return;
+        }
+
+        if (currentTask == null && gamepad1.dpad_left) {
+            if (lastPick.liftPos!=-1) {
+                robotHardware.setMotorStopBrake(true);
+                recordLiftExtTut("drop", lastDrop);
+                currentTask = repeatPick;
+                repeatPick.prepare();
+            }
         }
 
         handleMovement();
@@ -147,7 +173,7 @@ public class SoloDriverOpMode extends OpMode {
 
         double movAngle;
         if (fieldMode) {
-            movAngle = padAngle + ((isRedTeam) ? Math.PI / 2 : -Math.PI / 2) - currHeading -imuAngleOffset;
+            movAngle = padAngle + Math.PI / 2 - currHeading -imuAngleOffset;
         } else {
             movAngle = padAngle;
         }
@@ -160,7 +186,7 @@ public class SoloDriverOpMode extends OpMode {
 //        telemetry.addData("Turn:", turn);
         robotHardware.mecanumDrive2(power, movAngle, turn);
 
-        if(gamepad1.share && gamepad1.dpad_right){
+        if(gamepad1.options && gamepad1.dpad_right){
             robotHardware.resetImu();
             imuAngleOffset = -Math.PI/2;
             fieldMode = true;
@@ -177,8 +203,22 @@ public class SoloDriverOpMode extends OpMode {
                 touchExtension = robotHardware.getExtensionPosition();
             }
             else {
-                robotHardware.setTurretPosition(touchTurret + (int)((gamepad1.touchpad_finger_1_x - touchX) * robotProfile.hardwareSpec.turret360/16));
-                robotHardware.setExtensionPosition(touchExtension + (gamepad1.touchpad_finger_1_y - touchY)/8);
+                if (Math.abs(gamepad1.touchpad_finger_1_x) > 0.95) {
+                    touchX = gamepad1.touchpad_finger_1_x;
+                    touchTurret = robotHardware.getTurretPosition() + robotProfile.hardwareSpec.turret360/24 * (int)Math.signum(touchX);
+                    robotHardware.setTurretPosition(touchTurret);
+                }
+                else {
+                    robotHardware.setTurretPosition(touchTurret + (int) ((gamepad1.touchpad_finger_1_x - touchX) * robotProfile.hardwareSpec.turret360 / 16));
+                }
+                if (Math.abs(gamepad1.touchpad_finger_1_y) > 0.95) {
+                    touchY = gamepad1.touchpad_finger_1_y;
+                    touchExtension = robotHardware.getExtensionPosition() + 0.01 * Math.signum(touchY);
+                    robotHardware.setExtensionPosition(touchExtension);
+                }
+                else{
+                    robotHardware.setExtensionPosition(touchExtension + (gamepad1.touchpad_finger_1_y - touchY) / 8);
+                }
             }
         }
         touching = gamepad1.touchpad_finger_1;
@@ -222,7 +262,7 @@ public class SoloDriverOpMode extends OpMode {
             else if(gamepad1.dpad_up) {
                 robotHardware.setLiftPosition(currPos + 100);
             }
-            else if (!gamepad1.share && gamepad1.dpad_down) {
+            else if (!gamepad1.options && gamepad1.dpad_down) {
                 robotHardware.setLiftPosition(currPos - 100);
             }
         }
@@ -238,6 +278,7 @@ public class SoloDriverOpMode extends OpMode {
                 else {
                     currentTask = groundDeliverTask;
                 }
+                recordLiftExtTut("drop", lastDrop);
                 currentTask.prepare();
                 safeDrive = true;
             }
@@ -248,6 +289,7 @@ public class SoloDriverOpMode extends OpMode {
                 safeDrive = false;
             }
             else if (robotHardware.isGripOpen()) {
+                recordLiftExtTut("pick", lastPick);
                 currentTask = grabAndLift;
                 currentTask.prepare();
                 safeDrive = true;
@@ -256,8 +298,8 @@ public class SoloDriverOpMode extends OpMode {
         gripperCanChange = (gamepad1.left_trigger < 0.1) && (gamepad1.right_trigger < 0.1);
         if (currentTask==null && robotHardware.isGripOpen() && robotHardware.getLiftPosition() < robotProfile.hardwareSpec.liftPickPos[4]+20) {
             if (loopCnt % 10==5) {  // let's read I2C only 1 in 10 times
-                coneReflection = robotHardware.getConeReflection();
-                if (coneReflection > robotProfile.hardwareSpec.coneGrabColor) {
+                if (robotHardware.pickUpCheck(isRedTeam)) {
+                    recordLiftExtTut("pick", lastPick);
                     currentTask = grabAndLift;
                     currentTask.prepare();
                     safeDrive = true;
@@ -266,11 +308,19 @@ public class SoloDriverOpMode extends OpMode {
         }
     }
 
+    void recordLiftExtTut(String name, LastLiftExtTut last) {
+        last.extension = robotHardware.getExtensionPosition();
+        last.tutPos = robotHardware.getTurretPosition();
+        last.liftPos = robotHardware.getTargetLiftPosition();
+        Logger.logFile("Recording " + name + " lift:" + last.liftPos + " tullett:" + last.tutPos);
+    }
+
     /**
      * Define combo task for driver op mode
      */
     void setupCombos() {
         poleDeliverTask = new ParallelComboTask(); // push down, open, retract
+        ((ParallelComboTask)poleDeliverTask).setTaskName("Pole Delivery Task");
         ((ParallelComboTask)poleDeliverTask).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
         SequentialComboTask dropSeq = new SequentialComboTask();
         dropSeq.add(new RobotSleep((100)));
@@ -279,17 +329,20 @@ public class SoloDriverOpMode extends OpMode {
         ((ParallelComboTask)poleDeliverTask).add(dropSeq);
 
         groundDeliverTask = new SequentialComboTask();  // simple open, lift up, and retract
+        ((SequentialComboTask)groundDeliverTask).setTaskName("Ground Delivery Task");
         ((SequentialComboTask)groundDeliverTask).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.SAFE));
         ((SequentialComboTask)groundDeliverTask).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
         ((SequentialComboTask)groundDeliverTask).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
 
         grabAndLift = new SequentialComboTask();
+        ((SequentialComboTask)grabAndLift).setTaskName("Grab and Lift");
         ((SequentialComboTask)grabAndLift).add(new GrabberTask(robotHardware, false));
         ((SequentialComboTask)grabAndLift).add(new RobotSleep(200));
         ((SequentialComboTask)grabAndLift).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate, false, true));
         ((SequentialComboTask)grabAndLift).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
 
         forPickUp = new SequentialComboTask();
+        ((SequentialComboTask)forPickUp).setTaskName("forPickUp");
         ((SequentialComboTask)forPickUp).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
         ((SequentialComboTask)forPickUp).add(new LiftArmTask(robotHardware, 0));
         ((SequentialComboTask)forPickUp).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.OPEN));
@@ -297,5 +350,24 @@ public class SoloDriverOpMode extends OpMode {
         forGroundJunction = new SequentialComboTask();
         ((SequentialComboTask)forGroundJunction).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
         ((SequentialComboTask)forGroundJunction).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[0]));
+
+        // AUTO PICK & DROP
+        ParallelComboTask repeatToPick = new ParallelComboTask(); // push down then lift/ext/tut
+        repeatToPick.setTaskName("Repeat to Pick");
+        repeatToPick.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        SequentialComboTask dropSeq2 = new SequentialComboTask();
+        dropSeq2.setTaskName("DropSeq2");
+        dropSeq2.add(new RobotSleep((100)));
+        dropSeq2.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
+        dropSeq2.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
+        ((ParallelComboTask)repeatToPick).add(dropSeq2);
+
+        repeatPick = new SequentialComboTask();
+        repeatPick.setTaskName("Repeat Pick");
+        repeatPick.add(repeatToPick);
+        repeatPick.add(new LiftExtTutTask(robotHardware, lastPick));
+        repeatPick.add(new RobotSleep(300));
+        repeatPick.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
+        repeatPick.add(new LiftExtTutTask(robotHardware, lastDrop));
     }
 }

@@ -6,6 +6,10 @@ import android.util.Log;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.io.File;
 
@@ -18,8 +22,10 @@ public class HardwareOpModeTest extends OpMode {
 
     Pose2d currPose;
     double grabberPos = 0.5;
+
     boolean grabberChange =  false;
-    double fieldHeadingOffset;
+    boolean blocking = false;
+    boolean turretTurnTest = false;
     RobotControl currentTask = null;
 
     @Override
@@ -38,7 +44,9 @@ public class HardwareOpModeTest extends OpMode {
         robotHardware = new RobotHardware();
         robotHardware.init(hardwareMap, robotProfile);
         robotHardware.grabberOpen();
-        robotHardware.calibrateGyro(telemetry);
+        robotHardware.resetImu();
+        robotHardware.resetTurretPos();
+        robotHardware.enableManualCaching(true);
         robotVision = robotHardware.getRobotVision();
         //robotVision.activateNavigationTarget();
         //robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
@@ -66,22 +74,45 @@ public class HardwareOpModeTest extends OpMode {
         telemetry.addData("Lift Position", robotHardware.getLiftPosition());
         telemetry.addData("Turret Position", robotHardware.getTurretPosition());
         telemetry.addData("Extension Position", robotHardware.extensionPos);
-        telemetry.addData("Gyro", Math.toDegrees(robotHardware.getGyroHeading()));
-        telemetry.addData("ConeRef", robotHardware.getConeReflection());
         telemetry.addData("Grabber", grabberPos);
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
-                .addData("RL:", robotHardware.rlMotor.getCurrentPosition())
-                .addData("RR:", robotHardware.rrMotor.getCurrentPosition())
-                .addData("FR:", robotHardware.frMotor.getCurrentPosition());
+                .addData("RL", robotHardware.rlMotor.getCurrentPosition())
+                .addData("RR", robotHardware.rrMotor.getCurrentPosition())
+                .addData("FR", robotHardware.frMotor.getCurrentPosition());
+        NormalizedRGBA rgba = robotHardware.coneSensor.getNormalizedColors();
+        double allcolor = rgba.red + rgba.blue + rgba.green;
+        telemetry.addData("RED%", rgba.red / allcolor);
+        telemetry.addData("BLUE%", rgba.blue / allcolor);
+        telemetry.addData("Green%", rgba.green / allcolor);
+        telemetry.addData("Dist inch", ((DistanceSensor)robotHardware.coneSensor).getDistance(DistanceUnit.INCH));
+        telemetry.addData("PickRed", robotHardware.pickUpCheck(true));
+        telemetry.addData("PickBlue", robotHardware.pickUpCheck(false));
         telemetry.update();
-
-        robotHardware.turnTurret(gamepad1.left_stick_x);
 
         if (gamepad1.x) { // Square
             robotHardware.grabberClose();
         } else if (gamepad1.y) { // Triangle
             robotHardware.grabberOpen();
         }
+        if (!turretTurnTest && gamepad1.dpad_up) {
+            turretTurnTest = true;
+        }
+        if (gamepad1.dpad_down) {
+            turretTurnTest = false;
+        }
+        if (turretTurnTest) {
+            robotHardware.turnTurretByPower(0.1);
+        }
+        else if (Math.abs(gamepad1.left_stick_x)>0.1) {
+            robotHardware.turnTurret(gamepad1.left_stick_x);
+        }
+        else {
+            robotHardware.turnTurretByPower(0);
+        }
+        if (!blocking && robotHardware.isMagneticTouched()) {
+            Logger.logFile("Just touched - Turret position " + robotHardware.getTurretPosition());
+        }
+        blocking = robotHardware.isMagneticTouched();
 
         if (gamepad1.dpad_left) {
             robotHardware.extensionExtend();
@@ -105,7 +136,7 @@ public class HardwareOpModeTest extends OpMode {
 
         if (robotHardware.isLiftTouched()) {robotHardware.resetLiftPos();}
 
-        if (robotHardware.isMagneticTouched()) {robotHardware.resetTurretPos();}
+        //if (robotHardware.isMagneticTouched()) {robotHardware.resetTurretPos();}
 
     }
 

@@ -7,27 +7,26 @@ import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SensorKLNavxMicro;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
-import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AxesSigns;
 import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil;
@@ -50,12 +49,15 @@ public class RobotHardware {
     LynxModule expansionHub1;
     LynxModule expansionHub2;
     NBMecanumDrive mecanumDrive;
-    //BNO055IMU imu;        // not available on our Expansion Hub
+    BNO055IMU imu;
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
     double gyroOffset;
+    int turretOffset;
     boolean gripOpen = false;
     int turretTargetPos;
+    boolean turretMotorByPower = true;
+    double turretPower = 0;
 
     RobotVision robotVision;
     DecimalFormat nf2 = new DecimalFormat("#.##");
@@ -70,8 +72,6 @@ public class RobotHardware {
         rlMotor = hardwareMap.get(DcMotorEx.class, "Rear Left");
         frMotor = hardwareMap.get(DcMotorEx.class, "Front Right");
         flMotor = hardwareMap.get(DcMotorEx.class, "Front Left");
-        //imu = hardwareMap.get(BNO055IMU.class, "imu");
-        //resetImu();
         resetDriveAndEncoders();
         expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
         magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
@@ -84,9 +84,6 @@ public class RobotHardware {
         liftMotors[1] = hardwareMap.get(DcMotorEx.class,"Lift Motor2");
         liftMotors[2] = hardwareMap.get(DcMotorEx.class,"Lift Motor3");
         turretMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
-        navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
-        gyro = (IntegratingGyroscope)navxMicro;
-        calibrateGyro(null);
         coneSensor = hardwareMap.get(NormalizedColorSensor.class, "ConeDistance");
 
         // Use manual cache mode for most efficiency, but each program
@@ -98,10 +95,22 @@ public class RobotHardware {
         mecanumDrive = new NBMecanumDrive(this, profile);
         //mecanumDrive.setLocalizer(realSenseLocalizer);
         robotVision = new RobotVision(this, profile);
+        initGyro();
+        resetImu();
     }
 
     public List<DcMotorEx> getDriveMotors() {
         return Arrays.asList(flMotor, rlMotor, rrMotor, frMotor);
+    }
+
+    public void initGyro() {
+        if (profile.hardwareSpec.useControlHubImu) {
+            imu = hardwareMap.get(BNO055IMU.class, "imu");
+        }
+        else {
+            navxMicro = hardwareMap.get(NavxMicroNavigationSensor.class, "navx");
+            gyro = (IntegratingGyroscope)navxMicro;
+        }
     }
 
     public void resetDriveAndEncoders() {
@@ -173,34 +182,42 @@ public class RobotHardware {
         }
     }
 
+    public void setLiftPower(double power) {
+        for(DcMotorEx liftMotor : liftMotors) {
+            liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            liftMotor.setPower(power);
+        }
+    }
+
     public int getTargetLiftPosition() {
         return liftMotors[0].getTargetPosition();
     }
 
-    public double getConeReflection() {
-        return coneSensor.getNormalizedColors().alpha;
+    public boolean pickUpCheck(boolean isRed) {
+        if (((DistanceSensor)coneSensor).getDistance(DistanceUnit.INCH)>profile.hardwareSpec.coneDistInch) {
+            return false;
+        }
+        NormalizedRGBA rgba = coneSensor.getNormalizedColors();
+        double total = rgba.red + rgba.blue + rgba.green;
+        double rp = rgba.red/total;
+        double bp = rgba.blue/total;
+        double gp = rgba.green/total;
+        if (isRed && rp>profile.hardwareSpec.mainColorMin && bp<profile.hardwareSpec.otherColorMax && gp<profile.hardwareSpec.otherColorMax) {
+            return true;
+        }
+        if (!isRed && bp>profile.hardwareSpec.mainColorMin && rp<profile.hardwareSpec.otherColorMax && gp<profile.hardwareSpec.otherColorMax) {
+            return true;
+        }
+        return false;
     }
 
     public void turnOnLight(boolean isOn) {
-        double p = (isOn) ? 0.9 : 0.3;
+        double p = (isOn) ? profile.hardwareSpec.lightPower : 0.5;
         lightServo.setPosition(p);
     }
 
     public boolean isLiftMoving() {
         return Math.abs(liftMotors[0].getVelocity())>10;
-    }
-
-    public int getEncoderVelocity(EncoderType encoder) {
-//        if(encoder == EncoderType.LIFT) {
-//            return bulkData2.getMotorVelocity(liftMotor);
-//        }
-//        else if (encoder == EncoderType.INTAKE){
-//            return bulkData2.getMotorVelocity(intakeMotor);
-//        }
-//        else {
-//            return 0;
-//        }
-        return 0;
     }
 
     public void mecanumDrive2(double power, double angle, double rotation){
@@ -275,41 +292,60 @@ public class RobotHardware {
         for(DcMotorEx liftMotor:liftMotors) {
             liftMotor.setPower(0);
         }
+        turretPower = 0;
         turretMotor.setPower(0);
     }
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
 
     public double getGyroHeading() {
-//      return imu.getAngularOrientation().firstAngle;
-        Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
-        return angles.firstAngle - gyroOffset;
+        if (profile.hardwareSpec.useControlHubImu) {
+            double firstAngle = imu.getAngularOrientation().firstAngle;
+            int turr = turretMotor.getCurrentPosition();
+            double h = firstAngle + 2*Math.PI*(turr - turretOffset)/profile.hardwareSpec.turret360;
+            //er.logFile("First:" + firstAngle + " Turret:" + turr + " TurretOffset:" + turretOffset + " heading:" + h);
+            return h;
+        }
+        else {
+            Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+            return angles.firstAngle - gyroOffset;
+        }
     }
 
     public double getGyroVelocity() {
-//        AngularVelocity angles = imu.getAngularVelocity();
-//        return angles.zRotationRate;
-        AngularVelocity angles = gyro.getAngularVelocity(AngleUnit.RADIANS);
-        return angles.zRotationRate;
+        if (profile.hardwareSpec.useControlHubImu) {
+            AngularVelocity angles = imu.getAngularVelocity();
+            return angles.zRotationRate;
+        }
+        else {
+            AngularVelocity angles = gyro.getAngularVelocity(AngleUnit.RADIANS);
+            return angles.zRotationRate;
+        }
     }
 
     public void resetImu() {
-//        Logger.logFile("Resetting Built-in IMU");
-//        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-//        parameters.mode = BNO055IMU.SensorMode.IMU;
-//        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-//        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-//        parameters.loggingEnabled = true;
-//        boolean result = imu.initialize(parameters);
-//        //If Robot Controller is vertically placed, uncomment the following line
-//        if (profile.hardwareSpec.revHubVertical) {
-//            BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
-//        }
-//        Logger.logFile("Reset Built-in IMU " + result);
-        gyroOffset = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
+        if (profile.hardwareSpec.useControlHubImu) {
+            Logger.logFile("Resetting Built-in IMU");
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            parameters.mode = BNO055IMU.SensorMode.IMU;
+            parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled = true;
+            boolean result = imu.initialize(parameters);
+            //If Robot Controller is vertically placed, uncomment the following line
+            if (profile.hardwareSpec.revHubVertical) {
+                BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+            }
+            turretOffset = turretMotor.getCurrentPosition();
+            Logger.logFile("Reset Built-in IMU " + result);
+        }
+        else {
+            calibrateNavxGyro(null);
+            gyroOffset = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
+        }
     }
 
-    public void calibrateGyro(Telemetry telemetry) {
+    void calibrateNavxGyro(Telemetry telemetry) {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         gyroOffset = 0;
@@ -324,7 +360,7 @@ public class RobotHardware {
             catch (InterruptedException ex)
             {}
         }
-        Logger.logFile("Gyro calibrated in "+ Math.round(timer.seconds()));
+        Logger.logFile("NavXGyro calibrated in "+ Math.round(timer.seconds()));
     }
 
     RobotProfile getRobotProfile() {
@@ -360,14 +396,22 @@ public class RobotHardware {
     public void resetTurretPos() {
         turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turretMotor.setTargetPosition(0);
-        turretMotor.setPower(profile.hardwareSpec.turretPower);
+        turretPower = profile.hardwareSpec.turretPower;
+        turretMotor.setPower(turretPower);
         turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turretMotorByPower = false;
     }
 
     public void setTurretPosition(int pos, double power) {
         turretMotor.setTargetPosition(pos);
-        turretMotor.setPower(power);
-        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        if (power!=turretPower) {
+            turretPower = power;
+            turretMotor.setPower(power);
+        }
+        if (turretMotorByPower) {
+            turretMotorByPower = false;
+            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
     }
 
     public void setTurretPosition(int pos) {
@@ -389,6 +433,13 @@ public class RobotHardware {
             }
         }
         setTurretPosition(turretTargetPos);
+    }
+
+    public void turnTurretByPower(double p) {
+        turretMotorByPower = true;
+        turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretPower = p;
+        turretMotor.setPower(p);
     }
 
     public boolean isTurretTurning() {
@@ -452,7 +503,7 @@ public class RobotHardware {
     }
 
     public void turnOffLight() {
-        lightServo.setPosition(0);
+        lightServo.setPosition(0.5);
     }
 
     public void initSetupNoAuto(OpMode opmod) {
@@ -602,7 +653,7 @@ public class RobotHardware {
         opmode.telemetry.clearAll();
         while (!isMagneticTouched() && !opmode.isStopRequested()) {
             tu = getTurretPosition();
-            opmode.telemetry.addData("Tullett position", tu);
+            opmode.telemetry.addData("Turret position", tu);
             opmode.telemetry.update();
             setTurretPosition(tu + 5);
             try {
@@ -621,30 +672,52 @@ public class RobotHardware {
         }
         resetTurretPos();
         if (opmode.isStopRequested()) return;
-        // Goes down to touch first
-        setLiftPositionUnsafe(-5000, 0.3);
-        long t = System.currentTimeMillis();
-        while (!isLiftTouched() && (System.currentTimeMillis()-t)<3000) {
-            try {
-                Thread.sleep(100);
-            }
-            catch (Exception ex) {
-            }
-        }
-        resetLiftPos();
-        setLiftPosition(0);
-        // goes up again until touch no more
-        int i = 0;
-        while (isLiftTouched() && !opmode.isStopRequested()) {
-            i = i+1;
-            setLiftPosition(i);
+
+        // Lift position reset
+        long startTime = System.currentTimeMillis();
+        setLiftPower(-0.3);
+        while (!isLiftTouched() && (System.currentTimeMillis() - startTime<3000) && !opmode.isStopRequested()) {
             try {
                 Thread.sleep(10);
             }
             catch (Exception ex) {
             }
         }
+        // continue to hold for half a second
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception ex) {
+        }
+        // now let's tension for go up
+        Logger.logFile("Lift reset up tension");
         resetLiftPos();
+        setLiftPosition(0); // holding
+        // tension for lift motor 0, holding position 0 using motor 1,2
+        liftMotors[0].setPower(0.2);
+        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception ex) {
+        }
+        // using motor 0 to hold position
+        liftMotors[0].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotors[0].setTargetPosition(0);
+        liftMotors[0].setPower(0.8);
+        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotors[1].setPower(0.1);
+        liftMotors[2].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotors[2].setPower(0.1);
+        try {
+            Thread.sleep(500);
+        }
+        catch (Exception ex) {
+        }
+        resetLiftPos();
+        setLiftPositionUnsafe(0, 0.5);
+
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
         grabberInit();
@@ -662,5 +735,9 @@ public class RobotHardware {
         while (!opmode.isStopRequested() && opmode.gamepad1.dpad_up) {
             opmode.sleep(50);
         }
+    }
+
+    DcMotorEx[] getLiftMotors() {
+        return liftMotors;
     }
 }
