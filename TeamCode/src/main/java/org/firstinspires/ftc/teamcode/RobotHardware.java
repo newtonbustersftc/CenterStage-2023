@@ -127,6 +127,8 @@ public class RobotHardware {
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         expansionHub1.clearBulkCache();
+        expansionHub2.clearBulkCache();
+        turretMotorByPower = true;
     }
 
     public HardwareMap getHardwareMap() {
