@@ -127,6 +127,8 @@ public class RobotHardware {
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         expansionHub1.clearBulkCache();
+        //expansionHub2.clearBulkCache();
+        turretMotorByPower = true;
     }
 
     public HardwareMap getHardwareMap() {
@@ -692,7 +694,7 @@ public class RobotHardware {
         // now let's tension for go up
         Logger.logFile("Lift reset up tension");
         resetLiftPos();
-        setLiftPosition(0); // holding
+        setLiftPositionUnsafe(0, 0.6); // holding
         // tension for lift motor 0, holding position 0 using motor 1,2
         liftMotors[0].setPower(0.2);
         liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

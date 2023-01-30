@@ -23,6 +23,8 @@ abstract class FourTrackingWheelLocalizer (
 
     private val forwardSolver1: DecompositionSolver
     private val forwardSolver2: DecompositionSolver
+    private val forwardSolver3: DecompositionSolver
+    private val forwardSolver4: DecompositionSolver
 
     init {
         require(wheelPoses.size == 4) { "4 wheel positions must be provided" }
@@ -59,6 +61,40 @@ abstract class FourTrackingWheelLocalizer (
 
         forwardSolver2 = LUDecomposition(inverseMatrix2).solver
         require(forwardSolver2.isNonSingular) { "The specified configuration cannot support full localization" }
+
+
+
+        val inverseMatrix3 = Array2DRowRealMatrix(3, 3)
+        val w3 =  intArrayOf(0, 2, 3) //change to 2
+        for (i in 0..2) {
+            val orientationVector = wheelPoses[w3[i]].headingVec()
+            val positionVector = wheelPoses[w3[i]].vec()
+            inverseMatrix3.setEntry(i, 0, orientationVector.x)
+            inverseMatrix3.setEntry(i, 1, orientationVector.y)
+            inverseMatrix3.setEntry(
+                i,
+                2,
+                positionVector.x * orientationVector.y - positionVector.y * orientationVector.x
+            )
+        }
+        forwardSolver3 = LUDecomposition(inverseMatrix3).solver
+        require(forwardSolver1.isNonSingular) { "The specified configuration cannot support full localization" }
+
+        val inverseMatrix4 = Array2DRowRealMatrix(3, 3)
+        val w4 =  intArrayOf(1, 2, 3) //change to 3
+        for (i in 0..2) {
+            val orientationVector = wheelPoses[w4[i]].headingVec()
+            val positionVector = wheelPoses[w4[i]].vec()
+            inverseMatrix4.setEntry(i, 0, orientationVector.x)
+            inverseMatrix4.setEntry(i, 1, orientationVector.y)
+            inverseMatrix4.setEntry(
+                i,
+                2,
+                positionVector.x * orientationVector.y - positionVector.y * orientationVector.x
+            )
+        }
+        forwardSolver4 = LUDecomposition(inverseMatrix4).solver
+        require(forwardSolver1.isNonSingular) { "The specified configuration cannot support full localization" }
     }
 
     private fun calculatePoseDelta(wheelDeltas: List<Double>): Pose2d {
@@ -73,10 +109,24 @@ abstract class FourTrackingWheelLocalizer (
                 arrayOf(doubleArrayOf(wd[0], wd[1], wd[3]))
             ).transpose()
         )
+        val rawPoseDelta3 = forwardSolver3.solve(
+            MatrixUtils.createRealMatrix(
+                arrayOf(doubleArrayOf(wd[0], wd[2], wd[3])) //??
+            ).transpose()
+        )
+        val rawPoseDelta4 = forwardSolver2.solve(
+            MatrixUtils.createRealMatrix(
+                arrayOf(doubleArrayOf(wd[1], wd[2], wd[3]))
+            ).transpose()
+        )
+
         return Pose2d(
-            (rawPoseDelta1.getEntry(0, 0) + rawPoseDelta2.getEntry(0, 0))/2,
-            (rawPoseDelta1.getEntry(1, 0) + rawPoseDelta2.getEntry(1, 0))/2,
-            (rawPoseDelta1.getEntry(2, 0) + rawPoseDelta2.getEntry(2, 0))/2,
+            (rawPoseDelta1.getEntry(0, 0) + rawPoseDelta2.getEntry(0, 0)
+                    + rawPoseDelta3.getEntry(0, 0) + rawPoseDelta4.getEntry(0, 0))/4,
+            (rawPoseDelta1.getEntry(1, 0) + rawPoseDelta2.getEntry(1, 0)
+                    + rawPoseDelta3.getEntry(1, 0) + rawPoseDelta4.getEntry(1, 0))/4,
+            (rawPoseDelta1.getEntry(2, 0) + rawPoseDelta2.getEntry(2, 0)
+                    + rawPoseDelta3.getEntry(2, 0) + rawPoseDelta4.getEntry(2, 0))/4,
         )
     }
 
