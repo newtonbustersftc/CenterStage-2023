@@ -55,6 +55,7 @@ public class PoleSampleOpMode extends LinearOpMode {
         RobotFactory.reset();
 
         robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware.grabberClose();
         poleRecog = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
 
         Logger.logFile("Init completed");

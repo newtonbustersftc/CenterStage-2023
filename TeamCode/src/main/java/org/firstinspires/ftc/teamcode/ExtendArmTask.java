@@ -25,7 +25,7 @@ public class ExtendArmTask implements RobotControl {
     @Override
     public void prepare() {
         startTime = System.currentTimeMillis();
-        if (armPos==robotHardware.getConeReflection()) {
+        if (armPos==robotHardware.getExtensionPosition()) {
             duration = 0;   // we done!
         }
         robotHardware.setExtensionPosition(armPos);
