@@ -187,9 +187,9 @@ public class AutonomousTaskBuilder {
             ParallelComboTask liftRetract3 = new ParallelComboTask();
             liftRetract3.add(new LiftArmTask(robotHardware, param.liftUpSafe));
             liftRetract3.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullInPos));
+            liftRetract3.add(new TurnTurretTask(robotHardware, (isRight)? 0 :-1850)); //param.turretDropPosRight,param.turretDropPosLeft
             taskList.add(liftRetract3);
 
-            taskList.add(new TurnTurretTask(robotHardware, (isRight)? 0 :-1850));//param.turretDropPosRight,param.turretDropPosLeft
             ParallelComboTask thirdPickup = new ParallelComboTask();
             thirdPickup.add(new ExtendArmTask(robotHardware, (isRight) ? param.armLengthPickRight: param.armLengthPickLeft, 200));
             thirdPickup.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[2], true));
@@ -220,7 +220,7 @@ public class AutonomousTaskBuilder {
             finalPos.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
 
 //            finalPos.add(new GrabberTask(robotHardware, false));
-            finalPos.add(new TurnTurretTask(robotHardware,  (isRight)?param.turretRight1FinalPos:param.turretLeft1FinalPos));
+            finalPos.add(new TurnTurretTask(robotHardware, (isRight)?param.turretRight1FinalPos:param.turretLeft1FinalPos));
             seqOpen.add(finalPos);
             dropLowPole.add(seqOpen);
             taskList.add(dropLowPole);
