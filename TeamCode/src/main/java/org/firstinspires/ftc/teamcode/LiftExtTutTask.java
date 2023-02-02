@@ -26,8 +26,10 @@ public class LiftExtTutTask implements RobotControl {
             robotHardware.setLiftPositionUnsafe(liftExtTut.liftPos, 0.6);
             goUp = true;
         } else {    // going down
+            int error = (int) ((robotHardware.getGyroHeading() - liftExtTut.robHead)/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
             robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
-            robotHardware.setTurretPosition(liftExtTut.tutPos);
+            robotHardware.setTurretPosition(liftExtTut.tutPos + error);
+            Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);
             goUp = false;
         }
         startTime = System.currentTimeMillis();
