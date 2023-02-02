@@ -125,7 +125,10 @@ public class SoloDriverOpMode extends OpMode {
         if (currentTask == null && gamepad1.dpad_left) {
             if (lastPick.liftPos!=-1) {
                 robotHardware.setMotorStopBrake(true);
-                recordLiftExtTut("drop", lastDrop);
+                if (lastDrop.liftPos==-1) {
+                    // we only want to record this once per dropping series for speed
+                    recordLiftExtTut("drop", lastDrop);
+                }
                 currentTask = repeatPick;
                 repeatPick.prepare();
             }
@@ -278,7 +281,7 @@ public class SoloDriverOpMode extends OpMode {
                 else {
                     currentTask = groundDeliverTask;
                 }
-                recordLiftExtTut("drop", lastDrop);
+                lastDrop.liftPos = -1;  // clear the drop pos
                 currentTask.prepare();
                 safeDrive = true;
             }
