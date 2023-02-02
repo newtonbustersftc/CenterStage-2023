@@ -38,7 +38,9 @@ public class LiftExtTutTask implements RobotControl {
     public void execute() {
         if (mode==Mode.STEP1) {
             if((System.currentTimeMillis()-startTime)>200 && goUp && robotHardware.getLiftPosition()>robotHardware.getRobotProfile().hardwareSpec.liftSafeRotate){
-                robotHardware.setTurretPosition(liftExtTut.tutPos);
+                int error = (int) ((robotHardware.getGyroHeading() - liftExtTut.robHead)/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
+                robotHardware.setTurretPosition(liftExtTut.tutPos + error);
+
                 Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);  //while still lifting
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;

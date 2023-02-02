@@ -15,6 +15,7 @@ public class SoloDriverOpMode extends OpMode {
         double extension = -1;
         int liftPos = -1;
         int tutPos = -1;
+        double robHead = -1;
     }
     RobotHardware robotHardware;
     RobotProfile robotProfile;
@@ -314,8 +315,9 @@ public class SoloDriverOpMode extends OpMode {
     void recordLiftExtTut(String name, LastLiftExtTut last) {
         last.extension = robotHardware.getExtensionPosition();
         last.tutPos = robotHardware.getTurretPosition();
+        last.robHead = robotHardware.getGyroHeading();
         last.liftPos = robotHardware.getTargetLiftPosition();
-        Logger.logFile("Recording " + name + " lift:" + last.liftPos + " tullett:" + last.tutPos);
+        Logger.logFile("Recording " + name + " lift:" + last.liftPos + " tullett:" + last.tutPos + " gyro: " + last.robHead);
     }
 
     /**
