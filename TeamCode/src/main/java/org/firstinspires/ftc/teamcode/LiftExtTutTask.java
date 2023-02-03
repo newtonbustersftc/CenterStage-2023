@@ -26,7 +26,7 @@ public class LiftExtTutTask implements RobotControl {
             robotHardware.setLiftPositionUnsafe(liftExtTut.liftPos, 0.6);
             goUp = true;
         } else {    // going down
-            int error = (int) ((robotHardware.getGyroHeading() - liftExtTut.robHead)/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
+            int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
             robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
             robotHardware.setTurretPosition(liftExtTut.tutPos + error);
             Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);
@@ -36,11 +36,22 @@ public class LiftExtTutTask implements RobotControl {
         Logger.logFile("Prepare LiftExtTut lift:" + liftExtTut.liftPos + " go up:" + goUp);
     }
 
+    double getErrorAngle() {
+        double errAngle = robotHardware.getGyroHeading() - liftExtTut.robHead;
+        if (errAngle>Math.PI) {
+            errAngle = errAngle - Math.PI*2;
+        }
+        else if (errAngle < -Math.PI) {
+            errAngle = errAngle + Math.PI*2;
+        }
+        return errAngle;
+    }
+
     @Override
     public void execute() {
         if (mode==Mode.STEP1) {
             if((System.currentTimeMillis()-startTime)>200 && goUp && robotHardware.getLiftPosition()>robotHardware.getRobotProfile().hardwareSpec.liftSafeRotate){
-                int error = (int) ((robotHardware.getGyroHeading() - liftExtTut.robHead)/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
+                int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
                 robotHardware.setTurretPosition(liftExtTut.tutPos + error);
 
                 Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);  //while still lifting
