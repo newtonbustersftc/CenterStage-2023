@@ -6,7 +6,7 @@ public class LiftExtTutTask implements RobotControl {
         long startTime;
         long modeStart;
         boolean goUp = false;
-        enum Mode { STEP1, STEP2, STEP3, DONE};
+        enum Mode { STEP1, STEP2, STEP3, STEP4, DONE};
         Mode mode;
 
     public LiftExtTutTask(RobotHardware hardware, SoloDriverOpMode.LastLiftExtTut liftExtTut) {
@@ -23,13 +23,10 @@ public class LiftExtTutTask implements RobotControl {
         mode = Mode.STEP1;
         if(robotHardware.getTargetLiftPosition() < liftExtTut.liftPos){ //up up and away
             robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
-            robotHardware.setLiftPositionUnsafe(liftExtTut.liftPos, 0.6);
+            robotHardware.setLiftPositionUnsafe(liftExtTut.liftPos, 0.9);
             goUp = true;
-        } else {    // going down
-            int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
-            robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
-            robotHardware.setTurretPosition(liftExtTut.tutPos + error);
-            Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);
+        } else {    // going down, we will open after half cone height, and then retract, and then start rotate
+            robotHardware.setLiftPosition(robotHardware.getRobotProfile().hardwareSpec.liftSafeRotate);
             goUp = false;
         }
         startTime = System.currentTimeMillis();
@@ -53,14 +50,12 @@ public class LiftExtTutTask implements RobotControl {
             if((System.currentTimeMillis()-startTime)>200 && goUp && robotHardware.getLiftPosition()>robotHardware.getRobotProfile().hardwareSpec.liftSafeRotate){
                 int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
                 robotHardware.setTurretPosition(liftExtTut.tutPos + error);
-
                 Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);  //while still lifting
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;
-            } else if((System.currentTimeMillis()-startTime)>200 && !robotHardware.isTurretTurning() && !goUp){
-                robotHardware.setLiftPositionUnsafe(liftExtTut.liftPos, 0.6);
-                robotHardware.setExtensionPosition(liftExtTut.extension);
-                Logger.logFile("LiftExtTut move lift to " + liftExtTut.liftPos);
+            } else if((System.currentTimeMillis()-startTime)>50 && !goUp){
+                robotHardware.grabberInit();    // after start go down, open grabber full first and retract
+                robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;
             }
@@ -74,13 +69,29 @@ public class LiftExtTutTask implements RobotControl {
                 }
             }
             else {
-                if (System.currentTimeMillis() - modeStart>300 && !robotHardware.isLiftMoving()) {
-                    mode = Mode.DONE;
+                if (System.currentTimeMillis() - modeStart>400) {
+                    int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
+                    robotHardware.setTurretPosition(liftExtTut.tutPos + error);
+                    robotHardware.grabberOpen();
+                    mode = Mode.STEP3;
                 }
             }
         }
         else if (mode==Mode.STEP3) {
-            if (System.currentTimeMillis() - modeStart>300) {
+            if (goUp) {
+                if (System.currentTimeMillis() - modeStart > 300) {
+                    mode = Mode.DONE;
+                }
+            }
+            else if (Math.abs(robotHardware.getTurretPosition()- liftExtTut.tutPos)<200) {
+                robotHardware.setExtensionPosition((robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin + liftExtTut.extension)/2);
+                robotHardware.setLiftPosition(liftExtTut.liftPos);
+                mode = Mode.STEP4;
+            }
+        }
+        else if (mode==Mode.STEP4) {
+            if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30) {
+                robotHardware.setExtensionPosition(liftExtTut.extension);
                 mode = Mode.DONE;
             }
         }
