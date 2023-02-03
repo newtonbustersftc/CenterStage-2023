@@ -357,21 +357,10 @@ public class SoloDriverOpMode extends OpMode {
         ((SequentialComboTask)forGroundJunction).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[0]));
 
         // AUTO PICK & DROP
-        ParallelComboTask repeatToPick = new ParallelComboTask(); // push down then lift/ext/tut
-        repeatToPick.setTaskName("Repeat to Pick");
-        repeatToPick.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-        SequentialComboTask dropSeq2 = new SequentialComboTask();
-        dropSeq2.setTaskName("DropSeq2");
-        dropSeq2.add(new RobotSleep((100)));
-        dropSeq2.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
-        dropSeq2.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        ((ParallelComboTask)repeatToPick).add(dropSeq2);
-
         repeatPick = new SequentialComboTask();
         repeatPick.setTaskName("Repeat Pick");
-        repeatPick.add(repeatToPick);
         repeatPick.add(new LiftExtTutTask(robotHardware, lastPick));
-        repeatPick.add(new RobotSleep(300));
+        repeatPick.add(new RobotSleep(500));
         repeatPick.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
         repeatPick.add(new LiftExtTutTask(robotHardware, lastDrop));
     }
