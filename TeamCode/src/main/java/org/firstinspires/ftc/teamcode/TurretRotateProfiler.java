@@ -77,7 +77,9 @@ public class TurretRotateProfiler extends LinearOpMode {
         robotHardware.grabberClose();
         robotSleep(500);
         robotHardware.setLiftPosition(robotProfile.hardwareSpec.liftSafeRotate);
-        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
+        //robotHardware.setExtensionPosition((robotProfile.hardwareSpec.extensionDriverMin+robotProfile.hardwareSpec.extensionFullOutPos)/2);
+        //robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
+        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionDriverMin);
         robotSleep(2000);
         robotHardware.enableManualCaching(true);
         turrMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
@@ -97,8 +99,8 @@ public class TurretRotateProfiler extends LinearOpMode {
             }
         }
         // TEST
-        //testNoEncoder();
-        testSetPosition();
+        testNoEncoder();
+        //testSetPosition();
         // WRITE RESULTS
         String timestamp = new SimpleDateFormat("yyyyMMdd-HHmm", Locale.US).format(new Date());
         try {
@@ -121,19 +123,20 @@ public class TurretRotateProfiler extends LinearOpMode {
     }
 
     void testNoEncoder() {
-        double power = 0;
+        double power;
         int timegap = 20;  //millisecond
 
         loop = 0;
         long startTime = System.currentTimeMillis();
         while (opModeIsActive() && loop < TOTAL_REC_CNT) {
             long deltaTime = System.currentTimeMillis() - startTime;
-            power = deltaTime/timegap * 0.01;
-            power = Math.min(power, 1.0);
-            if (deltaTime>3000) {
+            power = 1;
+            //power = deltaTime/timegap * 0.01;
+            //power = Math.min(power, 1.0);
+            if (deltaTime>2500) {
                 power = 0;      // cut off power to glide after 3 seconds
             }
-            if (deltaTime>6000) {
+            if (deltaTime>4500) {
                 break;
             }
             turrMotor.setPower(power);
