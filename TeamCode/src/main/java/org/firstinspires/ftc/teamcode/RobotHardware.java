@@ -151,6 +151,10 @@ public class RobotHardware {
         return liftMotors[0].getCurrentPosition();
     }
 
+    public String getLiftMotorPos() {
+        return "Lift123: " + liftMotors[0].getCurrentPosition() + "," + liftMotors[1].getCurrentPosition() + "," + liftMotors[2].getCurrentPosition();
+    }
+
     public double getLiftVelocity() {
         return liftMotors[0].getVelocity();
     }
