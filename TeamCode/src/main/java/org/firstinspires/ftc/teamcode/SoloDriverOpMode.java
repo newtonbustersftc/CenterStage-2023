@@ -91,6 +91,9 @@ public class SoloDriverOpMode extends OpMode {
         if (loopCnt % 10==0) {
             currHeading = robotHardware.getGyroHeading();   // only use Gyro heading every 10 times
         }
+        if (loopCnt % 1000==0) {
+            Logger.logFile(robotHardware.getLiftMotorPos());
+        }
         //Handling autonomous task loop
         if (currentTask != null) {
             if (gamepad1.left_bumper && gamepad1.right_bumper) {
