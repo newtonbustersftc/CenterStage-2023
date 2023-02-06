@@ -54,6 +54,10 @@ public class AprilTagSignalRecognition  {
             rVision.startWebcam("Webcam 1", aprilTagDetectionPipeline);
         }
 
+        public void stopRecognition() {
+            rVision.stopWebcam("Webcam 1");
+        }
+
         public int getRecognitionResult() {
 //            camera.setPipeline(aprilTagDetectionPipeline);
 //            camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {

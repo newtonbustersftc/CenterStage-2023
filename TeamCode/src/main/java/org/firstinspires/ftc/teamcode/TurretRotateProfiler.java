@@ -76,10 +76,10 @@ public class TurretRotateProfiler extends LinearOpMode {
         robotSleep(2000);
         robotHardware.grabberClose();
         robotSleep(500);
-        robotHardware.setLiftPosition(robotProfile.hardwareSpec.liftSafeRotate);
+        robotHardware.setLiftPosition(robotProfile.hardwareSpec.liftDropPos[5]);
         //robotHardware.setExtensionPosition((robotProfile.hardwareSpec.extensionDriverMin+robotProfile.hardwareSpec.extensionFullOutPos)/2);
-        //robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
-        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionDriverMin);
+        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
+        //robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionDriverMin);
         robotSleep(2000);
         robotHardware.enableManualCaching(true);
         turrMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
@@ -133,10 +133,10 @@ public class TurretRotateProfiler extends LinearOpMode {
             power = 1;
             //power = deltaTime/timegap * 0.01;
             //power = Math.min(power, 1.0);
-            if (deltaTime>2500) {
+            if (deltaTime>430) {
                 power = 0;      // cut off power to glide after 3 seconds
             }
-            if (deltaTime>4500) {
+            if (deltaTime>2500) {
                 break;
             }
             turrMotor.setPower(power);
@@ -150,7 +150,7 @@ public class TurretRotateProfiler extends LinearOpMode {
     void testSetPosition() {
         long startTime = System.currentTimeMillis();
         double power = 1;
-        turrMotor.setTargetPosition(5460);
+        turrMotor.setTargetPosition(1750);
         turrMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turrMotor.setPower(1.0);
         loop = 0;

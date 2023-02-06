@@ -82,6 +82,7 @@ public class RobotProfile {
         public double grabberInitPos, grabberOpenPos, grabberClosePos, grabberSafePos;
         public double extensionInitPos, extensionFullOutPos, extensionDriverMin, extensionFullInPos;
         public double turretPower;
+        public double turretDecelerate;
         public double lightPower;
         public double coneDistInch;
         public double mainColorMin;
