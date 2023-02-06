@@ -13,6 +13,8 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
@@ -57,22 +59,16 @@ public class AutonomousGenericTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         initRobot();
-        robotHardware.initSetup(this);
+        robotHardware.setMotorStopBrake(false); // so we can adjust the robot
+        robotHardware.enableManualCaching(false);
+        //robotHardware.initSetup(this);
+        robotHardware.initSetupNoAuto(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
-        robotVision.initWebCam("Webcam 1", false);  //isRed boolean
-        try {
-            Thread.sleep(2000);
-        }
-        catch (Exception ex) {}
-
-        //robotHardware.getTrackingWheelLocalizer().setPoseEstimate(new Pose2d(-66, -33, 0));
-        //robotHardware.getLocalizer().update();
-        //robotHardware.getMecanumDrive().setPoseEstimate(getProfilePose("START"));
         long loopStart = System.currentTimeMillis();
-        long loopCnt = 0;
-        SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
-        signalRecognition.startRecognition();
+        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
+        aprilTagSignalRecognition.startRecognition();
+        int loopCnt = 0;
         while (!isStopRequested() && !isStarted()) {
             //RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(false);
             //telemetry.addData("goal",goal);
@@ -82,11 +78,11 @@ public class AutonomousGenericTest extends LinearOpMode {
             if (loopCnt%1==0) {
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                telemetry.addData("Recognition Result", signalRecognition.getRecognitionResult());
+                telemetry.addData("Recognition Result", aprilTagSignalRecognition.getRecognitionResult());
                 telemetry.update();
             }
         }
-        signalRecognition.stopRecognition();
+        aprilTagSignalRecognition.stopRecognition();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
@@ -96,16 +92,17 @@ public class AutonomousGenericTest extends LinearOpMode {
         TaskReporter.report(taskList);
         Logger.logFile("Task list items: " + taskList.size());
         Logger.flushToFile();
+        DcMotorEx turrMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
+        turrMotor.setPower(0);
+        turrMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turrMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         if (taskList.size()>0) {
             Logger.logFile("Task Prepare " + taskList.get(0));
             taskList.get(0).prepare();
         }
-        // run until the end of the match (driver presses STOP)
-        // run until the end of the match (driver presses STOP)
-        long startTime = System.currentTimeMillis();
-        int cnt = 100;
-        double veloSum = 0;
+
         Logger.logFile("Main Task Loop started");
 
         while (opModeIsActive()) {
@@ -136,8 +133,6 @@ public class AutonomousGenericTest extends LinearOpMode {
                 }
             }
         }
-        signalRecognition.stopRecognition();
-        robotVision.stopWebcam("Webcam 1");
         try {
             Logger.flushToFile();
         }
@@ -174,21 +169,22 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     void setupTaskList2() {
         taskList.add(new GrabberTask(robotHardware,false));
+        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullOutPos));
+        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[5]));
         taskList.add(new RobotSleep(500));
-        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-        taskList.add(new RobotSleep(500));
-        taskList.add(new TurnTurretTask(robotHardware, -450));
-        taskList.add(new RobotSleep(500));
-        // Move robot here
-        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate * 3));
-        taskList.add(new RobotSleep(500));
-        double armL = (robotProfile.hardwareSpec.extensionDriverMin + robotProfile.hardwareSpec.extensionFullOutPos)/2;
-        taskList.add(new ExtendArmTask(robotHardware, armL));
-        taskList.add(new RobotSleep(500));
-        taskList.add(new GrabberTask(robotHardware,true));
-        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
+        taskList.add(new TurnTurretMotionTask(robotHardware, -1750, 0.8));
+        taskList.add(new RobotSleep(2000));
+        taskList.add(new TurnTurretMotionTask(robotHardware, 1750, 0.8));
+        taskList.add(new RobotSleep(2000));
+        taskList.add(new TurnTurretMotionTask(robotHardware, 0, 0.8));
+        taskList.add(new RobotSleep(2000));
+        taskList.add(new TurnTurretTask(robotHardware, -1750));
+        taskList.add(new RobotSleep(2000));
+        taskList.add(new TurnTurretTask(robotHardware, 1750));
+        taskList.add(new RobotSleep(2000));
         taskList.add(new TurnTurretTask(robotHardware, 0));
-        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
+        taskList.add(new RobotSleep(2000));
+        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[0]));
     }
 
     void setupTaskList3() {
