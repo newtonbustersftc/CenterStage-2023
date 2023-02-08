@@ -39,7 +39,7 @@ public class RobotHardware {
     public double extensionPos;
     HardwareMap hardwareMap;
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
-    private DcMotorEx turretMotor;
+    DcMotorEx turretMotor;
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     //private
     Servo grabberServo, extensionServo, lightServo;
@@ -149,6 +149,10 @@ public class RobotHardware {
 
     public int getLiftPosition() {
         return liftMotors[0].getCurrentPosition();
+    }
+
+    public String getLiftMotorPos() {
+        return "Lift123: " + liftMotors[0].getCurrentPosition() + "," + liftMotors[1].getCurrentPosition() + "," + liftMotors[2].getCurrentPosition();
     }
 
     public double getLiftVelocity() {
@@ -440,12 +444,17 @@ public class RobotHardware {
     public void turnTurretByPower(double p) {
         turretMotorByPower = true;
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         turretPower = p;
         turretMotor.setPower(p);
     }
 
     public boolean isTurretTurning() {
         return Math.abs(turretMotor.getVelocity())>10;
+    }
+
+    public double getTurretVelocity() {
+        return turretMotor.getVelocity();
     }
 
     public int getTurretPosition() {

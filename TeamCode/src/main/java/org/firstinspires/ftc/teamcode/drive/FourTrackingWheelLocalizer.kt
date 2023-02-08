@@ -114,7 +114,7 @@ abstract class FourTrackingWheelLocalizer (
                 arrayOf(doubleArrayOf(wd[0], wd[2], wd[3])) //??
             ).transpose()
         )
-        val rawPoseDelta4 = forwardSolver2.solve(
+        val rawPoseDelta4 = forwardSolver4.solve(
             MatrixUtils.createRealMatrix(
                 arrayOf(doubleArrayOf(wd[1], wd[2], wd[3]))
             ).transpose()
