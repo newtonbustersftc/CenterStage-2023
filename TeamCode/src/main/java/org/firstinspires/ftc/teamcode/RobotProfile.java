@@ -70,6 +70,7 @@ public class RobotProfile {
     public class HardwareSpec {
         public boolean revHubVertical;
         public boolean useControlHubImu;
+        public boolean autoTurretReset;
         public double ticksPerRev;
         public double trackWidth;
         public double encoderOffset;
