@@ -520,50 +520,46 @@ public class RobotHardware {
     public void initSetupNoAuto(OpMode opmod) {
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
         grabberClose();
-        int tu = getTurretPosition();
-        if (isMagneticTouched()) {
+        if (profile.hardwareSpec.autoTurretReset) {
+            int tu = getTurretPosition();
+            if (isMagneticTouched()) {
+                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception ex) {
+                }
+            } else {
+                // fast rotate first
+                while (!isMagneticTouched()) {
+                    tu = getTurretPosition();
+                    setTurretPosition(tu + 50);
+                    try {
+                        Thread.sleep(5);
+                    } catch (Exception ex) {
+                    }
+                }
+                //rotate back
+                tu = getTurretPosition();
+                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception ex) {
+                }
+            }
+            while (!isMagneticTouched()) {
+                tu = getTurretPosition();
+                setTurretPosition(tu + 5);
+                try {
+                    Thread.sleep(5);
+                } catch (Exception ex) {
+                }
+            }
+            tu = getTurretPosition();
             setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
             try {
                 Thread.sleep(1000);
+            } catch (Exception ex) {
             }
-            catch (Exception ex) {
-            }
-        }
-        else {
-            // fast rotate first
-            while (!isMagneticTouched()) {
-                tu = getTurretPosition();
-                setTurretPosition(tu + 50);
-                try {
-                    Thread.sleep(5);
-                }
-                catch (Exception ex) {
-                }
-            }
-            //rotate back
-            tu = getTurretPosition();
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset,0.15);
-            try {
-                Thread.sleep(1000);
-            }
-            catch (Exception ex) {
-            }
-        }
-        while (!isMagneticTouched()) {
-            tu = getTurretPosition();
-            setTurretPosition(tu + 5);
-            try {
-                Thread.sleep(5);
-            }
-            catch (Exception ex) {
-            }
-        }
-        tu = getTurretPosition();
-        setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-        try {
-            Thread.sleep(1000);
-        }
-        catch (Exception ex) {
         }
         resetTurretPos();
         // Goes down to touch first
@@ -630,56 +626,52 @@ public class RobotHardware {
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
         grabberClose();
         // make sure magnetic is not touched
-        int tu = getTurretPosition();
-        if (isMagneticTouched()) {
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-            try {
-                Thread.sleep(500);
+        if (profile.hardwareSpec.autoTurretReset) {
+            int tu = getTurretPosition();
+            if (isMagneticTouched()) {
+                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
+                try {
+                    Thread.sleep(500);
+                } catch (Exception ex) {
+                }
+            } else {
+                // fast rotate first
+                while (!isMagneticTouched() && !opmode.isStopRequested()) {
+                    tu = getTurretPosition();
+                    opmode.telemetry.addData("Tullett position", tu);
+                    opmode.telemetry.update();
+                    setTurretPosition(tu + 15);
+                    try {
+                        Thread.sleep(5);
+                    } catch (Exception ex) {
+                    }
+                }
+                //rotate back
+                tu = getTurretPosition();
+                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
+                try {
+                    Thread.sleep(500);
+                } catch (Exception ex) {
+                }
             }
-            catch (Exception ex) {
-            }
-        }
-        else {
-            // fast rotate first
+            opmode.telemetry.clearAll();
             while (!isMagneticTouched() && !opmode.isStopRequested()) {
                 tu = getTurretPosition();
-                opmode.telemetry.addData("Tullett position", tu);
+                opmode.telemetry.addData("Turret position", tu);
                 opmode.telemetry.update();
-                setTurretPosition(tu + 15);
+                setTurretPosition(tu + 5);
                 try {
                     Thread.sleep(5);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                 }
             }
-            //rotate back
+            if (opmode.isStopRequested()) return;
             tu = getTurretPosition();
             setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
             try {
                 Thread.sleep(500);
+            } catch (Exception ex) {
             }
-            catch (Exception ex) {
-            }
-        }
-        opmode.telemetry.clearAll();
-        while (!isMagneticTouched() && !opmode.isStopRequested()) {
-            tu = getTurretPosition();
-            opmode.telemetry.addData("Turret position", tu);
-            opmode.telemetry.update();
-            setTurretPosition(tu + 5);
-            try {
-                Thread.sleep(5);
-            }
-            catch (Exception ex) {
-            }
-        }
-        if (opmode.isStopRequested()) return;
-        tu = getTurretPosition();
-        setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-        try {
-            Thread.sleep(500);
-        }
-        catch (Exception ex) {
         }
         resetTurretPos();
         if (opmode.isStopRequested()) return;
