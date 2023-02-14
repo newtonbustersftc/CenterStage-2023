@@ -595,7 +595,7 @@ public class RobotHardware {
         opmode.telemetry.addLine("PLEASE MOVE THE ROBOT AROUND");
         boolean done = false;
         int frMin = 0, frMax = 0, rrMin = 0, rrMax = 0, flMin = 0, flMax = 0, rlMin = 0, rlMax = 0;
-        int MIN_MAX = 5000;
+        int MIN_MAX = 1250;
         while (!opmode.isStopRequested() && !done) {
             opmode.telemetry.addData("FR", frMotor.getCurrentPosition());
             opmode.telemetry.addData("FL", flMotor.getCurrentPosition());

@@ -4,14 +4,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class TurnTurretMotionTask implements RobotControl {
-    enum Mode { POWER_1, GLIDE, PID, DONE };
+    enum Mode { POWER_1, RAMP_DOWN, PID, DONE };
     Mode mode;
     RobotHardware robotHardware;
     DcMotorEx turretMotor;
+    int powerSign = 1;
     double power;
     int targetPos;
     int currPos;
     long startTime;
+    long rampDownStart;
 
     public TurnTurretMotionTask(RobotHardware hardware, int targetPos, double power) {
         this.robotHardware = hardware;
@@ -43,7 +45,8 @@ public class TurnTurretMotionTask implements RobotControl {
             mode = Mode.POWER_1;
             turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            turretMotor.setPower((targetPos > currPos) ? power : -power);
+            powerSign = (targetPos > currPos) ? 1 : -1;
+            turretMotor.setPower(powerSign * power);
             Logger.logFile("Turret turn Motion Profile from:" + currPos + " to: " + targetPos);
         }
     }
@@ -54,14 +57,14 @@ public class TurnTurretMotionTask implements RobotControl {
         if (mode == Mode.POWER_1) {
             int remain = Math.abs(targetPos - currPos);
             double velocity = robotHardware.getTurretVelocity();
-            int distToGlide = calcDistToGlide(Math.abs(velocity));
-            if (remain <= distToGlide - 20) {
-                Logger.logFile("Turret glide at " + currPos + " with velocity " + velocity);
-                mode = Mode.GLIDE;
-                turretMotor.setPower(0);
+            int distToStop = calcDistToStop(Math.abs(velocity));
+            if (remain <= distToStop - 20) {
+                Logger.logFile("Turret ramp down at " + currPos + " with velocity " + velocity);
+                rampDownStart = System.currentTimeMillis();
+                mode = Mode.RAMP_DOWN;
             }
         }
-        else if (mode == Mode.GLIDE) {
+        else if (mode == Mode.RAMP_DOWN) {
             int remain = Math.abs(targetPos - currPos);
             if (remain < 100) {
                 turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -69,6 +72,13 @@ public class TurnTurretMotionTask implements RobotControl {
                 turretMotor.setTargetPosition(targetPos);
                 mode = Mode.PID;
                 Logger.logFile("Turret go PID at " + currPos);
+            }
+            else {
+                double power = Math.max(0.05, 1 - (System.currentTimeMillis() - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs);
+                double velocity = robotHardware.getTurretVelocity();
+                int distToStop = calcDistToStop(Math.abs(velocity));
+                power = power + (remain - distToStop)/remain * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP;
+                turretMotor.setPower(power * powerSign);
             }
         }
     }
@@ -86,7 +96,7 @@ public class TurnTurretMotionTask implements RobotControl {
         return done;
     }
 
-    int calcDistToGlide(double velocity) {
+    int calcDistToStop(double velocity) {
         double timeToZero = velocity / robotHardware.getRobotProfile().hardwareSpec.turretDecelerate / 1000;   // second
         int dist = (int)(timeToZero * velocity / 2);
         return dist;
