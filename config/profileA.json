@@ -73,7 +73,7 @@
   "hardwareSpec": {
     "revHubVertical": false,
     "useControlHubImu": true,
-    "autoTurretReset": false,
+    "autoTurretReset": true,
     "trackWidth": 8.179,
     "encoderOffset": -0.75,
     "wheelBase": 4.16,
@@ -99,7 +99,7 @@
     "turretDecelerate": 5.0,
     "turretMoveMax": 10,
     "turretMaxAhead": 200,
-    "turretOffset": 136,
+    "turretOffset": 250,
     "turret360": 3765,
     "liftMax": 1166,
     "liftSafeRotate": 350,

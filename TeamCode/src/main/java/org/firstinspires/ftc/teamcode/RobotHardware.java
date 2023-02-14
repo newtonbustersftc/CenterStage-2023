@@ -611,7 +611,7 @@ public class RobotHardware {
             rlMin = Math.min(rlMin, rlMotor.getCurrentPosition());
             rlMax = Math.max(rlMax, rlMotor.getCurrentPosition());
             done = (frMax - frMin > MIN_MAX) && (flMax - flMin > MIN_MAX) &&
-                    (rlMax - rlMin > MIN_MAX) && (rrMax - rrMin > MIN_MAX);
+                    (rlMax - rlMin > MIN_MAX) && (rrMax - rrMin > MIN_MAX)  || opmode.gamepad1.dpad_right;
             opmode.telemetry.update();
         }
         String text;
@@ -631,7 +631,7 @@ public class RobotHardware {
             if (isMagneticTouched()) {
                 setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (Exception ex) {
                 }
             } else {
@@ -650,7 +650,7 @@ public class RobotHardware {
                 tu = getTurretPosition();
                 setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (Exception ex) {
                 }
             }
@@ -669,7 +669,7 @@ public class RobotHardware {
             tu = getTurretPosition();
             setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (Exception ex) {
             }
         }
