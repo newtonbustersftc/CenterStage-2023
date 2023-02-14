@@ -128,7 +128,6 @@ public class SoloDriverOpMode extends OpMode {
 
         if (currentTask == null && gamepad1.dpad_left) {
             if (lastPick.liftPos!=-1) {
-                robotHardware.setMotorStopBrake(true);
                 if (lastDrop.liftPos==-1) {
                     // we only want to record this once per dropping series for speed
                     recordLiftExtTut("drop", lastDrop);
@@ -191,6 +190,9 @@ public class SoloDriverOpMode extends OpMode {
 //        telemetry.addData("Power:", power);
 //        telemetry.addData("Move Angle:", movAngle);
 //        telemetry.addData("Turn:", turn);
+        if (power > 0.2) {
+            robotHardware.setMotorStopBrake(false);
+        }
         robotHardware.mecanumDrive2(power, movAngle, turn);
 
         if(gamepad1.options && gamepad1.dpad_right){
@@ -297,6 +299,7 @@ public class SoloDriverOpMode extends OpMode {
             }
             else if (robotHardware.isGripOpen()) {
                 recordLiftExtTut("pick", lastPick);
+                robotHardware.setMotorStopBrake(true);
                 currentTask = grabAndLift;
                 currentTask.prepare();
                 safeDrive = true;
@@ -307,6 +310,7 @@ public class SoloDriverOpMode extends OpMode {
             if (loopCnt % 10==5) {  // let's read I2C only 1 in 10 times
                 if (robotHardware.pickUpCheck(isRedTeam)) {
                     recordLiftExtTut("pick", lastPick);
+                    robotHardware.setMotorStopBrake(true);
                     currentTask = grabAndLift;
                     currentTask.prepare();
                     safeDrive = true;
