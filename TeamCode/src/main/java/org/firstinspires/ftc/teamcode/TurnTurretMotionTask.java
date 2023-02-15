@@ -65,10 +65,10 @@ public class TurnTurretMotionTask implements RobotControl {
             }
         }
         else if (mode == Mode.RAMP_DOWN) {
-            int remain = Math.abs(targetPos - currPos);
-            if (remain < 100) {
+            int remain = powerSign * (targetPos - currPos);
+            if (remain < 100 || (System.currentTimeMillis() - rampDownStart)>1000) {
                 turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                turretMotor.setPower(0.3);
+                turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
                 turretMotor.setTargetPosition(targetPos);
                 mode = Mode.PID;
                 Logger.logFile("Turret go PID at " + currPos);
