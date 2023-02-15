@@ -228,6 +228,9 @@ public class SoloDriverOpMode extends OpMode {
                 else{
                     robotHardware.setExtensionPosition(touchExtension + (gamepad1.touchpad_finger_1_y - touchY) / 8);
                 }
+                if (!robotHardware.isGripOpen()) {
+                    lastDrop.liftPos = -1;  // need to remember the adjusted position
+                }
             }
         }
         touching = gamepad1.touchpad_finger_1;
