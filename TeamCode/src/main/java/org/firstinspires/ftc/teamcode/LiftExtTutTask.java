@@ -116,6 +116,11 @@ public class LiftExtTutTask implements RobotControl {
                 turretMotor.setPower(pwr * powerSign);
             }
         }
+        else if (turretMode == TurretMode.DONE) {
+            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
+            turretMotor.setTargetPosition(targetTurretPos);
+        }
     }
 
 
@@ -157,7 +162,7 @@ public class LiftExtTutTask implements RobotControl {
         }
         else if (mode==Mode.STEP3) {
             if (goUp) {
-                if (System.currentTimeMillis() - modeStart > 300) {
+                if (System.currentTimeMillis() - modeStart > 300 && turretMode==TurretMode.PID) {
                     mode = Mode.DONE;
                 }
             }
@@ -171,7 +176,7 @@ public class LiftExtTutTask implements RobotControl {
             if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30) {
                 robotHardware.setExtensionPosition(liftExtTut.extension);
                 turretMotor.setTargetPosition(targetTurretPos);
-                turretMotor.setPower(0.3);
+                turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
                 turretMode = TurretMode.DONE;
                 mode = Mode.DONE;
             }
