@@ -351,6 +351,10 @@ public class RobotHardware {
         }
     }
 
+    public void setTurretOffset(int offset) {
+        turretOffset = offset;
+    }
+
     void calibrateNavxGyro(Telemetry telemetry) {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();

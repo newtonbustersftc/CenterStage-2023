@@ -1,7 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.os.Environment;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class TurnTurretMotionTask implements RobotControl {
     enum Mode { POWER_1, RAMP_DOWN, PID, DONE };
@@ -14,11 +22,34 @@ public class TurnTurretMotionTask implements RobotControl {
     int currPos;
     long startTime;
     long rampDownStart;
+    int loop;
+    boolean writeCsv = false;
+
+    class TurretRecord {
+        long ts; double power; double velocity; int position;
+        public TurretRecord(long ts, double power, double velocity, int position) {
+            this.ts = ts;
+            this.power = power;
+            this.velocity = velocity;
+            this.position = position;
+        }
+
+        public String toString() {
+            return "" + ts + "," + power + "," + velocity + "," + position;
+        }
+    }
+    public static int TOTAL_REC_CNT = 1000;
+    TurretRecord[] recording = new TurretRecord[TOTAL_REC_CNT];
+
 
     public TurnTurretMotionTask(RobotHardware hardware, int targetPos, double power) {
         this.robotHardware = hardware;
         this.targetPos = targetPos;
         this.power = power;
+    }
+
+    public void setWriteCsv(boolean writeCsv) {
+        this.writeCsv = writeCsv;
     }
 
     public TurnTurretMotionTask(RobotHardware hardware, int targetPos) {
@@ -36,6 +67,7 @@ public class TurnTurretMotionTask implements RobotControl {
         startTime = System.currentTimeMillis();
         turretMotor = robotHardware.turretMotor;
         currPos = robotHardware.getTurretPosition();
+        loop = 0;
         if (Math.abs(targetPos - currPos) < 300) {
             mode = Mode.PID;
             robotHardware.setTurretPosition(targetPos);
@@ -54,19 +86,21 @@ public class TurnTurretMotionTask implements RobotControl {
     @Override
     public void execute() {
         currPos = robotHardware.getTurretPosition();
+        long currTime = System.currentTimeMillis();
+        double pwr = power;
+        double velocity = robotHardware.getTurretVelocity();
         if (mode == Mode.POWER_1) {
-            int remain = Math.abs(targetPos - currPos);
-            double velocity = robotHardware.getTurretVelocity();
+            int remain = powerSign * (targetPos - currPos);
             int distToStop = calcDistToStop(Math.abs(velocity));
             if (remain <= distToStop - 20) {
                 Logger.logFile("Turret ramp down at " + currPos + " with velocity " + velocity);
-                rampDownStart = System.currentTimeMillis();
+                rampDownStart = currTime;
                 mode = Mode.RAMP_DOWN;
             }
         }
         else if (mode == Mode.RAMP_DOWN) {
             int remain = powerSign * (targetPos - currPos);
-            if (remain < 100 || (System.currentTimeMillis() - rampDownStart)>1000) {
+            if (remain < 50 || (currTime - rampDownStart)>1000) {
                 turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
                 turretMotor.setTargetPosition(targetPos);
@@ -74,16 +108,38 @@ public class TurnTurretMotionTask implements RobotControl {
                 Logger.logFile("Turret go PID at " + currPos);
             }
             else {
-                double power = Math.max(0.05, 1 - (System.currentTimeMillis() - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs);
-                double velocity = robotHardware.getTurretVelocity();
+                pwr = 1 - (currTime - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs;
+
                 int distToStop = calcDistToStop(Math.abs(velocity));
-                power = power + (remain - distToStop)/remain * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP;
-                turretMotor.setPower(power * powerSign);
+                pwr = Math.max(0, pwr + (remain - distToStop)/(remain+distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP);
+                turretMotor.setPower(pwr * powerSign);
             }
+        }
+        if (writeCsv && loop<TOTAL_REC_CNT) {
+            recording[loop] = new TurretRecord(currTime - startTime, pwr, velocity, currPos);
+            loop++;
         }
     }
     @Override
     public void cleanUp() {
+        if (writeCsv) {
+            String timestamp = new SimpleDateFormat("yyyyMMdd-HHmm", Locale.US).format(new Date());
+            try {
+                PrintWriter pw = new PrintWriter(new File(Environment.getExternalStorageDirectory().getPath() + "/FIRST/turdat_" + timestamp + ".csv"));
+                pw.println("ts,power,velocity,position");
+                for (int i = 0; i < loop; i++) {
+                    pw.println(recording[i]);
+                }
+                pw.flush();
+                pw.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            try {
+                Logger.flushToFile();
+            } catch (Exception ex) {
+            }
+        }
     }
 
     @Override

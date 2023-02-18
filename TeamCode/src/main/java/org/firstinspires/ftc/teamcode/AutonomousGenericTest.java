@@ -86,7 +86,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
-        setupTaskList2();
+        setupTaskList3();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
@@ -172,11 +172,11 @@ public class AutonomousGenericTest extends LinearOpMode {
         taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullOutPos));
         taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[5]));
         taskList.add(new RobotSleep(500));
-        taskList.add(new TurnTurretMotionTask(robotHardware, -1750, 0.8));
+        taskList.add(new TurnTurretMotionTask(robotHardware, -1750, 1.0));
         taskList.add(new RobotSleep(2000));
-        taskList.add(new TurnTurretMotionTask(robotHardware, 1750, 0.8));
+        taskList.add(new TurnTurretMotionTask(robotHardware, 1750, 1.0));
         taskList.add(new RobotSleep(2000));
-        taskList.add(new TurnTurretMotionTask(robotHardware, 0, 0.8));
+        taskList.add(new TurnTurretMotionTask(robotHardware, 0, 1.0));
         taskList.add(new RobotSleep(2000));
         taskList.add(new TurnTurretTask(robotHardware, -1750));
         taskList.add(new RobotSleep(2000));
@@ -188,6 +188,14 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList3() {
+        taskList.add(new GrabberTask(robotHardware,false));
+        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullOutPos));
+        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[5]));
+        taskList.add(new RobotSleep(500));
+        TurnTurretMotionTask t = new TurnTurretMotionTask(robotHardware, 2200, 1.0);
+        t.setWriteCsv(true);
+        taskList.add(t);
+        taskList.add(new RobotSleep(2000));
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
