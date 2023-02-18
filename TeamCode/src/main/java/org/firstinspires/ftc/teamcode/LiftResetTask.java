@@ -35,6 +35,7 @@ public class LiftResetTask implements RobotControl {
                 robotHardware.setLiftPositionUnsafe(0, 0.8);
                 startTime = System.currentTimeMillis();
                 mode = Mode.UP1;
+                robotHardware.turnOnLight(true);
                 // use motor 1, 2 to hold position, lift motor 0 for tension
                 robotHardware.getLiftMotors()[0].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robotHardware.getLiftMotors()[0].setPower(0.2);
@@ -58,6 +59,7 @@ public class LiftResetTask implements RobotControl {
             if (System.currentTimeMillis() - startTime > 1000) {
                 robotHardware.resetLiftPos();
                 robotHardware.setLiftPositionUnsafe(0, 0.5);
+                robotHardware.turnOnLight(false);
                 mode = Mode.DONE;
             }
         }
