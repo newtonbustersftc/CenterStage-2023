@@ -351,6 +351,10 @@ public class RobotHardware {
         }
     }
 
+    public void setTurretOffset(int offset) {
+        turretOffset = offset;
+    }
+
     void calibrateNavxGyro(Telemetry telemetry) {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
@@ -595,7 +599,7 @@ public class RobotHardware {
         opmode.telemetry.addLine("PLEASE MOVE THE ROBOT AROUND");
         boolean done = false;
         int frMin = 0, frMax = 0, rrMin = 0, rrMax = 0, flMin = 0, flMax = 0, rlMin = 0, rlMax = 0;
-        int MIN_MAX = 5000;
+        int MIN_MAX = 1250;
         while (!opmode.isStopRequested() && !done) {
             opmode.telemetry.addData("FR", frMotor.getCurrentPosition());
             opmode.telemetry.addData("FL", flMotor.getCurrentPosition());
@@ -611,7 +615,7 @@ public class RobotHardware {
             rlMin = Math.min(rlMin, rlMotor.getCurrentPosition());
             rlMax = Math.max(rlMax, rlMotor.getCurrentPosition());
             done = (frMax - frMin > MIN_MAX) && (flMax - flMin > MIN_MAX) &&
-                    (rlMax - rlMin > MIN_MAX) && (rrMax - rrMin > MIN_MAX);
+                    (rlMax - rlMin > MIN_MAX) && (rrMax - rrMin > MIN_MAX)  || opmode.gamepad1.dpad_right;
             opmode.telemetry.update();
         }
         String text;
@@ -631,7 +635,7 @@ public class RobotHardware {
             if (isMagneticTouched()) {
                 setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (Exception ex) {
                 }
             } else {
@@ -650,7 +654,7 @@ public class RobotHardware {
                 tu = getTurretPosition();
                 setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (Exception ex) {
                 }
             }
@@ -669,7 +673,7 @@ public class RobotHardware {
             tu = getTurretPosition();
             setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (Exception ex) {
             }
         }

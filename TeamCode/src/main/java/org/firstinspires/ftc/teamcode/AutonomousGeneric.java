@@ -65,7 +65,8 @@ public class AutonomousGeneric extends LinearOpMode {
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, aprilTagSignalRecognition);
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-
+        robotHardware.resetImu();
+        robotHardware.setTurretOffset(robotProfile.hardwareSpec.turret360/8);
 //        signalRecognition.startRecognition();
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();

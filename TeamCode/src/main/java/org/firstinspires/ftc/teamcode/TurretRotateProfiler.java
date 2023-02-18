@@ -78,8 +78,8 @@ public class TurretRotateProfiler extends LinearOpMode {
         robotSleep(500);
         robotHardware.setLiftPosition(robotProfile.hardwareSpec.liftDropPos[5]);
         //robotHardware.setExtensionPosition((robotProfile.hardwareSpec.extensionDriverMin+robotProfile.hardwareSpec.extensionFullOutPos)/2);
-        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
-        //robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionDriverMin);
+        //robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
+        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionDriverMin);
         robotSleep(2000);
         robotHardware.enableManualCaching(true);
         turrMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
@@ -128,20 +128,36 @@ public class TurretRotateProfiler extends LinearOpMode {
 
         loop = 0;
         long startTime = System.currentTimeMillis();
+        power = 1;
+        double power_down = 0.0;
+        turrMotor.setPower(power);
+        int RAM_UP_TIME = -1;      //ms
+        int RAM_DOWN_START = 450;   //ms
+        int RAM_DOWN_TIME = 950;    //ms
+        double pw_now;
         while (opModeIsActive() && loop < TOTAL_REC_CNT) {
             long deltaTime = System.currentTimeMillis() - startTime;
-            power = 1;
+            if (deltaTime < RAM_UP_TIME) {
+                pw_now = (deltaTime * power) / RAM_UP_TIME;
+            }
+            else if (deltaTime >= RAM_UP_TIME && deltaTime <RAM_DOWN_START) {
+                pw_now = power;
+            }
+            else if (deltaTime >= RAM_DOWN_START && deltaTime < (RAM_DOWN_START + RAM_DOWN_TIME)) {
+                pw_now = (power - power_down)*(RAM_DOWN_START + RAM_DOWN_TIME - deltaTime) / RAM_DOWN_TIME + power_down;
+            }
+            else {
+                pw_now = power_down;
+            }
             //power = deltaTime/timegap * 0.01;
             //power = Math.min(power, 1.0);
-            if (deltaTime>430) {
-                power = 0;      // cut off power to glide after 3 seconds
-            }
-            if (deltaTime>2500) {
+            turrMotor.setPower(pw_now);
+
+            if (deltaTime>6000) {
                 break;
             }
-            turrMotor.setPower(power);
             robotHardware.clearBulkCache();
-            recording[loop] = new TurretRecord(deltaTime, power, turrMotor.getVelocity(), turrMotor.getCurrentPosition());
+            recording[loop] = new TurretRecord(deltaTime, pw_now, turrMotor.getVelocity(), turrMotor.getCurrentPosition());
             loop++;
         }
         Logger.logFile("testNoEncoder done with loop:" + loop);
@@ -150,7 +166,7 @@ public class TurretRotateProfiler extends LinearOpMode {
     void testSetPosition() {
         long startTime = System.currentTimeMillis();
         double power = 1;
-        turrMotor.setTargetPosition(1750);
+        turrMotor.setTargetPosition(1637);
         turrMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turrMotor.setPower(1.0);
         loop = 0;
