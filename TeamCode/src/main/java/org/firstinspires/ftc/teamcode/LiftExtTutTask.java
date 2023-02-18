@@ -107,10 +107,12 @@ public class LiftExtTutTask implements RobotControl {
                 Logger.logFile("Turret go PID at " + currPos);
             }
             else {
-                double pwr = robotHardware.getRobotProfile().hardwareSpec.turretPower - (currTime - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs;
+                double pwr = 1 - (currTime - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs;
                 int distToStop = calcDistToStop(Math.abs(velocity));
-                pwr = Math.max(0, pwr + (remain - distToStop)/(remain+distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP);
+                pwr = pwr + (remain - distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP;
+                pwr = Math.max(0, pwr);
                 turretMotor.setPower(pwr * powerSign);
+
             }
         }
         else if (mode == Mode.DONE) {
