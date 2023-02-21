@@ -369,9 +369,9 @@ public class SoloDriverOpMode extends OpMode {
         // AUTO PICK & DROP
         repeatPick = new SequentialComboTask();
         repeatPick.setTaskName("Repeat Pick");
-        repeatPick.add(new LiftExtTutTask(robotHardware, lastPick));
+        repeatPick.add(new DrvOpLiftExtTutTask(robotHardware, lastPick));
         repeatPick.add(new RobotSleep(500));
         repeatPick.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-        repeatPick.add(new LiftExtTutTask(robotHardware, lastDrop));
+        repeatPick.add(new DrvOpLiftExtTutTask(robotHardware, lastDrop));
     }
 }
