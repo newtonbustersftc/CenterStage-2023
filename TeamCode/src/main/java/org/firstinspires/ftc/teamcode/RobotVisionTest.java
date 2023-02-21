@@ -49,6 +49,7 @@ public class RobotVisionTest extends LinearOpMode {
     public static int TOP = 220;
     public static int HEIGHT=40;
     public static int MIN_AREA = 800;
+    public static int EXPOSURE_MS = 15;
 
     // GREEN: 60, 30, 60 -> 100, 255, 255
     // RED: 230, 60, 60 -> 15, 255, 255
@@ -73,16 +74,17 @@ public class RobotVisionTest extends LinearOpMode {
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
         robotVision.initWebCam(CAMERA_NAME, true);
-        //robotVision.setGain(CAMERA_NAME, robotProfile.poleParameter.gain);
-        //robotVision.setExposureMS(CAMERA_NAME, robotProfile.poleParameter.exposureMs);
-        //robotVision.setManualFocusLength(CAMERA_NAME, robotProfile.poleParameter.focus);
-        //robotVision.setWhiteBalance(CAMERA_NAME, robotProfile.poleParameter.whiteBalance);
+        robotVision.setGain(CAMERA_NAME, robotProfile.poleParameter.gain);
+        robotVision.setExposureMS(CAMERA_NAME, robotProfile.poleParameter.exposureMs);
+        robotVision.setManualFocusLength(CAMERA_NAME, robotProfile.poleParameter.focus);
+        robotVision.setWhiteBalance(CAMERA_NAME, robotProfile.poleParameter.whiteBalance);
 
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
         robotVision.startWebcam(CAMERA_NAME, new CVTestPipeline());
         while (!isStarted()) {
             robotHardware.getLocalizer().update();
+            robotVision.setExposureMS(CAMERA_NAME, EXPOSURE_MS);
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
             if (loopCnt%100==0) {
