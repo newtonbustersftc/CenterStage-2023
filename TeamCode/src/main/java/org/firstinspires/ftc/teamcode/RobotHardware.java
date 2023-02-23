@@ -619,6 +619,7 @@ public class RobotHardware {
             opmode.telemetry.update();
         }
         String text;
+
         if (expansionHub1.getInputVoltage(VoltageUnit.VOLTS) < 12.8) {
             text = "******************\nCHANGE BATTERY NOW\n******************";
         }
@@ -731,12 +732,21 @@ public class RobotHardware {
     }
 
     void waitforUp(LinearOpMode opmode, String text) {
-        //opmode.telemetry.clearAll();
-        opmode.telemetry.addLine(text);
-        opmode.telemetry.update();
+        opmode.telemetry.clearAll();
         // wait until dpad-up pressed
         while (!opmode.isStopRequested() && !opmode.gamepad1.dpad_up) {
+            opmode.telemetry.addLine(text);
+            if (Math.abs(frMotor.getCurrentPosition()-rlMotor.getCurrentPosition())>400 ||
+                    Math.abs(flMotor.getCurrentPosition()-rrMotor.getCurrentPosition())>400) {
+                opmode.telemetry.addLine("******************\nONE OF DEAD WHEEL MAY BE STUCK\n******************");
+            }
+
+            opmode.telemetry.addData("FR", frMotor.getCurrentPosition());
+            opmode.telemetry.addData("FL", flMotor.getCurrentPosition());
+            opmode.telemetry.addData("RR", rrMotor.getCurrentPosition());
+            opmode.telemetry.addData("RL", rlMotor.getCurrentPosition());
             opmode.sleep(50);
+            opmode.telemetry.update();
         }
         // wait until dpad-up released
         while (!opmode.isStopRequested() && opmode.gamepad1.dpad_up) {

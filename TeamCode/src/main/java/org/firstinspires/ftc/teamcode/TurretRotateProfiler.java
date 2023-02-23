@@ -78,8 +78,8 @@ public class TurretRotateProfiler extends LinearOpMode {
         robotSleep(500);
         robotHardware.setLiftPosition(robotProfile.hardwareSpec.liftDropPos[5]);
         //robotHardware.setExtensionPosition((robotProfile.hardwareSpec.extensionDriverMin+robotProfile.hardwareSpec.extensionFullOutPos)/2);
-        //robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
-        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionDriverMin);
+        robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionFullOutPos);
+        //robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionDriverMin);
         robotSleep(2000);
         robotHardware.enableManualCaching(true);
         turrMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
@@ -99,8 +99,8 @@ public class TurretRotateProfiler extends LinearOpMode {
             }
         }
         // TEST
-        testNoEncoder();
-        //testSetPosition();
+        //testNoEncoder();
+        testSetPosition();
         // WRITE RESULTS
         String timestamp = new SimpleDateFormat("yyyyMMdd-HHmm", Locale.US).format(new Date());
         try {
@@ -166,7 +166,7 @@ public class TurretRotateProfiler extends LinearOpMode {
     void testSetPosition() {
         long startTime = System.currentTimeMillis();
         double power = 1;
-        turrMotor.setTargetPosition(1637);
+        turrMotor.setTargetPosition(2200);
         turrMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turrMotor.setPower(1.0);
         loop = 0;

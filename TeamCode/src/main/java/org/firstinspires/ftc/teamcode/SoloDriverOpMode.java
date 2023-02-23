@@ -16,6 +16,10 @@ public class SoloDriverOpMode extends OpMode {
         int liftPos = -1;
         int tutPos = -1;
         double robHead = -1;
+
+        public String toString() {
+            return "lift:" + liftPos + " Turret:" + tutPos + " Ext:" + extension + " Heading:" + robHead;
+        }
     }
     RobotHardware robotHardware;
     RobotProfile robotProfile;
@@ -136,14 +140,15 @@ public class SoloDriverOpMode extends OpMode {
                 repeatPick.prepare();
             }
         }
-
-        handleMovement();
-        handleGripper();
-        handleLift();
-        handleTurret();
-        if (gamepad1.b) {
-            currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
-            currentTask.prepare();
+        if (currentTask!=repeatPick) {
+            handleMovement();
+            handleGripper();
+            handleLift();
+            handleTurret();
+            if (gamepad1.b) {
+                currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
+                currentTask.prepare();
+            }
         }
         if (gamepad1.x) {
             currentTask = forPickUp;
@@ -369,9 +374,9 @@ public class SoloDriverOpMode extends OpMode {
         // AUTO PICK & DROP
         repeatPick = new SequentialComboTask();
         repeatPick.setTaskName("Repeat Pick");
-        repeatPick.add(new LiftExtTutTask(robotHardware, lastPick));
+        repeatPick.add(new DrvOpLiftExtTutTask(robotHardware, lastPick));
         repeatPick.add(new RobotSleep(500));
         repeatPick.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-        repeatPick.add(new LiftExtTutTask(robotHardware, lastDrop));
+        repeatPick.add(new DrvOpLiftExtTutTask(robotHardware, lastDrop));
     }
 }

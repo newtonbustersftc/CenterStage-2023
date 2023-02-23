@@ -109,9 +109,9 @@ public class TurnTurretMotionTask implements RobotControl {
             }
             else {
                 pwr = 1 - (currTime - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs;
-
                 int distToStop = calcDistToStop(Math.abs(velocity));
-                pwr = Math.max(0, pwr + (remain - distToStop)/(remain+distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP);
+                pwr = pwr + (remain - distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP;
+                pwr = Math.max(0, pwr);
                 turretMotor.setPower(pwr * powerSign);
             }
         }
@@ -146,6 +146,7 @@ public class TurnTurretMotionTask implements RobotControl {
     public boolean isDone() {
         boolean done = (System.currentTimeMillis()-startTime)>100 && !robotHardware.isTurretTurning() &&
                 Math.abs(currPos - targetPos)<20;
+        //done = (System.currentTimeMillis() - startTime) > 3000; // for charting purpose
         if (done) {
             Logger.logFile("Turret turn done pos " + currPos);
         }

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-public class LiftExtTutTask implements RobotControl {
+public class DrvOpLiftExtTutTask implements RobotControl {
         RobotHardware robotHardware;
         SoloDriverOpMode.LastLiftExtTut liftExtTut;
         long startTime;
@@ -12,7 +12,7 @@ public class LiftExtTutTask implements RobotControl {
         enum Mode { STEP1, STEP2, STEP3, STEP4, DONE};
         Mode mode;
         // motion profile turret parameters
-        enum TurretMode { WAIT, POWER_1, RAMP_DOWN, PID, DONE };
+        enum TurretMode { WAIT, POWER_1, RAMP_DOWN, PID };
         TurretMode turretMode;
         DcMotorEx turretMotor;
         int targetTurretPos;
@@ -20,14 +20,14 @@ public class LiftExtTutTask implements RobotControl {
         double power;
         long rampDownStart;
 
-    public LiftExtTutTask(RobotHardware hardware, SoloDriverOpMode.LastLiftExtTut liftExtTut) {
+    public DrvOpLiftExtTutTask(RobotHardware hardware, SoloDriverOpMode.LastLiftExtTut liftExtTut) {
         this.robotHardware = hardware;
         turretMotor = robotHardware.turretMotor;
         this.liftExtTut = liftExtTut;
     }
 
     public String toString() {
-        return "LiftExtTut lift:" + liftExtTut.liftPos;
+        return "LiftExtTut (" + liftExtTut + ")";
     }
 
     @Override
@@ -45,7 +45,7 @@ public class LiftExtTutTask implements RobotControl {
         }
         power = robotHardware.getRobotProfile().hardwareSpec.turretPower;
         startTime = System.currentTimeMillis();
-        Logger.logFile("Prepare LiftExtTut lift:" + liftExtTut.liftPos + " go up:" + goUp);
+        Logger.logFile("Prepare LiftExtTut lift to (" + liftExtTut + ") go up:" + goUp);
     }
 
     double getErrorAngle() {
@@ -75,7 +75,6 @@ public class LiftExtTutTask implements RobotControl {
             turretMotor.setPower(powerSign * power);
             Logger.logFile("LiftExtTut Turret turn Motion Profile from:" + currPos + " to: " + targetTurretPos);
         }
-
     }
 
     int calcDistToStop(double velocity) {
@@ -120,13 +119,19 @@ public class LiftExtTutTask implements RobotControl {
             turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
             turretMotor.setTargetPosition(targetTurretPos);
         }
+        else if (turretMode == TurretMode.WAIT) {
+            // don't do anything yet
+            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
+        }
     }
 
     @Override
     public void execute() {
         turretExecute();
-        if (mode==Mode.STEP1) {
-            if((System.currentTimeMillis()-startTime)>200 && goUp && robotHardware.getLiftPosition()>robotHardware.getRobotProfile().hardwareSpec.liftSafeRotate){
+        if (mode== Mode.STEP1) {
+            if((System.currentTimeMillis()-startTime)>200 && goUp) {
+                    //&& robotHardware.getLiftPosition()>robotHardware.getRobotProfile().hardwareSpec.liftSafeRotate){
                 int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
                 //robotHardware.setTurretPosition(liftExtTut.tutPos + error);
                 turretStartRotate(liftExtTut.tutPos + error);
@@ -136,46 +141,46 @@ public class LiftExtTutTask implements RobotControl {
             } else if((System.currentTimeMillis()-startTime)>50 && !goUp){
                 robotHardware.grabberInit();    // after start go down, open grabber full first and retract
                 robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
+                Logger.logFile("LiftExtTut (" + liftExtTut + ") opening grabber while going down");  //while still lifting
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;
             }
         }
-        else if (mode==Mode.STEP2) {
+        else if (mode== Mode.STEP2) {
             if (goUp) {
-                if (System.currentTimeMillis() - modeStart>200 && !robotHardware.isLiftMoving()){
+                if ((System.currentTimeMillis() - modeStart)>200 && !robotHardware.isLiftMoving() && turretMode==TurretMode.PID){
                     mode = Mode.STEP3;
                     modeStart = System.currentTimeMillis();
                     robotHardware.setExtensionPosition(liftExtTut.extension);
                 }
             }
             else {
-                if (System.currentTimeMillis() - modeStart>400) {
+                if ((System.currentTimeMillis() - modeStart)>300) {
                     int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
-                    //robotHardware.setTurretPosition(liftExtTut.tutPos + error);
                     turretStartRotate(liftExtTut.tutPos + error);
                     robotHardware.grabberOpen();
                     mode = Mode.STEP3;
                 }
             }
         }
-        else if (mode==Mode.STEP3) {
+        else if (mode== Mode.STEP3) {
             if (goUp) {
                 if (System.currentTimeMillis() - modeStart > 300 && turretMode==TurretMode.PID) {
                     mode = Mode.DONE;
                 }
             }
-            else if (Math.abs(robotHardware.getTurretPosition()- liftExtTut.tutPos)<200) {
+            else if (powerSign * (liftExtTut.tutPos - robotHardware.getTurretPosition())<200) { // go down and close enough, extend out half way
                 robotHardware.setExtensionPosition((robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin + liftExtTut.extension)/2);
                 robotHardware.setLiftPosition(liftExtTut.liftPos);
                 mode = Mode.STEP4;
             }
         }
-        else if (mode==Mode.STEP4) {
+        else if (mode== Mode.STEP4) {
             if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30) {
                 robotHardware.setExtensionPosition(liftExtTut.extension);
                 turretMotor.setTargetPosition(targetTurretPos);
                 turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
-                turretMode = TurretMode.DONE;
+                turretMode = TurretMode.PID;
                 mode = Mode.DONE;
             }
         }
