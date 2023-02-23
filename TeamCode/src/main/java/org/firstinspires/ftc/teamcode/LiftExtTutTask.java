@@ -167,6 +167,9 @@ public class LiftExtTutTask implements RobotControl {
     }
 
     void turretExecute() {
+        if (turretMode == TurretMode.WAIT) {
+            return;
+        }
         int currPos = robotHardware.getTurretPosition();
         long currTime = System.currentTimeMillis();
         double velocity = robotHardware.getTurretVelocity();
