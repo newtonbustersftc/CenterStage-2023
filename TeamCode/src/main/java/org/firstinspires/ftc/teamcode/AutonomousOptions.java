@@ -21,14 +21,16 @@ public class AutonomousOptions extends OpMode {
     public static final String START_POS_MODES_PREF = "starting position";
     public static final String START_DELAY_PREF = "start_delay";
     public static final String PARKING_PREF = "parking loc";
+    public static final String AIM_POLES_PREF = "aim poles";
     // ADD preference values here
     public static final String[] START_POS_MODES = {"RED_LEFT", "RED_RIGHT","BLUE_LEFT", "BLUE_RIGHT"};
     public static final String[] START_DELAY = {"0 " + "sec", "1 sec", "2 sec", "3 sec", "4 sec", "5 sec"};
     public static final String[] PARKING_LOCATION = {"ROW 1", "ROW 2", "ROW 3"};
+    public static final String[] AIM_POLES = {"HIGH_POLES","MID_POLES"};
     private static final String NONE = "none";
 
     public static Map<String, String[]> prefMap = new HashMap<>();
-    private static String[] prefKeys = {START_POS_MODES_PREF, START_DELAY_PREF, PARKING_PREF};
+    private static String[] prefKeys = {START_POS_MODES_PREF, START_DELAY_PREF, PARKING_PREF,AIM_POLES_PREF};
     private static int keyIdx = 0;
 
     //private static String[] prefKeys = prefMap.keySet().toArray(new String[prefMap.keySet().size()]);
@@ -38,6 +40,7 @@ public class AutonomousOptions extends OpMode {
         prefMap.put(START_DELAY_PREF, START_DELAY);
         prefMap.put(START_POS_MODES_PREF, START_POS_MODES);
         prefMap.put(PARKING_PREF, PARKING_LOCATION);
+        prefMap.put(AIM_POLES_PREF, AIM_POLES);
     }
 
     public boolean isUpPressed;
