@@ -65,6 +65,7 @@ public class AutonomousGeneric extends LinearOpMode {
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, aprilTagSignalRecognition);
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        String aimPoleMode = prefs.getString(AutonomousOptions.AIM_POLES_PREF,AutonomousOptions.AIM_POLES[0]);
         robotHardware.resetImu();
         robotHardware.setTurretOffset(robotProfile.hardwareSpec.turret360/8);
 //        signalRecognition.startRecognition();
@@ -76,6 +77,7 @@ public class AutonomousGeneric extends LinearOpMode {
                 telemetry.addData("Start Position", startPosMode);
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
+                telemetry.addData("aim at pole: ", aimPoleMode);
                 telemetry.addData("Recognition Result", aprilTagSignalRecognition.getRecognitionResult());
                 telemetry.update();
             }
@@ -94,6 +96,7 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.setMotorStopBrake(true);
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
+        robotHardware.turnDownSignalBlocker();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size()>0) {
             loopCount++;
