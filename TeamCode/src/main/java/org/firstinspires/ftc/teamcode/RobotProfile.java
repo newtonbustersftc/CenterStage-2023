@@ -97,6 +97,7 @@ public class RobotProfile {
         public int liftMax;
         public int liftSafeRotate;
         public double liftPowerUp, liftPowerDown;
+        public double signalBlockerDown, signalBlockerUp;
         int liftPickPos[];
         int liftDropPos[];
     }
