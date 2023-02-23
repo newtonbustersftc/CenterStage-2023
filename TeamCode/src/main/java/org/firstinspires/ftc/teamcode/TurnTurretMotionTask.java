@@ -108,7 +108,7 @@ public class TurnTurretMotionTask implements RobotControl {
                 Logger.logFile("Turret go PID at " + currPos);
             }
             else {
-                pwr = 1 - (currTime - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs;
+                pwr = power - (currTime - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs;
                 int distToStop = calcDistToStop(Math.abs(velocity));
                 pwr = pwr + (remain - distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP;
                 pwr = Math.max(0, pwr);
@@ -145,7 +145,7 @@ public class TurnTurretMotionTask implements RobotControl {
     @Override
     public boolean isDone() {
         boolean done = (System.currentTimeMillis()-startTime)>100 && !robotHardware.isTurretTurning() &&
-                Math.abs(currPos - targetPos)<20;
+                powerSign * (targetPos - currPos)<20;
         //done = (System.currentTimeMillis() - startTime) > 3000; // for charting purpose
         if (done) {
             Logger.logFile("Turret turn done pos " + currPos);

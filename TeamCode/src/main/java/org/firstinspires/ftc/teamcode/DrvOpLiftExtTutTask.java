@@ -169,7 +169,7 @@ public class DrvOpLiftExtTutTask implements RobotControl {
                     mode = Mode.DONE;
                 }
             }
-            else if (powerSign * (liftExtTut.tutPos - robotHardware.getTurretPosition())<200) { // go down and close enough, extend out half way
+            else if (powerSign * (targetTurretPos - robotHardware.getTurretPosition())<200) { // go down and close enough, extend out half way
                 robotHardware.setExtensionPosition((robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin + liftExtTut.extension)/2);
                 robotHardware.setLiftPosition(liftExtTut.liftPos);
                 mode = Mode.STEP4;
