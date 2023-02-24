@@ -88,13 +88,13 @@ public class AutonomousTaskBuilder {
 
         SoloDriverOpMode.LastLiftExtTut liftExtTut_2 = new SoloDriverOpMode().new LastLiftExtTut();
         liftExtTut_2.liftPos = robotProfile.hardwareSpec.liftPickPos[4];
-        liftExtTut_2.extension = isRight ? param.armLengthPickRight : param.armLengthPickLeft;
+        liftExtTut_2.extension = isRight ? param.armLengthPickRight: param.armLengthPickLeft ;
         liftExtTut_2.tutPos = isRight ?  1385 : -1410;
         liftExtTut_2.robHead = isRight? robHead_right : robHead_left;
 
         SoloDriverOpMode.LastLiftExtTut liftExtTut_3 = new SoloDriverOpMode().new LastLiftExtTut();
         liftExtTut_3.liftPos = robotProfile.hardwareSpec.liftPickPos[3];
-        liftExtTut_3.extension = isRight ? param.armLengthPickRight : param.armLengthPickLeft;
+        liftExtTut_3.extension = isRight ? param.armLengthPickRight : param.armLengthPickLeft ;
         liftExtTut_3.tutPos = isRight ? 1385 : -1410 ;
         liftExtTut_3.robHead = isRight? robHead_right : robHead_left;
 
@@ -119,12 +119,12 @@ public class AutonomousTaskBuilder {
         SoloDriverOpMode.LastLiftExtTut rightwardLiftExtTut_high = new SoloDriverOpMode().new LastLiftExtTut();
         rightwardLiftExtTut_high.liftPos = param.liftHighDrop;
         rightwardLiftExtTut_high.extension = isRight ? param.armLengthRightDrop1+0.2 : param.armLengthLeftDrop1;
-        rightwardLiftExtTut_high.tutPos = isRight ? param.turretDropPosRightHighPole : param.turretDropPosLeftHighPole;
+        rightwardLiftExtTut_high.tutPos = isRight ? -30 : param.turretDropPosLeftHighPole; //param.turretDropPosRightHighPole
         rightwardLiftExtTut_high.robHead = isRight? robHead_right : robHead_left;
 
         SoloDriverOpMode.LastLiftExtTut rightwardLiftExtTut_mid = new SoloDriverOpMode().new LastLiftExtTut();
         rightwardLiftExtTut_mid.liftPos = param.liftMidDrop;
-        rightwardLiftExtTut_mid.extension = isHighPole ? param.armLengthLeftDrop1 : param.armLengthLeftDrop1-0.1;
+        rightwardLiftExtTut_mid.extension = isRight ? param.armLengthLeftDrop1 : param.armLengthLeftDrop1-0.1;
         rightwardLiftExtTut_mid.tutPos = isRight ? param.turretDropPosRightMidPole_deliver : param.turretDropPosLeftMidPole_deliver;
         rightwardLiftExtTut_mid.robHead = isRight? robHead_right : robHead_left;
 
@@ -186,12 +186,12 @@ public class AutonomousTaskBuilder {
         initComb.add(moveToDrop1);
         initComb.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? beginLiftExtTut_high : beginLiftExtTut_mid,  true)); //0 for mid pole, rise the lift later
         taskList.add(initComb);
-        taskList.add(new RobotSleep(400)); //??test:robot stay here longer than 500ms
+        taskList.add(new RobotSleep(200)); //??test:robot stay here longer than 500ms
 
         ParallelComboTask dropRetract2 = new ParallelComboTask();
         dropRetract2.add(new LiftArmTask(robotHardware, isHighPole ? 700 : 450)); //robotProfile.hardwareSpec.liftPickPos[4])
         SequentialComboTask seq2 = new SequentialComboTask();
-        seq2.add(new RobotSleep(150));
+        seq2.add(new RobotSleep(250));
         seq2.add(new GrabberTask(robotHardware, true));
 
         // picking #2-#5 cone (#1-#4 from stack)
@@ -338,21 +338,21 @@ public class AutonomousTaskBuilder {
             if (parkingRow == 1 || parkingRow == 2) {
                 moveToDrop_5 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_5_Parking1_Parking2);
                 dropComb5.add(moveToDrop_5);
-                dropComb5.add(new LiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, 1));
+                dropComb5.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, true));
             } else { //parkingRow == 3
                 moveToDrop_5 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_5_Parking3);
                 dropComb5.add(moveToDrop_5);
-                dropComb5.add(new LiftExtTutTask(robotHardware, isHighPole ? parkingRightwardLiftExtTut_high : parkingRightwardLiftExtTut_mid, 1));
+                dropComb5.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? parkingRightwardLiftExtTut_high : parkingRightwardLiftExtTut_mid, true));
             }
         }else{  //right side
             if (parkingRow == 2 || parkingRow == 3) {
                 moveToDrop_5 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_5_Parking1_Parking2);
                 dropComb5.add(moveToDrop_5);
-                dropComb5.add(new LiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, 1));
+                dropComb5.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, true));
             } else { //parkingRow == 1
                 moveToDrop_5 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_5_Parking3);
                 dropComb5.add(moveToDrop_5);
-                dropComb5.add(new LiftExtTutTask(robotHardware, isHighPole ? parkingRightwardLiftExtTut_high : parkingRightwardLiftExtTut_mid, 1));
+                dropComb5.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? parkingRightwardLiftExtTut_high : parkingRightwardLiftExtTut_mid, true));
             }
         }
 
@@ -432,9 +432,9 @@ public class AutonomousTaskBuilder {
 
         }else if(parkingRow == 2){ //now moving
 //            finalLiftExtTut_parking2.tutPos = isRight ? -2300 : 1385;
-            seq6.add(new LiftExtTutTask(robotHardware, finalLiftExtTut_parking2, 1));
+            seq6.add(new DrvOpLiftExtTutTask(robotHardware, finalLiftExtTut_parking2, true));
         }else{ //right: parking 1 or left: parking 3
-            seq6.add(new LiftExtTutTask(robotHardware, finalLiftExtTut_parkingFarStack,1));
+            seq6.add(new DrvOpLiftExtTutTask(robotHardware, finalLiftExtTut_parkingFarStack,true));
 //            TrajectorySequence parkingNearStack;
 //            parkingNearStack = drive.trajectorySequenceBuilder(toDrop_5_Parking1_Parking2.end())
 //                    .lineTo(new Vector2d(49.497,21.21), velFast, accelFast)

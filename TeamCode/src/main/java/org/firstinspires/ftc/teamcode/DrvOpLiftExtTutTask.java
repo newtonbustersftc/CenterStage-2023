@@ -166,7 +166,7 @@ public class DrvOpLiftExtTutTask implements RobotControl {
                 }
             }
             else {
-                if ((System.currentTimeMillis() - modeStart)>300) {
+                if ((System.currentTimeMillis() - modeStart)>100) {
                     int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
                     turretStartRotate(liftExtTut.tutPos + error);
                     robotHardware.grabberOpen();
@@ -178,7 +178,7 @@ public class DrvOpLiftExtTutTask implements RobotControl {
         }
         else if (mode== Mode.STEP3) {
             if (goUp) {
-                if (System.currentTimeMillis() - modeStart > 300 && turretMode==TurretMode.PID) {
+                if (System.currentTimeMillis() - modeStart > 200 && turretMode==TurretMode.PID) {
                     mode = Mode.DONE;
                 }
             }
