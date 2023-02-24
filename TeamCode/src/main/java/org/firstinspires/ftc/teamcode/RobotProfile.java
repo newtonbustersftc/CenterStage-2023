@@ -97,6 +97,8 @@ public class RobotProfile {
         public int liftMax;
         public int liftSafeRotate;
         public double liftPowerUp, liftPowerDown;
+        public double signalBlockerDown, signalBlockerUp;
+        public double armLengthLeftDrop1;
         int liftPickPos[];
         int liftDropPos[];
     }
@@ -169,7 +171,7 @@ public class RobotProfile {
         int liftStack5;
         int liftStack4;
         int liftUpSafe;
-        double armLengthDrop1;
+        double armLengthLeftDrop1;
         double armLengthRightDrop1;
         double armLengthDropLow;
         double armLengthDropLowRight;
@@ -192,8 +194,10 @@ public class RobotProfile {
         int turretPickPosLeft;
         int turretDropPosLeftHighPole;
         int turretDropPosRightHighPole;
-        int turretDropPosLeftLowPole;
-        int turretDropPosRightLowPole;
+        int turretDropPosLeftMidPole_begin;
+        int turretDropPosRightMidPole_begin;
+        int turretDropPosLeftMidPole_deliver;
+        int turretDropPosRightMidPole_deliver;
         int turretLeft1FinalPos;
         int turretRight1FinalPos;
         int turretLeft2FinalPos;
@@ -201,8 +205,8 @@ public class RobotProfile {
         int turretLeft3FinalPos;
         int turretRight3FinalPos;
         double forwardPre1;
-        double forward1;
-        double forward2;
+        double forward;
+        //        double forward_mid;
         double back1;
         double backPick;
     }

@@ -42,7 +42,7 @@ public class RobotHardware {
     DcMotorEx turretMotor;
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     //private
-    Servo grabberServo, extensionServo, lightServo;
+    Servo grabberServo, extensionServo, lightServo, signalBlockerServo;
     TouchSensor magneticSensor, liftTouch;
     NormalizedColorSensor coneSensor;
 
@@ -79,6 +79,9 @@ public class RobotHardware {
         extensionServo = hardwareMap.servo.get("Arm Extension");
         grabberServo = hardwareMap.servo.get("Gripper Open/Close");
         lightServo = hardwareMap.servo.get("LightControl");
+        signalBlockerServo = hardwareMap.servo.get("Signal Blocker");
+
+
         liftMotors = new DcMotorEx[3];
         liftMotors[0] = hardwareMap.get(DcMotorEx.class,"Lift Motor1");
         liftMotors[1] = hardwareMap.get(DcMotorEx.class,"Lift Motor2");
@@ -298,6 +301,7 @@ public class RobotHardware {
         for(DcMotorEx liftMotor:liftMotors) {
             liftMotor.setPower(0);
         }
+        turnUpSignalBlocker();
         turretPower = 0;
         turretMotor.setPower(0);
     }
@@ -519,6 +523,14 @@ public class RobotHardware {
 
     public void turnOffLight() {
         lightServo.setPosition(0.5);
+    }
+
+    public void turnDownSignalBlocker(){
+        signalBlockerServo.setPosition(profile.hardwareSpec.signalBlockerDown);
+    }
+
+    public void turnUpSignalBlocker(){
+        signalBlockerServo.setPosition(profile.hardwareSpec.signalBlockerUp);
     }
 
     public void initSetupNoAuto(OpMode opmod) {
