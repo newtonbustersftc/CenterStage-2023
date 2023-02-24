@@ -240,10 +240,10 @@ public class LiftExtTutTask implements RobotControl {
 //                mode = Mode.STEP2;
                 //Logger.logFile("3. STEP1, I am here because I am going up ");
             } else if ((System.currentTimeMillis() - startTime) > 50 && !goUp) {
-                robotHardware.grabberInit();    // after start go down, open grabber full first and retract
-                robotHardware.setExtensionPosition(liftExtTut.extension);
-                modeStart = System.currentTimeMillis();
-                mode = Mode.STEP2;
+//                robotHardware.grabberInit();    // after start go down, open grabber full first and retract
+//                robotHardware.setExtensionPosition(liftExtTut.extension);
+//                modeStart = System.currentTimeMillis();
+//                mode = Mode.STEP2;
                 //Logger.logFile("STEP1, I should not be here");
             }
         } else if (mode == Mode.STEP2) {
