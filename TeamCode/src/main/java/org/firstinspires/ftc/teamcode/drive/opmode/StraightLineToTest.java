@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
@@ -20,15 +23,14 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.io.File;
 import java.util.Arrays;
-
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+import java.util.Vector;
 
 /*
  * This is a simple routine to test translational drive capabilities.
  */
 @Config
 @Autonomous(group = "drive")
-public class StraightTest extends LinearOpMode {
+public class StraightLineToTest extends LinearOpMode {
     public static double DISTANCE = 50; // in
 
     @Override
@@ -76,7 +78,7 @@ public class StraightTest extends LinearOpMode {
         TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(30, 180, TRACK_WIDTH);
         TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(10);
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
-                .forward(DISTANCE, velConstraint, accelConstraint)
+                .lineTo(new Vector2d(DISTANCE/Math.sqrt(2), DISTANCE/Math.sqrt(2)), velConstraint, accelConstraint)
                 .build();
 
         if (isStopRequested()) return;

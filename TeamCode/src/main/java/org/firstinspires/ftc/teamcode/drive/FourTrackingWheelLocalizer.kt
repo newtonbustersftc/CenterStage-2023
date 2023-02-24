@@ -7,6 +7,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import org.apache.commons.math3.linear.DecompositionSolver
 import org.apache.commons.math3.linear.LUDecomposition
 import org.apache.commons.math3.linear.MatrixUtils
+import org.firstinspires.ftc.teamcode.Logger
 
 abstract class FourTrackingWheelLocalizer (
         wheelPoses: List<Pose2d>
@@ -119,15 +120,17 @@ abstract class FourTrackingWheelLocalizer (
                 arrayOf(doubleArrayOf(wd[1], wd[2], wd[3]))
             ).transpose()
         )
+        return Pose2d(rawPoseDelta4.getEntry(0, 0), rawPoseDelta4.getEntry(1, 0),
+                rawPoseDelta4.getEntry(2, 0))
 
-        return Pose2d(
-            (rawPoseDelta1.getEntry(0, 0) + rawPoseDelta2.getEntry(0, 0)
-                    + rawPoseDelta3.getEntry(0, 0) + rawPoseDelta4.getEntry(0, 0))/4,
-            (rawPoseDelta1.getEntry(1, 0) + rawPoseDelta2.getEntry(1, 0)
-                    + rawPoseDelta3.getEntry(1, 0) + rawPoseDelta4.getEntry(1, 0))/4,
-            (rawPoseDelta1.getEntry(2, 0) + rawPoseDelta2.getEntry(2, 0)
-                    + rawPoseDelta3.getEntry(2, 0) + rawPoseDelta4.getEntry(2, 0))/4,
-        )
+//        return Pose2d(
+//            (rawPoseDelta1.getEntry(0, 0) + rawPoseDelta2.getEntry(0, 0)
+//                    + rawPoseDelta3.getEntry(0, 0) + rawPoseDelta4.getEntry(0, 0))/4,
+//            (rawPoseDelta1.getEntry(1, 0) + rawPoseDelta2.getEntry(1, 0)
+//                    + rawPoseDelta3.getEntry(1, 0) + rawPoseDelta4.getEntry(1, 0))/4,
+//            (rawPoseDelta1.getEntry(2, 0) + rawPoseDelta2.getEntry(2, 0)
+//                    + rawPoseDelta3.getEntry(2, 0) + rawPoseDelta4.getEntry(2, 0))/4,
+//        )
     }
 
     override fun update() {
