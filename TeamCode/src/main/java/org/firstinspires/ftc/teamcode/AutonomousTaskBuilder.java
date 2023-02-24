@@ -184,20 +184,20 @@ public class AutonomousTaskBuilder {
                 .build();
         SplineMoveTask moveToDrop1 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_1);
         initComb.add(moveToDrop1);
-        initComb.add(new LiftExtTutTask(robotHardware, isHighPole ? beginLiftExtTut_high : beginLiftExtTut_mid, isHighPole ? 1 : 0)); //0 for mid pole, rise the lift later
+        initComb.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? beginLiftExtTut_high : beginLiftExtTut_mid,  true)); //0 for mid pole, rise the lift later
         taskList.add(initComb);
         taskList.add(new RobotSleep(400)); //??test:robot stay here longer than 500ms
 
         ParallelComboTask dropRetract2 = new ParallelComboTask();
         dropRetract2.add(new LiftArmTask(robotHardware, isHighPole ? 700 : 450)); //robotProfile.hardwareSpec.liftPickPos[4])
         SequentialComboTask seq2 = new SequentialComboTask();
-        seq2.add(new RobotSleep(250));
+        seq2.add(new RobotSleep(150));
         seq2.add(new GrabberTask(robotHardware, true));
 
         // picking #2-#5 cone (#1-#4 from stack)
         ParallelComboTask comboToPick_2 = new ParallelComboTask();
-        comboToPick_2.add(new LiftExtTutTask(robotHardware, liftExtTut_2, 1));
-//        comboToPick_2.add(new DrvOpLiftExtTutTask(robotHardware, liftExtTut_2));
+//        comboToPick_2.add(new LiftExtTutTask(robotHardware, liftExtTut_2, 1));
+        comboToPick_2.add(new DrvOpLiftExtTutTask(robotHardware, liftExtTut_2, true));
 
         TrajectorySequence toPick_2;
         toPick_2 = drive.trajectorySequenceBuilder(toDrop_1.end())
@@ -219,11 +219,12 @@ public class AutonomousTaskBuilder {
                 .build();
         SplineMoveTask moveToDrop_2 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_2);
         dropComb2.add(moveToDrop_2);
-        dropComb2.add(new LiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, 1));
+        //dropComb2.add(new LiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, 1));
+        dropComb2.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, true));
         seq2.add(dropComb2);
         dropRetract2.add(seq2);
         taskList.add(dropRetract2);
-        taskList.add(new RobotSleep(400));
+        taskList.add(new RobotSleep(150));
 
         ParallelComboTask dropRetract3 = new ParallelComboTask();
         dropRetract3.add(new LiftArmTask(robotHardware, isHighPole ? 700 : 450));
@@ -233,7 +234,7 @@ public class AutonomousTaskBuilder {
 
         // picking #3 cone (#2 from stack)
         ParallelComboTask comboToPick_3 = new ParallelComboTask();
-        comboToPick_3.add(new LiftExtTutTask(robotHardware, liftExtTut_3, 1));
+        comboToPick_3.add(new DrvOpLiftExtTutTask(robotHardware, liftExtTut_3, true));
 
         TrajectorySequence toPick_3;
         toPick_3 = drive.trajectorySequenceBuilder(toDrop_2.end())
@@ -254,11 +255,11 @@ public class AutonomousTaskBuilder {
                 .build();
         SplineMoveTask moveToDrop_3 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_3);
         dropComb3.add(moveToDrop_3);
-        dropComb3.add(new LiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high: rightwardLiftExtTut_mid,1));
+        dropComb3.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high: rightwardLiftExtTut_mid,true));
         seq3.add(dropComb3);
         dropRetract3.add(seq3);
         taskList.add(dropRetract3);
-        taskList.add(new RobotSleep(400));
+        taskList.add(new RobotSleep(150));
 
         ParallelComboTask dropRetract4 = new ParallelComboTask();
         dropRetract4.add(new LiftArmTask(robotHardware, isHighPole?700:450));
@@ -268,7 +269,7 @@ public class AutonomousTaskBuilder {
 
         // picking #4 cone (#3 from stack)
         ParallelComboTask comboToPick_4 = new ParallelComboTask();
-        comboToPick_4.add(new LiftExtTutTask(robotHardware, liftExtTut_4, 1));
+        comboToPick_4.add(new DrvOpLiftExtTutTask(robotHardware, liftExtTut_4, true));
         TrajectorySequence toPick_4;
         toPick_4 = drive.trajectorySequenceBuilder(toDrop_3.end())
                 .lineTo(isRight ? rightStack : leftStack, velFast, accelFast)
@@ -289,11 +290,11 @@ public class AutonomousTaskBuilder {
         SplineMoveTask moveToDrop_4 = new SplineMoveTask(robotHardware.mecanumDrive, toDrop_4);
         dropComb4.add(moveToDrop_4);
 
-        dropComb4.add(new LiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, 1));
+        dropComb4.add(new DrvOpLiftExtTutTask(robotHardware, isHighPole ? rightwardLiftExtTut_high : rightwardLiftExtTut_mid, true));
         seq4.add(dropComb4);
         dropRetract4.add(seq4);
         taskList.add(dropRetract4);
-        taskList.add(new RobotSleep(400));
+        taskList.add(new RobotSleep(150));
 
         ParallelComboTask dropRetract5 = new ParallelComboTask();
         dropRetract5.add(new LiftArmTask(robotHardware, isHighPole ? 700 : 450));
@@ -305,7 +306,7 @@ public class AutonomousTaskBuilder {
 
         // picking #5 cone (#4 from stack)
         ParallelComboTask comboToPick_5 = new ParallelComboTask();
-        comboToPick_5.add(new LiftExtTutTask(robotHardware, liftExtTut_5, 1));
+        comboToPick_5.add(new DrvOpLiftExtTutTask(robotHardware, liftExtTut_5, true));
         TrajectorySequence toPick_5;
         toPick_5 = drive.trajectorySequenceBuilder(toDrop_4.end())
                 .lineTo((isRight) ? rightStack : leftStack, velFast, accelFast)
@@ -358,7 +359,7 @@ public class AutonomousTaskBuilder {
         seq5.add(dropComb5);
         dropRetract5.add(seq5);
         taskList.add(dropRetract5);
-        taskList.add(new RobotSleep(450));
+        taskList.add(new RobotSleep(200));
 
         ParallelComboTask dropRetract6 = new ParallelComboTask();
         dropRetract6.add(new LiftArmTask(robotHardware, isHighPole?800:500));
