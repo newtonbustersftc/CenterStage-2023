@@ -129,16 +129,17 @@ public class LiftExtTutTask implements RobotControl {
     }
 
     double getErrorAngle() {
-        Logger.logFile("current gyro:"+ robotHardware.getGyroHeading());
-        double errAngle = robotHardware.getGyroHeading() - liftExtTut.robHead;
-        if (errAngle>Math.PI) {
-            errAngle = errAngle - Math.PI*2;
-        }
-        else if (errAngle < -Math.PI) {
-            errAngle = errAngle + Math.PI*2;
-        }
-        Logger.logFile("errAngle:"+errAngle);
-        return errAngle;
+//        Logger.logFile("current gyro:"+ robotHardware.getGyroHeading());
+//        double errAngle = robotHardware.getGyroHeading() - liftExtTut.robHead;
+//        if (errAngle>Math.PI) {
+//            errAngle = errAngle - Math.PI*2;
+//        }
+//        else if (errAngle < -Math.PI) {
+//            errAngle = errAngle + Math.PI*2;
+//        }
+//        Logger.logFile("errAngle:"+errAngle);
+//        return errAngle;
+        return 0;
     }
 
     void turretStartRotate(int pos) {
@@ -177,7 +178,7 @@ public class LiftExtTutTask implements RobotControl {
             int remain = powerSign * (targetTurretPos - currPos);
             int distToStop = calcDistToStop(Math.abs(velocity));
             //Logger.logFile("in turretExecute:");
-            //Logger.logFile("remain:"+remain);
+            //Logger.logFile("remain:"+remain);.
             //Logger.logFile("distToStop:"+distToStop);
             if (remain <= distToStop - 20) {
                 Logger.logFile("LiftExtTut Turret ramp down at " + currPos + " with velocity " + velocity);
@@ -220,23 +221,27 @@ public class LiftExtTutTask implements RobotControl {
                 int error = (int) (getErrorAngle() / (2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
                 if(isMidPoleBeginning && ((System.currentTimeMillis() - startTime) > 3500)){
 //                    turretMode = TurretMode.POWER_1;
-                    robotHardware.setTurretPosition(liftExtTut.tutPos);
+//                    robotHardware.setTurretPosition(liftExtTut.tutPos);
                     turretStartRotate(liftExtTut.tutPos + error);
-                    Logger.logFile("after 3 second, turret start turning");
+                    Logger.logFile("after 3.5 second, turret start turning");
+                    modeStart = System.currentTimeMillis();
+                    mode = Mode.STEP2;
                 }else{
                     turretStartRotate(liftExtTut.tutPos + error);
+                    modeStart = System.currentTimeMillis();
+                    mode = Mode.STEP2;
                 }
                 //Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);  //while still lifting
                 //Logger.logFile("3. STEP1, error = " + error);
                 //Logger.logFile("3. STEP1, liftExtTut.tutPos = " + liftExtTut.tutPos);
                 //Logger.logFile("3. LiftExtTut move turret to " + (liftExtTut.tutPos + error));  //while still lifting
                 //Logger.logFile("3. STEP1, curr turret:" + robotHardware.getTurretPosition());
-                modeStart = System.currentTimeMillis();
-                mode = Mode.STEP2;
+//                modeStart = System.currentTimeMillis();
+//                mode = Mode.STEP2;
                 //Logger.logFile("3. STEP1, I am here because I am going up ");
             } else if ((System.currentTimeMillis() - startTime) > 50 && !goUp) {
                 robotHardware.grabberInit();    // after start go down, open grabber full first and retract
-                robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
+                robotHardware.setExtensionPosition(liftExtTut.extension);
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;
                 //Logger.logFile("STEP1, I should not be here");
