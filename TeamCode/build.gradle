@@ -37,4 +37,6 @@ dependencies {
     testImplementation "junit:junit:4.13.2"
     implementation 'org.openftc:apriltag:1.1.0'
     implementation group: 'com.opencsv', name: 'opencsv', version: '5.5.2'
+    implementation 'org.apache.commons:commons-csv:1.5'
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.6'
 }
