@@ -108,7 +108,7 @@
     "liftPowerUp": 0.8,
     "liftPowerDown": 0.5,
     "signalBlockerDown": 0.5,
-    "signalBlockerUp": 0.85,
+    "signalBlockerUp": 1.0,
     "liftDropPos": [
       40,
       200,
@@ -177,7 +177,7 @@
     "turretPickPosLeft": -2775,
     "turretGroundLeft": -640,
     "turretGroundRight": -1350,
-    "turretDropPosLeftHighPole": -70,
+    "turretDropPosLeftHighPole": -140,
     "turretDropPosRightHighPole": 0,
     "turretDropPosLeftMidPole_begin": 915,
     "turretDropPosRightMidPole_begin": -925,

@@ -79,7 +79,7 @@ public class RobotHardware {
         extensionServo = hardwareMap.servo.get("Arm Extension");
         grabberServo = hardwareMap.servo.get("Gripper Open/Close");
         lightServo = hardwareMap.servo.get("LightControl");
-        signalBlockerServo = hardwareMap.servo.get("Signal Blocker");
+        signalBlockerServo = hardwareMap.servo.get("SignalBlocker");
 
 
         liftMotors = new DcMotorEx[3];
