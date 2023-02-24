@@ -19,11 +19,19 @@ public class DrvOpLiftExtTutTask implements RobotControl {
         int powerSign = 1;
         double power;
         long rampDownStart;
+        boolean noErrAngle = false;
 
     public DrvOpLiftExtTutTask(RobotHardware hardware, SoloDriverOpMode.LastLiftExtTut liftExtTut) {
         this.robotHardware = hardware;
         turretMotor = robotHardware.turretMotor;
         this.liftExtTut = liftExtTut;
+    }
+
+    public DrvOpLiftExtTutTask(RobotHardware hardware, SoloDriverOpMode.LastLiftExtTut liftExtTut, boolean noErrAngle) {
+        this.robotHardware = hardware;
+        turretMotor = robotHardware.turretMotor;
+        this.liftExtTut = liftExtTut;
+        this.noErrAngle = noErrAngle;
     }
 
     public String toString() {
@@ -49,6 +57,9 @@ public class DrvOpLiftExtTutTask implements RobotControl {
     }
 
     double getErrorAngle() {
+        if (noErrAngle) {
+            return 0;
+        }
         double errAngle = robotHardware.getGyroHeading() - liftExtTut.robHead;
         if (errAngle>Math.PI) {
             errAngle = errAngle - Math.PI*2;
@@ -159,7 +170,9 @@ public class DrvOpLiftExtTutTask implements RobotControl {
                     int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
                     turretStartRotate(liftExtTut.tutPos + error);
                     robotHardware.grabberOpen();
+                    modeStart = System.currentTimeMillis();
                     mode = Mode.STEP3;
+                    Logger.logFile("LiftExtTut (" + liftExtTut + ") going STEP3");
                 }
             }
         }
@@ -171,8 +184,9 @@ public class DrvOpLiftExtTutTask implements RobotControl {
             }
             else if (powerSign * (targetTurretPos - robotHardware.getTurretPosition())<200) { // go down and close enough, extend out half way
                 robotHardware.setExtensionPosition((robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin + liftExtTut.extension)/2);
-                robotHardware.setLiftPosition(liftExtTut.liftPos);
+                robotHardware.setLiftPositionUnsafe(liftExtTut.liftPos, 0.5);
                 mode = Mode.STEP4;
+                Logger.logFile("LiftExtTut (" + liftExtTut + ") going STEP4");
             }
         }
         else if (mode== Mode.STEP4) {
