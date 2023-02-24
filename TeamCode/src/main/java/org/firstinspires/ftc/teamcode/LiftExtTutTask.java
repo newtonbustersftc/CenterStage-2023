@@ -101,8 +101,8 @@ public class LiftExtTutTask implements RobotControl {
                     turretMode = LiftExtTutTask.TurretMode.WAIT;
                     Logger.logFile("no turret start, TurretMode.WAIT");
                 }
-                Logger.logFile("prepare, getTurretPosition="+robotHardware.getTurretPosition());
-                Logger.logFile("prepare, liftWxtTut.liftPos="+liftExtTut.liftPos);
+                //Logger.logFile("prepare, getTurretPosition="+robotHardware.getTurretPosition());
+                //Logger.logFile("prepare, liftWxtTut.liftPos="+liftExtTut.liftPos);
             }else if(autonmous_action == Autonmous_Action.STACK_GRAB_UP){
                 robotHardware.setLiftPosition(liftExtTut.liftPos);
                 robotHardware.setExtensionPosition(liftExtTut.extension);
@@ -124,8 +124,8 @@ public class LiftExtTutTask implements RobotControl {
         }
         power = robotHardware.getRobotProfile().hardwareSpec.turretPower;
         startTime = System.currentTimeMillis();
-        Logger.logFile("in prepare, turret is:"+ robotHardware.getTurretPosition());
-        Logger.logFile("Prepare, tutPos:" + liftExtTut.tutPos + " go up:" + goUp);
+        //Logger.logFile("in prepare, turret is:"+ robotHardware.getTurretPosition());
+        //Logger.logFile("Prepare, tutPos:" + liftExtTut.tutPos + " go up:" + goUp);
     }
 
     double getErrorAngle() {
@@ -176,9 +176,9 @@ public class LiftExtTutTask implements RobotControl {
         if (turretMode == TurretMode.POWER_1) {
             int remain = powerSign * (targetTurretPos - currPos);
             int distToStop = calcDistToStop(Math.abs(velocity));
-            Logger.logFile("in turretExecute:");
-            Logger.logFile("remain:"+remain);
-            Logger.logFile("distToStop:"+distToStop);
+            //Logger.logFile("in turretExecute:");
+            //Logger.logFile("remain:"+remain);
+            //Logger.logFile("distToStop:"+distToStop);
             if (remain <= distToStop - 20) {
                 Logger.logFile("LiftExtTut Turret ramp down at " + currPos + " with velocity " + velocity);
                 rampDownStart = currTime;
@@ -187,9 +187,9 @@ public class LiftExtTutTask implements RobotControl {
         }
         else if (turretMode == TurretMode.RAMP_DOWN) {
             int remain = powerSign * (targetTurretPos - currPos);
-            Logger.logFile("in RAMP_DOWN");
-            Logger.logFile("remain:"+remain + " powerSign:"+powerSign + " targetTurretPos:"+
-                    targetTurretPos +  " currPos:"+ currPos);
+            //Logger.logFile("in RAMP_DOWN");
+            //Logger.logFile("remain:"+remain + " powerSign:"+powerSign + " targetTurretPos:"+
+            //        targetTurretPos +  " currPos:"+ currPos);
             if (remain < 50 || (currTime - rampDownStart)>1000) {
                 turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
@@ -202,8 +202,8 @@ public class LiftExtTutTask implements RobotControl {
                 int distToStop = calcDistToStop(Math.abs(velocity));
                 pwr = Math.max(0, pwr + (remain - distToStop)/(remain+distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP);
                 turretMotor.setPower(pwr * powerSign);
-                Logger.logFile("disToStop:"+distToStop);
-                Logger.logFile("power:"+pwr);
+            //    Logger.logFile("disToStop:"+distToStop);
+            //    Logger.logFile("power:"+pwr);
             }
         } else if (turretMode == TurretMode.DONE) {
             turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -226,76 +226,76 @@ public class LiftExtTutTask implements RobotControl {
                 }else{
                     turretStartRotate(liftExtTut.tutPos + error);
                 }
-                Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);  //while still lifting
-                Logger.logFile("3. STEP1, error = " + error);
-                Logger.logFile("3. STEP1, liftExtTut.tutPos = " + liftExtTut.tutPos);
-                Logger.logFile("3. LiftExtTut move turret to " + (liftExtTut.tutPos + error));  //while still lifting
-                Logger.logFile("3. STEP1, curr turret:" + robotHardware.getTurretPosition());
+                //Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);  //while still lifting
+                //Logger.logFile("3. STEP1, error = " + error);
+                //Logger.logFile("3. STEP1, liftExtTut.tutPos = " + liftExtTut.tutPos);
+                //Logger.logFile("3. LiftExtTut move turret to " + (liftExtTut.tutPos + error));  //while still lifting
+                //Logger.logFile("3. STEP1, curr turret:" + robotHardware.getTurretPosition());
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;
-                Logger.logFile("3. STEP1, I am here because I am going up ");
+                //Logger.logFile("3. STEP1, I am here because I am going up ");
             } else if ((System.currentTimeMillis() - startTime) > 50 && !goUp) {
                 robotHardware.grabberInit();    // after start go down, open grabber full first and retract
                 robotHardware.setExtensionPosition(robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin);
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;
-                Logger.logFile("STEP1, I should not be here");
+                //Logger.logFile("STEP1, I should not be here");
             }
         } else if (mode == Mode.STEP2) {
             if (isAutonomous) {
                 if (goUp) {
-                    Logger.logFile("I am in STEP 2, going up");
+                    //Logger.logFile("I am in STEP 2, going up");
                     if (autonmous_action == Autonmous_Action.TRAVEL) {
-                        Logger.logFile("I am in STEP 2, TRAVEL");
+                        //Logger.logFile("I am in STEP 2, TRAVEL");
                         if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30 &&
                                 Math.abs(robotHardware.getExtensionPosition() - liftExtTut.extension) < 0.1 &&
                                 turretMode == TurretMode.DONE) {
                             mode = Mode.DONE;
-                            Logger.logFile("4. STEP 2, now Mode.DONE! current turret:" + robotHardware.getTurretPosition());
+                            //Logger.logFile("4. STEP 2, now Mode.DONE! current turret:" + robotHardware.getTurretPosition());
                         }
                         if (powerSign*(targetTurretPos - robotHardware.getTurretPosition()) < 20) {
                             turretMode = TurretMode.DONE;
-                            Logger.logFile("4. STEP 2, TurretMode.DONE! current turret:" + robotHardware.getTurretPosition());
+                            //Logger.logFile("4. STEP 2, TurretMode.DONE! current turret:" + robotHardware.getTurretPosition());
                         }
-                        Logger.logFile("4. STEP 2, Mode = " + mode + " TurretMode="+ turretMode);
-                        Logger.logFile("4. STEP 2, lift = "+robotHardware.getLiftPosition());
-                        Logger.logFile("4. STEP 2, turret = "+robotHardware.getTurretPosition());
+                        //Logger.logFile("4. STEP 2, Mode = " + mode + " TurretMode="+ turretMode);
+                        //Logger.logFile("4. STEP 2, lift = "+robotHardware.getLiftPosition());
+                        //Logger.logFile("4. STEP 2, turret = "+robotHardware.getTurretPosition());
                     } else if (autonmous_action == Autonmous_Action.STACK_GRAB_UP) {
-                        Logger.logFile("I am in STEP 2, STACK_GRAB_UP");
+                        //Logger.logFile("I am in STEP 2, STACK_GRAB_UP");
                         if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30 &&
                                 Math.abs(robotHardware.getExtensionPosition() - liftExtTut.extension) < 0.2) {
                             mode = LiftExtTutTask.Mode.DONE;
-                            Logger.logFile("I am in STEP 2, STACK_GRAB_UP and close to target, Mode.DONE");
-                            Logger.logFile("4. STEP2, isAutonomous ->STACK_GRAB_UP:");
-                            Logger.logFile("4. STEP2, liftPos:" + robotHardware.getLiftPosition());
-                            Logger.logFile("4. STEP2, extension:" + robotHardware.getExtensionPosition());
+                            //Logger.logFile("I am in STEP 2, STACK_GRAB_UP and close to target, Mode.DONE");
+                            //Logger.logFile("4. STEP2, isAutonomous ->STACK_GRAB_UP:");
+                            //Logger.logFile("4. STEP2, liftPos:" + robotHardware.getLiftPosition());
+                            //Logger.logFile("4. STEP2, extension:" + robotHardware.getExtensionPosition());
                             turretMotor.setTargetPosition(targetTurretPos);
                             turretMotor.setPower(0.3);
                             turretMode = LiftExtTutTask.TurretMode.DONE;
                             Logger.logFile("4. STEP2, End of STACK_GRAB_UP");
                         }
                     }
-                    Logger.logFile("I am in STEP 2, not going anywhere");
+                    //Logger.logFile("I am in STEP 2, not going anywhere");
                     if (mode != Mode.DONE && turretMode != TurretMode.DONE) {
-                        Logger.logFile("4. STEP 2, Not DONE! current turret:" + robotHardware.getTurretPosition());
+                        //Logger.logFile("4. STEP 2, Not DONE! current turret:" + robotHardware.getTurretPosition());
                     }
                 } else { //autonomous go down
                     if (autonmous_action == Autonmous_Action.TRAVEL) {
-                        Logger.logFile("4. goDown, in STEP2, current extension = " + robotHardware.getExtensionPosition());
+                        //Logger.logFile("4. goDown, in STEP2, current extension = " + robotHardware.getExtensionPosition());
                         robotHardware.setExtensionPosition(liftExtTut.extension);
                         int error = (int) (getErrorAngle() / (2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
 //                        robotHardware.setTurretPosition(liftExtTut.tutPos + error);
                         turretStartRotate(liftExtTut.tutPos + error);
 
-                        Logger.logFile("4. goDown, in STEP2, error = " + error);
-                        Logger.logFile("4. goDown, in STEP2, tutPos = liftExtTut.tutPos=" + liftExtTut.tutPos);
-                        Logger.logFile("4. goDown, in STEP2, turret = " + (liftExtTut.tutPos + error));
-                        Logger.logFile("4. goDown, Travel -> STEP3");
+                        //Logger.logFile("4. goDown, in STEP2, error = " + error);
+                        //Logger.logFile("4. goDown, in STEP2, tutPos = liftExtTut.tutPos=" + liftExtTut.tutPos);
+                        //Logger.logFile("4. goDown, in STEP2, turret = " + (liftExtTut.tutPos + error));
+                        //Logger.logFile("4. goDown, Travel -> STEP3");
                         mode = LiftExtTutTask.Mode.STEP3;
                     }
                 }
             }else { //not autonomous
-                    Logger.logFile("Autonomous should not be here");
+                    //Logger.logFile("Autonomous should not be here");
                     if (goUp) {
                         if (System.currentTimeMillis() - modeStart > 200 && !robotHardware.isLiftMoving()) {
                             mode = Mode.STEP3;
@@ -317,27 +317,27 @@ public class LiftExtTutTask implements RobotControl {
                     if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30
                             && Math.abs(robotHardware.getExtensionPosition() - liftExtTut.extension) < 0.05
                             && powerSign*( targetTurretPos -robotHardware.getTurretPosition()) < 30) {
-                        Logger.logFile("5, STEP3, end of isAutonomous ->TRAVEL:" + robotHardware.getTurretPosition());
-                        Logger.logFile("5. STEP3, liftPos:" + robotHardware.getLiftPosition());
-                        Logger.logFile("5. STEP3, extension:" + robotHardware.getExtensionPosition());
-                        Logger.logFile("5, STEP3, cur turret: " + robotHardware.getTurretPosition());
-                        Logger.logFile("5, STEP3, targetTurret: " + targetTurretPos);
+                        //Logger.logFile("5, STEP3, end of isAutonomous ->TRAVEL:" + robotHardware.getTurretPosition());
+                        //Logger.logFile("5. STEP3, liftPos:" + robotHardware.getLiftPosition());
+                        //Logger.logFile("5. STEP3, extension:" + robotHardware.getExtensionPosition());
+                        //Logger.logFile("5, STEP3, cur turret: " + robotHardware.getTurretPosition());
+                        //Logger.logFile("5, STEP3, targetTurret: " + targetTurretPos);
                         turretMotor.setTargetPosition(targetTurretPos);
                         turretMotor.setPower(0.3);
                         turretMode = TurretMode.DONE;
 
                         mode = Mode.DONE;
-                        Logger.logFile("am I here?");
-                        Logger.logFile("5. STEP3, end of TRAVEL up or down, end of Autonomous -- DONE");
+                        //Logger.logFile("am I here?");
+                        //Logger.logFile("5. STEP3, end of TRAVEL up or down, end of Autonomous -- DONE");
                     } else if (System.currentTimeMillis() - modeStart > 300 && turretMode == LiftExtTutTask.TurretMode.PID) {
                         mode = LiftExtTutTask.Mode.DONE;
                         turretMode = LiftExtTutTask.TurretMode.DONE;
-                        Logger.logFile("5. STEP3, current turret:" + robotHardware.getTurretPosition());
-                        Logger.logFile("5. STEP3, current turret:" + robotHardware.getTurretPosition());
-                        Logger.logFile("5. STEP3, System.currentTimeMillis() - modeStart > 300 && turretMode==TurretMode.PID   -- DONE");
+                        //Logger.logFile("5. STEP3, current turret:" + robotHardware.getTurretPosition());
+                        //Logger.logFile("5. STEP3, current turret:" + robotHardware.getTurretPosition());
+                        //Logger.logFile("5. STEP3, System.currentTimeMillis() - modeStart > 300 && turretMode==TurretMode.PID   -- DONE");
                     }
                 } else {//non autonomous
-                    Logger.logFile("Autonomous should not be here");
+                    //Logger.logFile("Autonomous should not be here");
                     if (goUp) {
                         if (System.currentTimeMillis() - modeStart > 300 && turretMode == TurretMode.PID) {
                             mode = Mode.DONE;
@@ -351,9 +351,9 @@ public class LiftExtTutTask implements RobotControl {
         } else if (mode == Mode.STEP4) {
                 Logger.logFile("turret:" + robotHardware.getTurretPosition());
                 if (isAutonomous) {
-                    Logger.logFile("Autonomous should not be here");
+                    //Logger.logFile("Autonomous should not be here");
                 } else { //none Autonomous
-                    Logger.logFile("Autonomous should not be here");
+                    //Logger.logFile("Autonomous should not be here");
 
                     if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30) {
                         robotHardware.setExtensionPosition(liftExtTut.extension);

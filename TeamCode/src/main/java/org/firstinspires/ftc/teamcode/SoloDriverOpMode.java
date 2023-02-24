@@ -66,6 +66,7 @@ public class SoloDriverOpMode extends OpMode {
         //Obtain the RobotHardware object from factory
         robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
         robotHardware.resetDriveAndEncoders();
+        robotHardware.turnUpSignalBlocker();
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
         robotHardware.getLocalizer().update();
