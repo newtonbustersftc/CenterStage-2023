@@ -190,12 +190,13 @@ public class DrvOpLiftExtTutTask implements RobotControl {
             }
         }
         else if (mode== Mode.STEP4) {
-            if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30) {
+            if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30 && turretMode==TurretMode.PID) {
                 robotHardware.setExtensionPosition(liftExtTut.extension);
-                turretMotor.setTargetPosition(targetTurretPos);
-                turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
-                turretMode = TurretMode.PID;
+                //turretMotor.setTargetPosition(targetTurretPos);
+                //turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
+                //turretMode = TurretMode.PID;
                 mode = Mode.DONE;
+                Logger.logFile("LiftExtTut (" + liftExtTut + ") DONE");
             }
         }
     }
