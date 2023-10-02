@@ -86,7 +86,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
-        setupTaskList3();
+        setupTaskList1();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
