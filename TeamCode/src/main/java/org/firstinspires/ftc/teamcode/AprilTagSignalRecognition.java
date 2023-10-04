@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -15,12 +17,18 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
+import java.util.List;
 
 //@TeleOp
 public class AprilTagSignalRecognition  {
 
         OpenCvCamera camera;
         AprilTagDetectionPipeline aprilTagDetectionPipeline;
+
+        //the AprilTags are provide by FTC
+        AprilTagProcessor aprilTag;
+        VisionPortal.Builder builder;
+        VisionPortal visionPortal;
 
         static final double FEET_PER_METER = 3.28084;
 
@@ -49,6 +57,15 @@ public class AprilTagSignalRecognition  {
             aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
         }
 
+        public AprilTagSignalRecognition(RobotHardware hardware){
+            Logger.logFile("init");
+            aprilTag = new AprilTagProcessor.Builder().build();
+            builder = new VisionPortal.Builder();
+            builder.setCamera(hardware.hardwareMap.get(WebcamName.class, "Webcam 1"));
+            builder.addProcessor(aprilTag);
+            visionPortal = builder.build();
+        }
+
         public void startRecognition(){
             this.rVision.initWebCam("Webcam 1", false);
             rVision.startWebcam("Webcam 1", aprilTagDetectionPipeline);
@@ -56,24 +73,10 @@ public class AprilTagSignalRecognition  {
 
         public void stopRecognition() {
             rVision.stopWebcam("Webcam 1");
+            visionPortal.stopStreaming();
         }
 
         public int getRecognitionResult() {
-//            camera.setPipeline(aprilTagDetectionPipeline);
-//            camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-//                @Override
-//                public void onOpened() {
-//                    camera.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
-//                }
-//
-//                @Override
-//                public void onError(int errorCode) {
-//                }
-//            });
-
-            /* The INIT-loop:
-             * This REPLACES waitForStart!
-             */
             ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
             if (currentDetections.size() != 0) {
@@ -99,9 +102,15 @@ public class AprilTagSignalRecognition  {
                 return LEFT;
             }else if(tagOfInterest.id == MIDDLE){
                 return MIDDLE;
-            }else{
+            }else if(tagOfInterest.id == RIGHT){
                 return RIGHT;
+            }else{
+                return 0;
             }
+        }
+
+        public List<org.firstinspires.ftc.vision.apriltag.AprilTagDetection> getDetectionList(){
+            return aprilTag.getDetections();
         }
     }
 
