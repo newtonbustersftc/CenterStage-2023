@@ -101,9 +101,6 @@ public class DriverOpMode extends OpMode {
                 if (currentTask.isDone()) {
                     currentTask.cleanUp();
                     Logger.logFile("TaskComplete: " + currentTask);
-                    if (currentTask instanceof AutoConePlacementTask) {
-                        justAutoPole = true;
-                    }
                     currentTask = null;
                 }
             }
@@ -112,12 +109,6 @@ public class DriverOpMode extends OpMode {
             //robotHardware.setLed1(false);
         }
 
-        if (currentTask instanceof AutoConePlacementTask) {
-            if (gamepad1.a || gamepad2.a) {
-                currentTask = null;
-            }
-            return;
-        }
 
         handleMovement();
         handleExtension();
@@ -125,7 +116,6 @@ public class DriverOpMode extends OpMode {
         handleGripperV2();
         handleLiftV2();
         if (gamepad1.b || gamepad2.b) {
-            currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
             currentTask.prepare();
         }
 
