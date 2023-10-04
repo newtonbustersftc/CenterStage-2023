@@ -67,7 +67,6 @@ public class AutonomousGeneric extends LinearOpMode {
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
         String aimPoleMode = prefs.getString(AutonomousOptions.AIM_POLES_PREF,AutonomousOptions.AIM_POLES[0]);
         robotHardware.resetImu();
-        robotHardware.setTurretOffset(robotProfile.hardwareSpec.turret360/8);
 //        signalRecognition.startRecognition();
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();

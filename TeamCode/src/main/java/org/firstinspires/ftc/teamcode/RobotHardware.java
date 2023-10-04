@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -39,7 +40,6 @@ public class RobotHardware {
     public double extensionPos;
     HardwareMap hardwareMap;
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
-    DcMotorEx turretMotor;
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     //private
     Servo grabberServo, extensionServo, lightServo, signalBlockerServo;
@@ -53,11 +53,7 @@ public class RobotHardware {
     IntegratingGyroscope gyro;
     NavxMicroNavigationSensor navxMicro;
     double gyroOffset;
-    int turretOffset;
     boolean gripOpen = false;
-    int turretTargetPos;
-    boolean turretMotorByPower = true;
-    double turretPower = 0;
 
     RobotVision robotVision;
     DecimalFormat nf2 = new DecimalFormat("#.##");
@@ -68,10 +64,10 @@ public class RobotHardware {
         this.hardwareMap = hardwareMap;
         this.profile = profile;
         expansionHub1 = hardwareMap.get(LynxModule.class, "Control Hub");
-        rrMotor = hardwareMap.get(DcMotorEx.class, "Rear Right");
-        rlMotor = hardwareMap.get(DcMotorEx.class, "Rear Left");
-        frMotor = hardwareMap.get(DcMotorEx.class, "Front Right");
-        flMotor = hardwareMap.get(DcMotorEx.class, "Front Left");
+        rrMotor = hardwareMap.get(DcMotorEx.class, "RRMotor");
+        rlMotor = hardwareMap.get(DcMotorEx.class, "RLMotor");
+        frMotor = hardwareMap.get(DcMotorEx.class, "FRMotor");
+        flMotor = hardwareMap.get(DcMotorEx.class, "FLMotor");
         resetDriveAndEncoders();
         expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
         magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
@@ -81,12 +77,10 @@ public class RobotHardware {
         lightServo = hardwareMap.servo.get("LightControl");
         signalBlockerServo = hardwareMap.servo.get("SignalBlocker");
 
-
         liftMotors = new DcMotorEx[3];
         liftMotors[0] = hardwareMap.get(DcMotorEx.class,"Lift Motor1");
         liftMotors[1] = hardwareMap.get(DcMotorEx.class,"Lift Motor2");
         liftMotors[2] = hardwareMap.get(DcMotorEx.class,"Lift Motor3");
-        turretMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
         coneSensor = hardwareMap.get(NormalizedColorSensor.class, "ConeDistance");
 
         // Use manual cache mode for most efficiency, but each program
@@ -131,7 +125,6 @@ public class RobotHardware {
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         expansionHub1.clearBulkCache();
         //expansionHub2.clearBulkCache();
-        turretMotorByPower = true;
     }
 
     public HardwareMap getHardwareMap() {
@@ -302,8 +295,6 @@ public class RobotHardware {
             liftMotor.setPower(0);
         }
         turnUpSignalBlocker();
-        turretPower = 0;
-        turretMotor.setPower(0);
     }
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
@@ -311,10 +302,7 @@ public class RobotHardware {
     public double getGyroHeading() {
         if (profile.hardwareSpec.useControlHubImu) {
             double firstAngle = imu.getAngularOrientation().firstAngle;
-            int turr = turretMotor.getCurrentPosition();
-            double h = firstAngle + 2*Math.PI*(turr - turretOffset)/profile.hardwareSpec.turret360;
-            //er.logFile("First:" + firstAngle + " Turret:" + turr + " TurretOffset:" + turretOffset + " heading:" + h);
-            return h;
+            return firstAngle;
         }
         else {
             Orientation angles = gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
@@ -346,7 +334,6 @@ public class RobotHardware {
             if (profile.hardwareSpec.revHubVertical) {
                 BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
             }
-            turretOffset = turretMotor.getCurrentPosition();
             Logger.logFile("Reset Built-in IMU " + result);
         }
         else {
@@ -355,9 +342,6 @@ public class RobotHardware {
         }
     }
 
-    public void setTurretOffset(int offset) {
-        turretOffset = offset;
-    }
 
     void calibrateNavxGyro(Telemetry telemetry) {
         ElapsedTime timer = new ElapsedTime();
@@ -405,68 +389,6 @@ public class RobotHardware {
         for(DcMotorEx liftMotor : liftMotors) {
             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
-    }
-
-    public void resetTurretPos() {
-        turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turretMotor.setTargetPosition(0);
-        turretPower = profile.hardwareSpec.turretPower;
-        turretMotor.setPower(turretPower);
-        turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turretMotorByPower = false;
-    }
-
-    public void setTurretPosition(int pos, double power) {
-        turretMotor.setTargetPosition(pos);
-        if (power!=turretPower) {
-            turretPower = power;
-            turretMotor.setPower(power);
-        }
-        if (turretMotorByPower) {
-            turretMotorByPower = false;
-            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-    }
-
-    public void setTurretPosition(int pos) {
-        setTurretPosition(pos, profile.hardwareSpec.turretPower);
-    }
-
-    public void turnTurret(double stickPos) {
-        int currPos = getTurretPosition();
-        if (Math.abs(stickPos) < 0.1) {
-            turretTargetPos = currPos;
-        }
-        else {  // rotate to target updated, but not allow to target too far away
-            turretTargetPos += (int) (stickPos * profile.hardwareSpec.turretMoveMax);
-            int maxAhead = (int)Math.abs(stickPos * profile.hardwareSpec.turretMaxAhead);
-            if (turretTargetPos > currPos) {
-                turretTargetPos = Math.max(turretTargetPos, currPos + maxAhead);
-            } else {
-                turretTargetPos = Math.min(turretTargetPos, currPos - maxAhead);
-            }
-        }
-        setTurretPosition(turretTargetPos);
-    }
-
-    public void turnTurretByPower(double p) {
-        turretMotorByPower = true;
-        turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        turretPower = p;
-        turretMotor.setPower(p);
-    }
-
-    public boolean isTurretTurning() {
-        return Math.abs(turretMotor.getVelocity())>10;
-    }
-
-    public double getTurretVelocity() {
-        return turretMotor.getVelocity();
-    }
-
-    public int getTurretPosition() {
-        return turretMotor.getCurrentPosition();
     }
 
     public void extensionExtend() {
@@ -536,48 +458,6 @@ public class RobotHardware {
     public void initSetupNoAuto(OpMode opmod) {
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
         grabberClose();
-        if (profile.hardwareSpec.autoTurretReset) {
-            int tu = getTurretPosition();
-            if (isMagneticTouched()) {
-                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ex) {
-                }
-            } else {
-                // fast rotate first
-                while (!isMagneticTouched()) {
-                    tu = getTurretPosition();
-                    setTurretPosition(tu + 50);
-                    try {
-                        Thread.sleep(5);
-                    } catch (Exception ex) {
-                    }
-                }
-                //rotate back
-                tu = getTurretPosition();
-                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ex) {
-                }
-            }
-            while (!isMagneticTouched()) {
-                tu = getTurretPosition();
-                setTurretPosition(tu + 5);
-                try {
-                    Thread.sleep(5);
-                } catch (Exception ex) {
-                }
-            }
-            tu = getTurretPosition();
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-            try {
-                Thread.sleep(1000);
-            } catch (Exception ex) {
-            }
-        }
-        resetTurretPos();
         // Goes down to touch first
         setLiftPositionUnsafe(-5000, 0.3);
         long t = System.currentTimeMillis();
@@ -642,55 +522,7 @@ public class RobotHardware {
         if (opmode.isStopRequested()) return;
         extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
         grabberClose();
-        // make sure magnetic is not touched
-        if (profile.hardwareSpec.autoTurretReset) {
-            int tu = getTurretPosition();
-            if (isMagneticTouched()) {
-                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ex) {
-                }
-            } else {
-                // fast rotate first
-                while (!isMagneticTouched() && !opmode.isStopRequested()) {
-                    tu = getTurretPosition();
-                    opmode.telemetry.addData("Tullett position", tu);
-                    opmode.telemetry.update();
-                    setTurretPosition(tu + 15);
-                    try {
-                        Thread.sleep(5);
-                    } catch (Exception ex) {
-                    }
-                }
-                //rotate back
-                tu = getTurretPosition();
-                setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception ex) {
-                }
-            }
-            opmode.telemetry.clearAll();
-            while (!isMagneticTouched() && !opmode.isStopRequested()) {
-                tu = getTurretPosition();
-                opmode.telemetry.addData("Turret position", tu);
-                opmode.telemetry.update();
-                setTurretPosition(tu + 5);
-                try {
-                    Thread.sleep(5);
-                } catch (Exception ex) {
-                }
-            }
-            if (opmode.isStopRequested()) return;
-            tu = getTurretPosition();
-            setTurretPosition(tu - profile.hardwareSpec.turretOffset, 0.15);
-            try {
-                Thread.sleep(1000);
-            } catch (Exception ex) {
-            }
-        }
-        resetTurretPos();
+
         if (opmode.isStopRequested()) return;
 
         // Lift position reset

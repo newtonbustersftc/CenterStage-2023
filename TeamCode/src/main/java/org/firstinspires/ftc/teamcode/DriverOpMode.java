@@ -124,7 +124,6 @@ public class DriverOpMode extends OpMode {
         //handleGripper();
         handleGripperV2();
         handleLiftV2();
-        handleTurret();
         if (gamepad1.b || gamepad2.b) {
             currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
             currentTask.prepare();
@@ -180,19 +179,6 @@ public class DriverOpMode extends OpMode {
         telemetry.addData("Turn:", turn);
         telemetry.addData("RL Dir:", robotHardware.rlMotor.getDirection());
         telemetry.addData("RR Dir:", robotHardware.rrMotor.getDirection());
-    }
-
-    public void handleTurret() {
-        robotHardware.turnTurret(gamepad2.left_stick_x);
-        telemetry.addData("Turret Pos", robotHardware.getTurretPosition());
-
-//        if (gamepad2.left_stick_x < -.3) {
-//            robotHardware.turretMotor.setPower(-.5);
-//        } else if (gamepad2.left_stick_x > .3) {
-//            robotHardware.turretMotor.setPower(.5);
-//        } else {
-//            robotHardware.turretMotor.setPower(0);
-//        }
     }
 
     public void handleExtension() {

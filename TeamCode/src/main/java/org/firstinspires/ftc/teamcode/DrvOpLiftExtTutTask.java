@@ -23,13 +23,11 @@ public class DrvOpLiftExtTutTask implements RobotControl {
 
     public DrvOpLiftExtTutTask(RobotHardware hardware, SoloDriverOpMode.LastLiftExtTut liftExtTut) {
         this.robotHardware = hardware;
-        turretMotor = robotHardware.turretMotor;
         this.liftExtTut = liftExtTut;
     }
 
     public DrvOpLiftExtTutTask(RobotHardware hardware, SoloDriverOpMode.LastLiftExtTut liftExtTut, boolean noErrAngle) {
         this.robotHardware = hardware;
-        turretMotor = robotHardware.turretMotor;
         this.liftExtTut = liftExtTut;
         this.noErrAngle = noErrAngle;
     }
@@ -70,82 +68,18 @@ public class DrvOpLiftExtTutTask implements RobotControl {
         return errAngle;
     }
 
-    void turretStartRotate(int pos) {
-        targetTurretPos = pos;
-        int currPos = robotHardware.getTurretPosition();
-        if (Math.abs(targetTurretPos - currPos) < 300) {
-            turretMode = TurretMode.PID;
-            robotHardware.setTurretPosition(targetTurretPos);
-            Logger.logFile("LiftExtTut Turret PID turn from:" + currPos + " to: " + targetTurretPos);
-        }
-        else {
-            turretMode = TurretMode.POWER_1;
-            turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            turretMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            powerSign = (targetTurretPos > currPos) ? 1 : -1;
-            turretMotor.setPower(powerSign * power);
-            Logger.logFile("LiftExtTut Turret turn Motion Profile from:" + currPos + " to: " + targetTurretPos);
-        }
-    }
-
     int calcDistToStop(double velocity) {
         double timeToZero = velocity / robotHardware.getRobotProfile().hardwareSpec.turretDecelerate / 1000;   // second
         int dist = (int)(timeToZero * velocity / 2);
         return dist;
     }
-
-    void turretExecute() {
-        int currPos = robotHardware.getTurretPosition();
-        long currTime = System.currentTimeMillis();
-        double velocity = robotHardware.getTurretVelocity();
-        if (turretMode == TurretMode.POWER_1) {
-            int remain = powerSign * (targetTurretPos - currPos);
-            int distToStop = calcDistToStop(Math.abs(velocity));
-            if (remain <= distToStop - 20) {
-                Logger.logFile("Turret ramp down at " + currPos + " with velocity " + velocity);
-                rampDownStart = currTime;
-                turretMode = TurretMode.RAMP_DOWN;
-            }
-        }
-        else if (turretMode == TurretMode.RAMP_DOWN) {
-            int remain = powerSign * (targetTurretPos - currPos);
-            if (remain < 50 || (currTime - rampDownStart)>1000) {
-                turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
-                turretMotor.setTargetPosition(targetTurretPos);
-                turretMode = TurretMode.PID;
-                Logger.logFile("Turret go PID at " + currPos);
-            }
-            else {
-                double pwr = 1 - (currTime - rampDownStart) * robotHardware.getRobotProfile().hardwareSpec.turretPowerDownMs;
-                int distToStop = calcDistToStop(Math.abs(velocity));
-                pwr = pwr + (remain - distToStop) * robotHardware.getRobotProfile().hardwareSpec.turretRampDownP;
-                pwr = Math.max(0, pwr);
-                turretMotor.setPower(pwr * powerSign);
-
-            }
-        }
-        else if (mode == Mode.DONE) {
-            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
-            turretMotor.setTargetPosition(targetTurretPos);
-        }
-        else if (turretMode == TurretMode.WAIT) {
-            // don't do anything yet
-            turretMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
-        }
-    }
-
     @Override
     public void execute() {
-        turretExecute();
         if (mode== Mode.STEP1) {
             if((System.currentTimeMillis()-startTime)>200 && goUp) {
                     //&& robotHardware.getLiftPosition()>robotHardware.getRobotProfile().hardwareSpec.liftSafeRotate){
                 int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
                 //robotHardware.setTurretPosition(liftExtTut.tutPos + error);
-                turretStartRotate(liftExtTut.tutPos + error);
                 Logger.logFile("LiftExtTut move turret to " + liftExtTut.tutPos);  //while still lifting
                 modeStart = System.currentTimeMillis();
                 mode = Mode.STEP2;
@@ -168,7 +102,6 @@ public class DrvOpLiftExtTutTask implements RobotControl {
             else {
                 if ((System.currentTimeMillis() - modeStart)>100) {
                     int error = (int) (getErrorAngle()/(2 * Math.PI) * robotHardware.getRobotProfile().hardwareSpec.turret360);
-                    turretStartRotate(liftExtTut.tutPos + error);
                     robotHardware.grabberOpen();
                     modeStart = System.currentTimeMillis();
                     mode = Mode.STEP3;
@@ -182,19 +115,11 @@ public class DrvOpLiftExtTutTask implements RobotControl {
                     mode = Mode.DONE;
                 }
             }
-            else if (powerSign * (targetTurretPos - robotHardware.getTurretPosition())<200) { // go down and close enough, extend out half way
-                robotHardware.setExtensionPosition((robotHardware.getRobotProfile().hardwareSpec.extensionDriverMin + liftExtTut.extension)/2);
-                robotHardware.setLiftPositionUnsafe(liftExtTut.liftPos, 0.5);
-                mode = Mode.STEP4;
-                Logger.logFile("LiftExtTut (" + liftExtTut + ") going STEP4");
-            }
+
         }
         else if (mode== Mode.STEP4) {
             if (Math.abs(robotHardware.getLiftPosition() - liftExtTut.liftPos) < 30 && turretMode==TurretMode.PID) {
                 robotHardware.setExtensionPosition(liftExtTut.extension);
-                //turretMotor.setTargetPosition(targetTurretPos);
-                //turretMotor.setPower(robotHardware.getRobotProfile().hardwareSpec.turretPower);
-                //turretMode = TurretMode.PID;
                 mode = Mode.DONE;
                 Logger.logFile("LiftExtTut (" + liftExtTut + ") DONE");
             }

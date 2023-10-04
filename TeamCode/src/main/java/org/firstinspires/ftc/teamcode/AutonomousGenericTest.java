@@ -172,17 +172,6 @@ public class AutonomousGenericTest extends LinearOpMode {
         taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullOutPos));
         taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[5]));
         taskList.add(new RobotSleep(500));
-        taskList.add(new TurnTurretMotionTask(robotHardware, -1750, 1.0));
-        taskList.add(new RobotSleep(2000));
-        taskList.add(new TurnTurretMotionTask(robotHardware, 1750, 1.0));
-        taskList.add(new RobotSleep(2000));
-        taskList.add(new TurnTurretMotionTask(robotHardware, 0, 1.0));
-        taskList.add(new RobotSleep(2000));
-        taskList.add(new TurnTurretTask(robotHardware, -1750));
-        taskList.add(new RobotSleep(2000));
-        taskList.add(new TurnTurretTask(robotHardware, 1750));
-        taskList.add(new RobotSleep(2000));
-        taskList.add(new TurnTurretTask(robotHardware, 0));
         taskList.add(new RobotSleep(2000));
         taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[0]));
     }
@@ -192,9 +181,6 @@ public class AutonomousGenericTest extends LinearOpMode {
         taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullOutPos));
         taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[5]));
         taskList.add(new RobotSleep(500));
-        TurnTurretMotionTask t = new TurnTurretMotionTask(robotHardware, 2200, 1.0);
-        t.setWriteCsv(true);
-        taskList.add(t);
         taskList.add(new RobotSleep(2000));
     }
 

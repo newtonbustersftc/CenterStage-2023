@@ -45,7 +45,6 @@ public class HardwareOpModeTest extends OpMode {
         robotHardware.init(hardwareMap, robotProfile);
         robotHardware.grabberOpen();
         robotHardware.resetImu();
-        robotHardware.resetTurretPos();
         robotHardware.enableManualCaching(true);
         robotVision = robotHardware.getRobotVision();
         //robotVision.activateNavigationTarget();
@@ -72,7 +71,6 @@ public class HardwareOpModeTest extends OpMode {
         telemetry.addData("Lift Touch", robotHardware.isLiftTouched());
         telemetry.addData("Magnetic Sensor", robotHardware.isMagneticTouched());
         telemetry.addData("Lift Position", robotHardware.getLiftPosition());
-        telemetry.addData("Turret Position", robotHardware.getTurretPosition());
         telemetry.addData("Extension Position", robotHardware.extensionPos);
         telemetry.addData("Grabber", grabberPos);
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
@@ -99,18 +97,6 @@ public class HardwareOpModeTest extends OpMode {
         }
         if (gamepad1.dpad_down) {
             turretTurnTest = false;
-        }
-        if (turretTurnTest) {
-            robotHardware.turnTurretByPower(0.1);
-        }
-        else if (Math.abs(gamepad1.left_stick_x)>0.1) {
-            robotHardware.turnTurret(gamepad1.left_stick_x);
-        }
-        else {
-            robotHardware.turnTurretByPower(0);
-        }
-        if (!blocking && robotHardware.isMagneticTouched()) {
-            Logger.logFile("Just touched - Turret position " + robotHardware.getTurretPosition());
         }
         blocking = robotHardware.isMagneticTouched();
 

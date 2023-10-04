@@ -110,9 +110,6 @@ public class SoloDriverOpMode extends OpMode {
                 if (currentTask.isDone()) {
                     currentTask.cleanUp();
                     Logger.logFile("TaskComplete: " + currentTask);
-                    if (currentTask instanceof AutoConePlacementTask) {
-                        justAutoPole = true;
-                    }
                     currentTask = null;
                 }
             }
@@ -124,12 +121,6 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
 
-        if (currentTask instanceof AutoConePlacementTask) {
-            if (gamepad1.a) {
-                currentTask = null;
-            }
-            return;
-        }
 
         if (currentTask == null && gamepad1.dpad_left) {
             if (lastPick.liftPos!=-1) {
@@ -145,9 +136,7 @@ public class SoloDriverOpMode extends OpMode {
             handleMovement();
             handleGripper();
             handleLift();
-            handleTurret();
             if (gamepad1.b) {
-                currentTask = new AutoConePlacementTask(robotHardware, robotProfile, poleRecognition);
                 currentTask.prepare();
             }
         }
@@ -209,38 +198,6 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     // Use touch pad to control lift with 1 finger
-    public void handleTurret() {
-        if (gamepad1.touchpad_finger_1) {
-            if (!touching) {
-                touchX = gamepad1.touchpad_finger_1_x;
-                touchY = gamepad1.touchpad_finger_1_y;
-                touchTurret = robotHardware.getTurretPosition();
-                touchExtension = robotHardware.getExtensionPosition();
-            }
-            else {
-                if (Math.abs(gamepad1.touchpad_finger_1_x) > 0.95) {
-                    touchX = gamepad1.touchpad_finger_1_x;
-                    touchTurret = robotHardware.getTurretPosition() + robotProfile.hardwareSpec.turret360/24 * (int)Math.signum(touchX);
-                    robotHardware.setTurretPosition(touchTurret);
-                }
-                else {
-                    robotHardware.setTurretPosition(touchTurret + (int) ((gamepad1.touchpad_finger_1_x - touchX) * robotProfile.hardwareSpec.turret360 / 16));
-                }
-                if (Math.abs(gamepad1.touchpad_finger_1_y) > 0.95) {
-                    touchY = gamepad1.touchpad_finger_1_y;
-                    touchExtension = robotHardware.getExtensionPosition() + 0.01 * Math.signum(touchY);
-                    robotHardware.setExtensionPosition(touchExtension);
-                }
-                else{
-                    robotHardware.setExtensionPosition(touchExtension + (gamepad1.touchpad_finger_1_y - touchY) / 8);
-                }
-                if (!robotHardware.isGripOpen()) {
-                    lastDrop.liftPos = -1;  // need to remember the adjusted position
-                }
-            }
-        }
-        touching = gamepad1.touchpad_finger_1;
-    }
 
     public void handleLift() {
         // robotHardware.isMagneticTouched() liftMax
@@ -330,7 +287,6 @@ public class SoloDriverOpMode extends OpMode {
 
     void recordLiftExtTut(String name, LastLiftExtTut last) {
         last.extension = robotHardware.getExtensionPosition();
-        last.tutPos = robotHardware.getTurretPosition();
         last.robHead = robotHardware.getGyroHeading();
         last.liftPos = robotHardware.getTargetLiftPosition();
         Logger.logFile("Recording " + name + " lift:" + last.liftPos + " tullett:" + last.tutPos + " gyro: " + last.robHead);
