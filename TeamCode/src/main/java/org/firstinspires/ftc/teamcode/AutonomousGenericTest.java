@@ -66,8 +66,11 @@ public class AutonomousGenericTest extends LinearOpMode {
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();
-        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
-        aprilTagSignalRecognition.startRecognition();
+        //AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
+        //aprilTagSignalRecognition.startRecognition();
+        RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile);
+        cvp.initWebCam("Webcam 1", true);
+
         int loopCnt = 0;
         while (!isStopRequested() && !isStarted()) {
             //RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(false);
@@ -75,18 +78,21 @@ public class AutonomousGenericTest extends LinearOpMode {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
-            if (loopCnt%1==0) {
+            if (loopCnt%1000==0) {
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                telemetry.addData("Recognition Result", aprilTagSignalRecognition.getRecognitionResult());
+                telemetry.addData("Frame rate:", cvp.getFrameRate());
                 telemetry.update();
+                cvp.saveNextImage();
             }
         }
-        aprilTagSignalRecognition.stopRecognition();
+        cvp.stopStreaming();
+        cvp.close();
+        //aprilTagSignalRecognition.stopRecognition();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
-        setupTaskList1();
+        //setupTaskList1();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
