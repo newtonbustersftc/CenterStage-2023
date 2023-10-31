@@ -30,7 +30,6 @@ public class SoloDriverOpMode extends OpMode {
     double imuAngleOffset = Math.PI/2;
     boolean liftCanChange = true;
     boolean gripperCanChange = true;
-    PoleRecognition poleRecognition;
     boolean justAutoPole = false;
     boolean touching = false;
     double touchX, touchY;
@@ -70,8 +69,6 @@ public class SoloDriverOpMode extends OpMode {
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
         robotHardware.getLocalizer().update();
-        poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
-        poleRecognition.startRecognition();
         currHeading = robotHardware.getGyroHeading();
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
@@ -154,7 +151,6 @@ public class SoloDriverOpMode extends OpMode {
         try {
             Logger.logFile("DriverOpMode stop() called");
             //robotVision.deactivateNavigationTarget();
-            poleRecognition.stopRecognition();
             Logger.flushToFile();
         }
         catch (Exception e) {
@@ -296,44 +292,6 @@ public class SoloDriverOpMode extends OpMode {
      * Define combo task for driver op mode
      */
     void setupCombos() {
-        poleDeliverTask = new ParallelComboTask(); // push down, open, retract
-        ((ParallelComboTask)poleDeliverTask).setTaskName("Pole Delivery Task");
-        ((ParallelComboTask)poleDeliverTask).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-        SequentialComboTask dropSeq = new SequentialComboTask();
-        dropSeq.add(new RobotSleep((100)));
-        dropSeq.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.INIT));
-        dropSeq.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        ((ParallelComboTask)poleDeliverTask).add(dropSeq);
 
-        groundDeliverTask = new SequentialComboTask();  // simple open, lift up, and retract
-        ((SequentialComboTask)groundDeliverTask).setTaskName("Ground Delivery Task");
-        ((SequentialComboTask)groundDeliverTask).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.SAFE));
-        ((SequentialComboTask)groundDeliverTask).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-        ((SequentialComboTask)groundDeliverTask).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-
-        grabAndLift = new SequentialComboTask();
-        ((SequentialComboTask)grabAndLift).setTaskName("Grab and Lift");
-        ((SequentialComboTask)grabAndLift).add(new GrabberTask(robotHardware, false));
-        ((SequentialComboTask)grabAndLift).add(new RobotSleep(200));
-        ((SequentialComboTask)grabAndLift).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate, false, true));
-        ((SequentialComboTask)grabAndLift).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-
-        forPickUp = new SequentialComboTask();
-        ((SequentialComboTask)forPickUp).setTaskName("forPickUp");
-        ((SequentialComboTask)forPickUp).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
-        ((SequentialComboTask)forPickUp).add(new LiftArmTask(robotHardware, 0));
-        ((SequentialComboTask)forPickUp).add(new GrabberTask(robotHardware, GrabberTask.GrabberState.OPEN));
-
-        forGroundJunction = new SequentialComboTask();
-        ((SequentialComboTask)forGroundJunction).add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
-        ((SequentialComboTask)forGroundJunction).add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[0]));
-
-        // AUTO PICK & DROP
-        repeatPick = new SequentialComboTask();
-        repeatPick.setTaskName("Repeat Pick");
-        repeatPick.add(new DrvOpLiftExtTutTask(robotHardware, lastPick));
-        repeatPick.add(new RobotSleep(500));
-        repeatPick.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-        repeatPick.add(new DrvOpLiftExtTutTask(robotHardware, lastDrop));
     }
 }

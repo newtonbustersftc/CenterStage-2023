@@ -18,8 +18,6 @@ public class AutonomousGeneric extends LinearOpMode {
 
     RobotHardware robotHardware;
     RobotProfile robotProfile;
-    RobotVision robotVision;
-    SignalRecognition signalRecognition;
 
     ArrayList<RobotControl> taskList;
 
@@ -54,15 +52,15 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.enableManualCaching(false);
         robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        robotVision = robotHardware.getRobotVision();
+        //robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
 //        SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
 //        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, signalRecognition);
 
-        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
-        aprilTagSignalRecognition.startRecognition();
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, aprilTagSignalRecognition);
+//        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
+//        aprilTagSignalRecognition.startRecognition();
+        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile);
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
         String aimPoleMode = prefs.getString(AutonomousOptions.AIM_POLES_PREF,AutonomousOptions.AIM_POLES[0]);
@@ -77,12 +75,11 @@ public class AutonomousGeneric extends LinearOpMode {
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("aim at pole: ", aimPoleMode);
-                telemetry.addData("Recognition Result", aprilTagSignalRecognition.getRecognitionResult());
                 telemetry.update();
             }
         }
-        Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
-        aprilTagSignalRecognition.stopRecognition();
+//        Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
+//        aprilTagSignalRecognition.stopRecognition();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         robotHardware.resetDriveAndEncoders();
         taskList = builder.buildTaskList();

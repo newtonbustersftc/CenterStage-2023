@@ -14,7 +14,6 @@ import java.util.Locale;
 //@Disabled
 public class DriverOpModeTest extends OpMode {
     RobotHardware robotHardware;
-    RobotVision robotVision;
     boolean fieldMode;
     boolean isRedTeam;
     RobotProfile robotProfile;
@@ -51,7 +50,6 @@ public class DriverOpModeTest extends OpMode {
         Logger.init();
         robotHardware = new RobotHardware();
         robotHardware.init(hardwareMap, robotProfile);
-        robotVision = robotHardware.getRobotVision();
         //robotVision.activateNavigationTarget();
         //robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
 

@@ -17,7 +17,6 @@ import java.io.File;
 //@Disabled
 public class HardwareOpModeTest extends OpMode {
     RobotHardware robotHardware;
-    RobotVision robotVision;
     RobotProfile robotProfile;
 
     Pose2d currPose;
@@ -46,9 +45,6 @@ public class HardwareOpModeTest extends OpMode {
         robotHardware.grabberOpen();
         robotHardware.resetImu();
         robotHardware.enableManualCaching(true);
-        robotVision = robotHardware.getRobotVision();
-        //robotVision.activateNavigationTarget();
-        //robotHardware.getRobotVision().initWebCam("Webcam", true);  //boolean isRed
 
         try {
             Thread.sleep(100);

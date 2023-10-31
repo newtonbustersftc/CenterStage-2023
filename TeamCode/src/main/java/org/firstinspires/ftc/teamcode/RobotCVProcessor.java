@@ -43,7 +43,7 @@ public class RobotCVProcessor {
         frameProcessor = new FrameProcessor();
         builder.setCamera(hardwareMap.get(WebcamName.class, deviceName));
         builder.addProcessor(frameProcessor);
-        builder.setCameraResolution(new Size(640, 480));
+        builder.setCameraResolution(new Size(640, 360));
         builder.enableLiveView(withPreview);      // Enable LiveView (RC preview).
         builder.setAutoStopLiveView(true);     // Automatically stop LiveView (RC preview) when all vision processors are disabled.
         visionPortal = builder.build();

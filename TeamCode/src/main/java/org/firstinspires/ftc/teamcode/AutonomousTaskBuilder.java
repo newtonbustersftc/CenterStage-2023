@@ -28,14 +28,11 @@ public class AutonomousTaskBuilder {
     String delayString;
     String startPosMode;
     int parkingRow;
-    AprilTagSignalRecognition aprilTagSignalRecognition;
     String aimPole;
-    PoleRecognition poleRecognition;
 
-    public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile, AprilTagSignalRecognition aprilTagSignalRecognition) {
+    public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
-        this.aprilTagSignalRecognition = aprilTagSignalRecognition;
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
     }
 
@@ -44,7 +41,6 @@ public class AutonomousTaskBuilder {
             SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
             delayString = prefs.getString(AutonomousOptions.START_DELAY_PREF, "0").replace(" sec", "");
             startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-            parkingRow = aprilTagSignalRecognition.getRecognitionResult();
             aimPole = prefs.getString(AutonomousOptions.AIM_POLES_PREF, AutonomousOptions.AIM_POLES[0]);
             Logger.logFile(AutonomousOptions.START_POS_MODES_PREF + " - " + startPosMode);
             Logger.logFile(AutonomousOptions.START_DELAY_PREF + " - " + delayString);

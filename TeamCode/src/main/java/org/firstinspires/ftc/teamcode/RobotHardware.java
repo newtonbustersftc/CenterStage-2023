@@ -55,7 +55,6 @@ public class RobotHardware {
     double gyroOffset;
     boolean gripOpen = false;
 
-    RobotVision robotVision;
     DecimalFormat nf2 = new DecimalFormat("#.##");
     RobotProfile profile;
 
@@ -91,7 +90,6 @@ public class RobotHardware {
 
         mecanumDrive = new NBMecanumDrive(this, profile);
         //mecanumDrive.setLocalizer(realSenseLocalizer);
-        robotVision = new RobotVision(this, profile);
         initGyro();
         resetImu();
     }
@@ -129,10 +127,6 @@ public class RobotHardware {
 
     public HardwareMap getHardwareMap() {
         return hardwareMap;
-    }
-
-    public RobotVision getRobotVision() {
-        return robotVision;
     }
 
     public MecanumDrive getMecanumDrive() {
@@ -285,8 +279,13 @@ public class RobotHardware {
     }
 
     public void clearBulkCache() {
-        expansionHub1.clearBulkCache();
-        expansionHub2.clearBulkCache();
+        try {
+            expansionHub1.clearBulkCache();
+            expansionHub2.clearBulkCache();
+        }
+        catch (Exception ex) {
+            // expansionHub2 might not be there
+        }
     }
 
     public void stopAll() {

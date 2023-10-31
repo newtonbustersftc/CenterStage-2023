@@ -38,7 +38,6 @@ public class DriverOpMode extends OpMode {
     boolean amCorrecting = true;
     boolean liftCanChange = true;
     boolean gripperCanChange = true;
-    PoleRecognition poleRecognition;
     boolean justAutoPole = false;
 
     // DriveThru combos
@@ -65,8 +64,6 @@ public class DriverOpMode extends OpMode {
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
         robotHardware.getLocalizer().update();
-        poleRecognition = new PoleRecognition(robotHardware.getRobotVision(), robotProfile);
-        poleRecognition.startRecognition();
         //robotHardware = new RobotHardware();
         //robotHardware.init(hardwareMap, robotProfile);
         //robotHardware.resetLiftPos();
@@ -129,7 +126,6 @@ public class DriverOpMode extends OpMode {
         try {
             Logger.logFile("DriverOpMode stop() called");
             //robotVision.deactivateNavigationTarget();
-            poleRecognition.stopRecognition();
             Logger.flushToFile();
         }
         catch (Exception e) {
@@ -288,19 +284,6 @@ public class DriverOpMode extends OpMode {
      * Define combo task for driver op mode
      */
     void setupCombos() {
-        deliverTask = new SequentialComboTask();
-        deliverTask.addTask(new GrabberTask(robotHardware, true));
-        deliverTask.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-        deliverTask.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-
-        grabAndLift = new SequentialComboTask();
-        grabAndLift.addTask(new GrabberTask(robotHardware, false));
-        grabAndLift.addTask(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftSafeRotate));
-        grabAndLift.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionInitPos));
-
-        forPickUp = new SequentialComboTask();
-        forPickUp.addTask(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionDriverMin));
-        forPickUp.addTask(new LiftArmTask(robotHardware, 0));
 
     }
 }

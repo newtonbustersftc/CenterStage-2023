@@ -34,7 +34,6 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     RobotHardware robotHardware;
     RobotProfile robotProfile;
-    RobotVision robotVision;
 
     ArrayList<RobotControl> taskList;
     long loopCount = 0;
@@ -59,12 +58,16 @@ public class AutonomousGenericTest extends LinearOpMode {
     @Override
     public void runOpMode() {
         initRobot();
-        robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        robotHardware.enableManualCaching(false);
-        //robotHardware.initSetup(this);
-        robotHardware.initSetupNoAuto(this);
-        robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        robotVision = robotHardware.getRobotVision();
+        try {
+            robotHardware.setMotorStopBrake(false); // so we can adjust the robot
+            robotHardware.enableManualCaching(false);
+            //robotHardware.initSetup(this);
+            robotHardware.initSetupNoAuto(this);
+            robotHardware.setMotorStopBrake(false); // so we can adjust the robot
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         long loopStart = System.currentTimeMillis();
         //AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
         //aprilTagSignalRecognition.startRecognition();
@@ -75,11 +78,11 @@ public class AutonomousGenericTest extends LinearOpMode {
         while (!isStopRequested() && !isStarted()) {
             //RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(false);
             //telemetry.addData("goal",goal);
-            robotHardware.getLocalizer().update();
-            Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
+            //robotHardware.getLocalizer().update();
+            //Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
             if (loopCnt%1000==0) {
-                telemetry.addData("CurrPose", currPose);
+                //telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("Frame rate:", cvp.getFrameRate());
                 telemetry.update();
@@ -89,7 +92,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         cvp.stopStreaming();
         cvp.close();
         //aprilTagSignalRecognition.stopRecognition();
-        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
+        //robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         taskList = new ArrayList<RobotControl>();
 
         //setupTaskList1();
@@ -98,11 +101,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         TaskReporter.report(taskList);
         Logger.logFile("Task list items: " + taskList.size());
         Logger.flushToFile();
-        DcMotorEx turrMotor = hardwareMap.get(DcMotorEx.class,"Turret Motor");
-        turrMotor.setPower(0);
-        turrMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        turrMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turrMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
 
         if (taskList.size()>0) {
             Logger.logFile("Task Prepare " + taskList.get(0));
@@ -174,20 +173,9 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList2() {
-        taskList.add(new GrabberTask(robotHardware,false));
-        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullOutPos));
-        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[5]));
-        taskList.add(new RobotSleep(500));
-        taskList.add(new RobotSleep(2000));
-        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftPickPos[0]));
     }
 
     void setupTaskList3() {
-        taskList.add(new GrabberTask(robotHardware,false));
-        taskList.add(new ExtendArmTask(robotHardware, robotProfile.hardwareSpec.extensionFullOutPos));
-        taskList.add(new LiftArmTask(robotHardware, robotProfile.hardwareSpec.liftDropPos[5]));
-        taskList.add(new RobotSleep(500));
-        taskList.add(new RobotSleep(2000));
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
