@@ -41,19 +41,15 @@ public class AutonomousTaskBuilder {
             SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
             delayString = prefs.getString(AutonomousOptions.START_DELAY_PREF, "0").replace(" sec", "");
             startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-            aimPole = prefs.getString(AutonomousOptions.AIM_POLES_PREF, AutonomousOptions.AIM_POLES[0]);
             Logger.logFile(AutonomousOptions.START_POS_MODES_PREF + " - " + startPosMode);
             Logger.logFile(AutonomousOptions.START_DELAY_PREF + " - " + delayString);
             Logger.logFile(AutonomousOptions.PARKING_PREF + " - " + parkingRow);
-            Logger.logFile(AutonomousOptions.AIM_POLES_PREF + " - " + aimPole);
         } catch (Exception e) {
             RobotLog.e("SharedPref exception " + e);
             this.delayString = "0";
         }
-        Logger.logFile("aim pole:"+aimPole);
         Logger.logFile("Done with init in autonomous");
         boolean isRight = startPosMode.endsWith("RIGHT");
-        boolean isHighPole = aimPole.contains("HIGH");
         RobotProfile.AutonParam param = robotProfile.autonParam;
         TrajectoryVelocityConstraint velFast = getVelocityConstraint(param.normVelocity, Math.toRadians(param.normAngVelo), robotProfile.hardwareSpec.trackWidth);
         TrajectoryAccelerationConstraint accelFast = getAccelerationConstraint(param.fastAcceleration);

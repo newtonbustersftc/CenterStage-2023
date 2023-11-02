@@ -23,7 +23,6 @@ public class RobotProfile {
     public RoadRunnerParam rrParam;
     public CVParam cvParam;
     public AutonParam autonParam;
-    public PoleParameter poleParameter;
 
     HashMap<String, AutoPose> poses;
     Movement movement;
@@ -148,6 +147,8 @@ public class RobotProfile {
     class CVParam {
         Scalar redLowerBound;
         Scalar redUpperBound;
+        Scalar blueLowerBound;
+        Scalar blueUpperBound;
         Scalar greenLowerBound;
         Scalar greenUpperBound;
         int cropTopPercent;

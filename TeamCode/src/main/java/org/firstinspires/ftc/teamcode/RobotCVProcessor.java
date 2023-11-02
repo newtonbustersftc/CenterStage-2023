@@ -30,17 +30,21 @@ public class RobotCVProcessor {
     HardwareMap hardwareMap;
     VisionPortal visionPortal;
     FrameProcessor frameProcessor;
+    boolean isRed;
 
-    public RobotCVProcessor(RobotHardware robotHardware, RobotProfile robotProfile) {
+    public enum TEAM_PROP_POS { LEFT, CENTER, RIGHT, NONE };
+
+    public RobotCVProcessor(RobotHardware robotHardware, RobotProfile robotProfile, boolean isRed) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         this.hardwareMap = robotHardware.getHardwareMap();
+        this.isRed = isRed;
     }
 
     // it start streaming right away
     public void initWebCam(String deviceName, boolean withPreview) {
         VisionPortal.Builder builder = new VisionPortal.Builder();
-        frameProcessor = new FrameProcessor();
+        frameProcessor = new FrameProcessor(robotProfile, isRed);
         builder.setCamera(hardwareMap.get(WebcamName.class, deviceName));
         builder.addProcessor(frameProcessor);
         builder.setCameraResolution(new Size(640, 360));
@@ -69,12 +73,33 @@ public class RobotCVProcessor {
         visionPortal.close();
     }
 
+    public TEAM_PROP_POS getRecognitionResult() {
+        return frameProcessor.getRecognitionResult();
+    }
+
     class FrameProcessor implements VisionProcessor {
+        RobotProfile profile;
+        boolean isRed;
         boolean saveImage = false;
         Mat hsvMat = new Mat();
         Mat maskMat = new Mat();
         Mat hierarchey = new Mat();
         Scalar DRAW_COLOR = new Scalar(0, 255, 0);
+        Scalar lowerBound, upperBound;
+        int lastCenter = -1;
+
+        public FrameProcessor(RobotProfile profile, boolean isRed) {
+            this.profile = profile;
+            this.isRed = isRed;
+            if (isRed) {
+                lowerBound = profile.cvParam.redLowerBound;
+                upperBound = profile.cvParam.redUpperBound;
+            }
+            else {
+                lowerBound = profile.cvParam.blueLowerBound;
+                upperBound = profile.cvParam.blueUpperBound;
+            }
+        }
 
         public void setSaveImage(boolean saveImage) {
             this.saveImage = saveImage;
@@ -87,13 +112,32 @@ public class RobotCVProcessor {
         @Override
         public Object processFrame(Mat frame, long captureTimeNanos) {
             // Sample code to high light RED objects
-            // 1. Convert to HSV
-            Imgproc.cvtColor(frame, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
-            // 2. Create MASK
-            Scalar lowerBound = new Scalar(0, 60, 100);
-            Scalar upperBound = new Scalar(15, 255, 255);
+            // 1. Crop and Convert to HSV
+            int offsetX = frame.width()*robotProfile.cvParam.cropLeftPercent/100;
+            int offsetY = frame.height()*robotProfile.cvParam.cropTopPercent/100;
+            Mat procMat = frame.submat(new Rect(offsetX, offsetY,
+                    frame.width()*(100-robotProfile.cvParam.cropLeftPercent-robotProfile.cvParam.cropRightPercent)/100,
+                    frame.height()*(100-robotProfile.cvParam.cropTopPercent-robotProfile.cvParam.cropBottomPercent)/100));
 
-            Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
+            Imgproc.cvtColor(procMat, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
+            // 2. Create MASK
+            if (lowerBound.val[0] > upperBound.val[0]) {
+                // RED situation
+                Mat maskMat1 = new Mat();
+                Mat maskMat2 = new Mat();
+                Core.inRange(hsvMat, lowerBound,
+                        new Scalar(255, upperBound.val[1], upperBound.val[2]), maskMat1);
+                Core.inRange(hsvMat, new Scalar(0, lowerBound.val[1], lowerBound.val[2]),
+                        upperBound, maskMat2);
+                Core.add(maskMat1, maskMat2, maskMat);
+                maskMat1.release();
+                maskMat2.release();
+            } else {
+                // Non RED situation
+                Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
+            }
+            // 3. Loop through the contours, find the largest one
+            double lastArea = 100;
             List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
             Imgproc.findContours(maskMat, contours, hierarchey, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
             Iterator<MatOfPoint> each = contours.iterator();
@@ -102,8 +146,12 @@ public class RobotCVProcessor {
                 double area = Imgproc.contourArea(wrapper);
                 if (area > 100) {
                     Rect rec = Imgproc.boundingRect(wrapper);
-                    Imgproc.rectangle(frame, new Rect(rec.x,
-                            rec.y, rec.width, rec.height), DRAW_COLOR, 2);
+                    Imgproc.rectangle(frame, new Rect(offsetX + rec.x,
+                            offsetY + rec.y, rec.width, rec.height), DRAW_COLOR, 2);
+                    if (area>lastArea) {
+                        lastCenter = offsetX + rec.x + rec.width/2;
+                        lastArea = area;
+                    }
                 }
             }
             if (saveImage) {
@@ -116,6 +164,19 @@ public class RobotCVProcessor {
                 saveImage = false;
             }
             return frame;
+        }
+
+        public TEAM_PROP_POS getRecognitionResult() {
+            if (lastCenter == -1) {
+                return TEAM_PROP_POS.NONE;
+            }
+            else if (lastCenter < 720/4) {
+                return TEAM_PROP_POS.LEFT;
+            }
+            else if (lastCenter > 720*3/4) {
+                return TEAM_PROP_POS.RIGHT;
+            }
+            return TEAM_PROP_POS.CENTER;
         }
 
         @Override

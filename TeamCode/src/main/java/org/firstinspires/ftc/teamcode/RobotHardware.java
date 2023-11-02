@@ -519,59 +519,59 @@ public class RobotHardware {
         }
         waitforUp(opmode, text);
         if (opmode.isStopRequested()) return;
-        extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
-        grabberClose();
-
-        if (opmode.isStopRequested()) return;
-
-        // Lift position reset
-        long startTime = System.currentTimeMillis();
-        setLiftPower(-0.3);
-        while (!isLiftTouched() && (System.currentTimeMillis() - startTime<3000) && !opmode.isStopRequested()) {
-            try {
-                Thread.sleep(10);
-            }
-            catch (Exception ex) {
-            }
-        }
-        // continue to hold for half a second
-        try {
-            Thread.sleep(500);
-        }
-        catch (Exception ex) {
-        }
-        // now let's tension for go up
-        Logger.logFile("Lift reset up tension");
-        resetLiftPos();
-        setLiftPositionUnsafe(0, 0.6); // holding
-        // tension for lift motor 0, holding position 0 using motor 1,2
-        liftMotors[0].setPower(0.2);
-        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        try {
-            Thread.sleep(500);
-        }
-        catch (Exception ex) {
-        }
-        // using motor 0 to hold position
-        liftMotors[0].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotors[0].setTargetPosition(0);
-        liftMotors[0].setPower(0.8);
-        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftMotors[1].setPower(0.1);
-        liftMotors[2].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftMotors[2].setPower(0.1);
-        try {
-            Thread.sleep(500);
-        }
-        catch (Exception ex) {
-        }
-        resetLiftPos();
-        setLiftPositionUnsafe(0, 0.5);
-
-        if (opmode.isStopRequested()) return;
-        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
-        grabberInit();
+//        extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
+//        grabberClose();
+//
+//        if (opmode.isStopRequested()) return;
+//
+//        // Lift position reset
+//        long startTime = System.currentTimeMillis();
+//        setLiftPower(-0.3);
+//        while (!isLiftTouched() && (System.currentTimeMillis() - startTime<3000) && !opmode.isStopRequested()) {
+//            try {
+//                Thread.sleep(10);
+//            }
+//            catch (Exception ex) {
+//            }
+//        }
+//        // continue to hold for half a second
+//        try {
+//            Thread.sleep(500);
+//        }
+//        catch (Exception ex) {
+//        }
+//        // now let's tension for go up
+//        Logger.logFile("Lift reset up tension");
+//        resetLiftPos();
+//        setLiftPositionUnsafe(0, 0.6); // holding
+//        // tension for lift motor 0, holding position 0 using motor 1,2
+//        liftMotors[0].setPower(0.2);
+//        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        try {
+//            Thread.sleep(500);
+//        }
+//        catch (Exception ex) {
+//        }
+//        // using motor 0 to hold position
+//        liftMotors[0].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        liftMotors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        liftMotors[0].setTargetPosition(0);
+//        liftMotors[0].setPower(0.8);
+//        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        liftMotors[1].setPower(0.1);
+//        liftMotors[2].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        liftMotors[2].setPower(0.1);
+//        try {
+//            Thread.sleep(500);
+//        }
+//        catch (Exception ex) {
+//        }
+//        resetLiftPos();
+//        setLiftPositionUnsafe(0, 0.5);
+//
+//        if (opmode.isStopRequested()) return;
+//        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
+//        grabberInit();
     }
 
     void waitforUp(LinearOpMode opmode, String text) {

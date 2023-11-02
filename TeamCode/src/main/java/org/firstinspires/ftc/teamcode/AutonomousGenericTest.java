@@ -71,7 +71,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         long loopStart = System.currentTimeMillis();
         //AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
         //aprilTagSignalRecognition.startRecognition();
-        RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile);
+        RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile, true);
         cvp.initWebCam("Webcam 1", true);
 
         int loopCnt = 0;

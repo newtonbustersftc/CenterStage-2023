@@ -19,6 +19,8 @@ public class AutonomousGeneric extends LinearOpMode {
     RobotHardware robotHardware;
     RobotProfile robotProfile;
 
+
+
     ArrayList<RobotControl> taskList;
 
     long loopCount = 0;
@@ -48,38 +50,36 @@ public class AutonomousGeneric extends LinearOpMode {
     @Override
     public void runOpMode() {
         initRobot();
+        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
+        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        isRedAlliance = startPosMode.startsWith("RED");
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        robotHardware.enableManualCaching(false);
-        robotHardware.initSetup(this);
+        //robotHardware.enableManualCaching(false);
+        //robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         //robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-//        SignalRecognition signalRecognition = new SignalRecognition(robotVision, robotProfile);
-//        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, signalRecognition);
+        RobotCVProcessor teamPropRecognition = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
+        teamPropRecognition.initWebCam("Webcam 1", true);
 
-//        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
-//        aprilTagSignalRecognition.startRecognition();
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile);
-        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
-        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-        String aimPoleMode = prefs.getString(AutonomousOptions.AIM_POLES_PREF,AutonomousOptions.AIM_POLES[0]);
-        robotHardware.resetImu();
-//        signalRecognition.startRecognition();
+        //robotHardware.resetImu();
         while (!isStopRequested() && !isStarted()) {
-            robotHardware.getLocalizer().update();
-            Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
+            //robotHardware.getLocalizer().update();
+            //Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
-            if (loopCnt%100==0) {
+            if (loopCnt%1000==0) {
                 telemetry.addData("Start Position", startPosMode);
-                telemetry.addData("CurrPose", currPose);
+                //telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                telemetry.addData("aim at pole: ", aimPoleMode);
+                telemetry.addData("TeamProp", teamPropRecognition.getRecognitionResult());
                 telemetry.update();
             }
         }
-//        Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
-//        aprilTagSignalRecognition.stopRecognition();
+        Logger.logFile("Recognition Result:" + teamPropRecognition.getRecognitionResult());
+        teamPropRecognition.stopStreaming();
+        teamPropRecognition.close();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         robotHardware.resetDriveAndEncoders();
         taskList = builder.buildTaskList();
@@ -92,7 +92,6 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.setMotorStopBrake(true);
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
-        robotHardware.turnDownSignalBlocker();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size()>0) {
             loopCount++;

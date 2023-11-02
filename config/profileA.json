@@ -64,10 +64,26 @@
         0.0
       ]
     },
-    "cropTopPercent": 37,
-    "cropBottomPercent": 48,
-    "cropLeftPercent": 10,
-    "cropRightPercent": 39,
+    "blueLowerBound": {
+      "val": [
+        110.0,
+        50.0,
+        80.0,
+        0.0
+      ]
+    },
+    "blueUpperBound": {
+      "val": [
+        130.0,
+        255.0,
+        255.0,
+        0.0
+      ]
+    },
+    "cropTopPercent": 40,
+    "cropBottomPercent": 15,
+    "cropLeftPercent": 0,
+    "cropRightPercent": 0,
     "minArea": 100
   },
   "hardwareSpec": {
