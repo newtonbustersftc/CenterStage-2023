@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.ftccommon.SoundPlayer;
@@ -18,8 +19,6 @@ public class AutonomousGeneric extends LinearOpMode {
 
     RobotHardware robotHardware;
     RobotProfile robotProfile;
-
-
 
     ArrayList<RobotControl> taskList;
 
@@ -50,36 +49,40 @@ public class AutonomousGeneric extends LinearOpMode {
     @Override
     public void runOpMode() {
         initRobot();
-        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
-        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-        isRedAlliance = startPosMode.startsWith("RED");
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        //robotHardware.enableManualCaching(false);
-        //robotHardware.initSetup(this);
+        robotHardware.enableManualCaching(false);
+        robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         //robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
-        RobotCVProcessor teamPropRecognition = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
-        teamPropRecognition.initWebCam("Webcam 1", true);
+        RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
+        robotCVProcessor.initWebCam("Webcam 1", false);
+        RobotCVProcessor.TEAM_PROP_POS team_prop_pos = robotCVProcessor.getRecognitionResult();
+        Logger.logFile("team_prop_pos = " + team_prop_pos);
 
+        AprilTagRecognition aprilTagRecognition = new AprilTagRecognition(true,hardwareMap);
+        aprilTagRecognition.initAprilTag();
+//        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
+//        aprilTagSignalRecognition.startRecognition();
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile);
-        //robotHardware.resetImu();
+        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
+        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        robotHardware.resetImu();
+//        signalRecognition.startRecognition();
         while (!isStopRequested() && !isStarted()) {
-            //robotHardware.getLocalizer().update();
-            //Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
+            robotHardware.getLocalizer().update();
+            Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
-            if (loopCnt%1000==0) {
+            if (loopCnt%100==0) {
                 telemetry.addData("Start Position", startPosMode);
-                //telemetry.addData("CurrPose", currPose);
+                telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                telemetry.addData("TeamProp", teamPropRecognition.getRecognitionResult());
                 telemetry.update();
             }
         }
-        Logger.logFile("Recognition Result:" + teamPropRecognition.getRecognitionResult());
-        teamPropRecognition.stopStreaming();
-        teamPropRecognition.close();
+//        Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
+//        aprilTagSignalRecognition.stopRecognition();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         robotHardware.resetDriveAndEncoders();
         taskList = builder.buildTaskList();
@@ -92,6 +95,7 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.setMotorStopBrake(true);
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
+        robotHardware.turnDownSignalBlocker();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size()>0) {
             loopCount++;

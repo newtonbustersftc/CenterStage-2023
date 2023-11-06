@@ -43,7 +43,7 @@ public class AutonomousTaskBuilder {
             startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
             Logger.logFile(AutonomousOptions.START_POS_MODES_PREF + " - " + startPosMode);
             Logger.logFile(AutonomousOptions.START_DELAY_PREF + " - " + delayString);
-            Logger.logFile(AutonomousOptions.PARKING_PREF + " - " + parkingRow);
+//            Logger.logFile(AutonomousOptions.PARKING_PREF + " - " + parkingRow);
         } catch (Exception e) {
             RobotLog.e("SharedPref exception " + e);
             this.delayString = "0";
