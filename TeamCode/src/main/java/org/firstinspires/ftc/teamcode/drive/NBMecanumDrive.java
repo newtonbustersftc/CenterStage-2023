@@ -160,7 +160,7 @@ public class NBMecanumDrive extends MecanumDrive {
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
-        setLocalizer(new FourStandardTrackingWheelLocalizer(robotHardware.getHardwareMap(), profile));
+        setLocalizer(new StandardTrackingWheelLocalizer(robotHardware.getHardwareMap(), profile));
         //setLocalizer(new RealSenseLocalizer(hardwareMap));
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
     }
