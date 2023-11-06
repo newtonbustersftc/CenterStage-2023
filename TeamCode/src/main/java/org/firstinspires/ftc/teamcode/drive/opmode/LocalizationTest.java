@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Logger;
 import org.firstinspires.ftc.teamcode.RobotFactory;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
-import org.firstinspires.ftc.teamcode.drive.FourStandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 
 import java.io.File;
@@ -80,11 +80,11 @@ public class LocalizationTest extends LinearOpMode {
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             Pose2d velo = drive.getPoseVelocity();
-            FourStandardTrackingWheelLocalizer ttl = (FourStandardTrackingWheelLocalizer) drive.getLocalizer();
+            StandardTrackingWheelLocalizer ttl = (StandardTrackingWheelLocalizer) drive.getLocalizer();
             telemetry.addData("Right", ttl.rightEncoder.getCurrentPosition());
             telemetry.addData("Left:", ttl.leftEncoder.getCurrentPosition());
             telemetry.addData("Front", ttl.frontEncoder.getCurrentPosition());
-            telemetry.addData("Back", ttl.backEncoder.getCurrentPosition());
+//            telemetry.addData("Back", ttl.backEncoder.getCurrentPosition());
 //            telemetry.addData("Right: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.RIGHT));
 //            telemetry.addData("Left: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.LEFT));
 //            telemetry.addData("Horiz: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.HORIZONTAL));
