@@ -40,9 +40,11 @@ public class RobotHardware {
     public double extensionPos;
     HardwareMap hardwareMap;
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
+    DcMotorEx intakeMotor, hangerMotor;
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     //private
-    Servo grabberServo, extensionServo, lightServo, signalBlockerServo;
+    Servo intakeServo, gripperOutToBoardServo, gripperRotationServo;
+    Servo gripperServo, extensionServo, lightServo, signalBlockerServo;
     TouchSensor magneticSensor, liftTouch;
     NormalizedColorSensor coneSensor;
 
@@ -68,18 +70,25 @@ public class RobotHardware {
         frMotor = hardwareMap.get(DcMotorEx.class, "FRMotor");
         flMotor = hardwareMap.get(DcMotorEx.class, "FLMotor");
         resetDriveAndEncoders();
+
         expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
+        gripperServo = hardwareMap.servo.get("Gripper Open/Close");
+        intakeServo = hardwareMap.servo.get("intakeServo");
+        gripperOutToBoardServo = hardwareMap.servo.get("gripperOutToBoardServo");
+        gripperRotationServo = hardwareMap.servo.get("gripperRotationServo");
+
         magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
         liftTouch = hardwareMap.touchSensor.get("Lift Touch");
         extensionServo = hardwareMap.servo.get("Arm Extension");
-        grabberServo = hardwareMap.servo.get("Gripper Open/Close");
         lightServo = hardwareMap.servo.get("LightControl");
         signalBlockerServo = hardwareMap.servo.get("SignalBlocker");
 
-        liftMotors = new DcMotorEx[3];
-        liftMotors[0] = hardwareMap.get(DcMotorEx.class,"Lift Motor1");
-        liftMotors[1] = hardwareMap.get(DcMotorEx.class,"Lift Motor2");
-        liftMotors[2] = hardwareMap.get(DcMotorEx.class,"Lift Motor3");
+        intakeMotor = hardwareMap.get(DcMotorEx.class,"intakeMotor");
+        hangerMotor = hardwareMap.get(DcMotorEx.class,"hangerMotor");
+        liftMotors = new DcMotorEx[1];
+        liftMotors[0] = hardwareMap.get(DcMotorEx.class,"iiftMotor1");
+        liftMotors[1] = hardwareMap.get(DcMotorEx.class,"iiftMotor2");
+
         coneSensor = hardwareMap.get(NormalizedColorSensor.class, "ConeDistance");
 
         // Use manual cache mode for most efficiency, but each program
@@ -142,7 +151,7 @@ public class RobotHardware {
     }
 
     public String getLiftMotorPos() {
-        return "Lift123: " + liftMotors[0].getCurrentPosition() + "," + liftMotors[1].getCurrentPosition() + "," + liftMotors[2].getCurrentPosition();
+        return "Lift12: " + liftMotors[0].getCurrentPosition() + "," + liftMotors[1].getCurrentPosition() ;
     }
 
     public double getLiftVelocity() {
@@ -371,6 +380,7 @@ public class RobotHardware {
     public int getFLMotorEncoderCnt(){
         return this.flMotor.getCurrentPosition();
     }
+
     public int getFRMotorEncoderCnt(){
         return this.frMotor.getCurrentPosition();
     }
@@ -412,19 +422,19 @@ public class RobotHardware {
 
     public void grabberOpen() {
         gripOpen = true;
-        grabberServo.setPosition(profile.hardwareSpec.grabberOpenPos);
+        gripperServo.setPosition(profile.hardwareSpec.grabberOpenPos);
         turnOffLight();
     }
 
     public void grabberClose() {
         gripOpen = false;
-        grabberServo.setPosition(profile.hardwareSpec.grabberClosePos);
+        gripperServo.setPosition(profile.hardwareSpec.grabberClosePos);
         turnOnLight();
     }
 
     public void grabberMoveSafe() {
         gripOpen = true;
-        grabberServo.setPosition(profile.hardwareSpec.grabberSafePos);
+        gripperServo.setPosition(profile.hardwareSpec.grabberSafePos);
         turnOffLight();
     }
 
@@ -434,7 +444,7 @@ public class RobotHardware {
 
     public void grabberInit() {
         gripOpen = true;
-        grabberServo.setPosition(profile.hardwareSpec.grabberInitPos);
+        gripperServo.setPosition(profile.hardwareSpec.grabberInitPos);
         turnOffLight();
     }
 
