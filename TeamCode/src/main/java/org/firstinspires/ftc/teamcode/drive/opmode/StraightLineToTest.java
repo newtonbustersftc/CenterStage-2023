@@ -38,7 +38,7 @@ public class StraightLineToTest extends LinearOpMode {
         NBMecanumDrive drive;
         RobotProfile robotProfile = null;
         try{
-            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profile.json"));
+            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profileA.json"));
         } catch (Exception e) {
         }
 
@@ -52,7 +52,7 @@ public class StraightLineToTest extends LinearOpMode {
         Logger.logFile("Begin:" + robotHardware.getLocalizer().getPoseEstimate());
         Logger.logFile("Begin IMU:" + robotHardware.getGyroHeading());
         Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
-        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
+//        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
         Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
         Logger.logFile("RL Encoder:" + robotHardware.getRlMotorEncoderCnt());
 
@@ -87,7 +87,7 @@ public class StraightLineToTest extends LinearOpMode {
         Logger.logFile("Final:" + robotHardware.getLocalizer().getPoseEstimate());
         Logger.logFile("Final IMU:" + robotHardware.getGyroHeading());
         Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
-        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
+//        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
         Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
         Logger.logFile("RL Encoder:" + robotHardware.getRlMotorEncoderCnt());
     }

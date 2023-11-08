@@ -49,7 +49,7 @@ public class DriverOpMode extends OpMode {
     @Override
     public void init() {
         try {
-            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profile.json"));
+            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profileA.json"));
         }
         catch (Exception e) {
             System.out.println(e.getStackTrace());

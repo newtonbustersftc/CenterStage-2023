@@ -44,7 +44,7 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     public void initRobot() {
         try{
-            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profile.json"));
+            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profileA.json"));
         } catch (Exception e) {
         }
         Logger.init();

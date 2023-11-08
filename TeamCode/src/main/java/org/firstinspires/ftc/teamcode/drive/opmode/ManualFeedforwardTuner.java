@@ -77,7 +77,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
         NBMecanumDrive drive;
         RobotProfile robotProfile = null;
         try{
-            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profile.json"));
+            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profileA.json"));
         } catch (Exception e) {
         }
 

@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
 
@@ -36,12 +37,15 @@ public class StraightTest extends LinearOpMode {
         NBMecanumDrive drive;
         RobotProfile robotProfile = null;
         try{
-            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profile.json"));
+            robotProfile = RobotProfile.loadFromFile(new File("/sdcard/FIRST/profileA.json"));
         } catch (Exception e) {
         }
 
         Logger.init();
+
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+//        RobotHardware robotHardware = new RobotHardware();
+        robotHardware.init(hardwareMap, robotProfile);
         robotHardware.resetDriveAndEncoders();
         //robotHardware.calibrateNavxGyro(telemetry);
         robotHardware.resetImu();
@@ -49,10 +53,14 @@ public class StraightTest extends LinearOpMode {
         drive.setPoseEstimate(new Pose2d(0,0,0));
         Logger.logFile("Begin:" + robotHardware.getLocalizer().getPoseEstimate());
         Logger.logFile("Begin IMU:" + robotHardware.getGyroHeading());
-        Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
-        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
-        Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
-        Logger.logFile("RL Encoder:" + robotHardware.getRlMotorEncoderCnt());
+        List<Double> wheelPositions = drive.getWheelPositions();
+        for(double position:wheelPositions){
+            Logger.logFile("Encoder:" + position);
+        }
+//        Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
+//        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
+//        Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
+//        Logger.logFile("RL Encoder:" + robotHardware.getRlMotorEncoderCnt());
 
         int loopCnt = 0;
         long loopStart = System.currentTimeMillis();
@@ -73,7 +81,7 @@ public class StraightTest extends LinearOpMode {
         }
 
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
-        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(30, 180, TRACK_WIDTH);
+        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(30, 10, TRACK_WIDTH);
         TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(10);
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
                 .forward(DISTANCE, velConstraint, accelConstraint)
@@ -84,10 +92,14 @@ public class StraightTest extends LinearOpMode {
         drive.followTrajectorySequence(trajectory);
         Logger.logFile("Final:" + robotHardware.getLocalizer().getPoseEstimate());
         Logger.logFile("Final IMU:" + robotHardware.getGyroHeading());
-        Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
-        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
-        Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
-        Logger.logFile("RL Encoder:" + robotHardware.getRlMotorEncoderCnt());
+        List<Double> wheelPositions2 = drive.getWheelPositions();
+        for(double position:wheelPositions2){
+            Logger.logFile("Encoder:" + position);
+        }
+//        Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
+////        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
+//        Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
+//        Logger.logFile("RL Encoder:" + robotHardware.getRlMotorEncoderCnt());
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
