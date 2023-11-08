@@ -71,25 +71,25 @@ public class RobotHardware {
         flMotor = hardwareMap.get(DcMotorEx.class, "FLMotor");
         resetDriveAndEncoders();
 
-        expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub");
-        gripperServo = hardwareMap.servo.get("Gripper Open/Close");
+        expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub 2");
         intakeServo = hardwareMap.servo.get("intakeServo");
+        gripperServo = hardwareMap.servo.get("gripperServo");
         gripperOutToBoardServo = hardwareMap.servo.get("gripperOutToBoardServo");
         gripperRotationServo = hardwareMap.servo.get("gripperRotationServo");
 
-        magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
-        liftTouch = hardwareMap.touchSensor.get("Lift Touch");
-        extensionServo = hardwareMap.servo.get("Arm Extension");
-        lightServo = hardwareMap.servo.get("LightControl");
-        signalBlockerServo = hardwareMap.servo.get("SignalBlocker");
+//        magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
+//        liftTouch = hardwareMap.touchSensor.get("Lift Touch");
+//        extensionServo = hardwareMap.servo.get("Arm Extension");
+//        lightServo = hardwareMap.servo.get("LightControl");
+//        signalBlockerServo = hardwareMap.servo.get("SignalBlocker");
 
         intakeMotor = hardwareMap.get(DcMotorEx.class,"intakeMotor");
         hangerMotor = hardwareMap.get(DcMotorEx.class,"hangerMotor");
-        liftMotors = new DcMotorEx[1];
-        liftMotors[0] = hardwareMap.get(DcMotorEx.class,"iiftMotor1");
-        liftMotors[1] = hardwareMap.get(DcMotorEx.class,"iiftMotor2");
+        liftMotors = new DcMotorEx[2];
+        liftMotors[0] = hardwareMap.get(DcMotorEx.class,"liftMotor1");
+        liftMotors[1] = hardwareMap.get(DcMotorEx.class,"liftMotor2");
 
-        coneSensor = hardwareMap.get(NormalizedColorSensor.class, "ConeDistance");
+//        coneSensor = hardwareMap.get(NormalizedColorSensor.class, "ConeDistance");
 
         // Use manual cache mode for most efficiency, but each program
         // needs to call clearBulkCache() in the while loop
@@ -423,7 +423,7 @@ public class RobotHardware {
     public void grabberOpen() {
         gripOpen = true;
         gripperServo.setPosition(profile.hardwareSpec.grabberOpenPos);
-        turnOffLight();
+//        turnOffLight();
     }
 
     public void grabberClose() {
