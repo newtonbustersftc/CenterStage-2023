@@ -71,8 +71,8 @@ public class AutonomousGenericTest extends LinearOpMode {
         long loopStart = System.currentTimeMillis();
         //AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
         //aprilTagSignalRecognition.startRecognition();
-        RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile, true);
-        cvp.initWebCam("Webcam 1", true);
+        //RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile, true);
+        //cvp.initWebCam("Webcam 1", true);
 
         int loopCnt = 0;
         while (!isStopRequested() && !isStarted()) {
@@ -84,18 +84,19 @@ public class AutonomousGenericTest extends LinearOpMode {
             if (loopCnt%1000==0) {
                 //telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                telemetry.addData("Frame rate:", cvp.getFrameRate());
+                //telemetry.addData("Frame rate:", cvp.getFrameRate());
                 telemetry.update();
-                cvp.saveNextImage();
+                //cvp.saveNextImage();
             }
         }
-        cvp.stopStreaming();
-        cvp.close();
+        //cvp.stopStreaming();
+        //cvp.close();
         //aprilTagSignalRecognition.stopRecognition();
-        //robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
+        robotHardware.resetDriveAndEncoders();
+        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(12,40,Math.PI/2));
         taskList = new ArrayList<RobotControl>();
 
-        //setupTaskList1();
+        setupTaskList1();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
@@ -114,8 +115,8 @@ public class AutonomousGenericTest extends LinearOpMode {
             loopCount++;
             robotHardware.clearBulkCache();
             robotHardware.getLocalizer().update();
-            //Logger.logFile("Pose:" + robotHardware.getLocalizer().getPoseEstimate());
-            //Logger.logFile("Velocity:" + robotHardware.getLocalizer().getPoseVelocity());
+            Logger.logFile("Pose:" + robotHardware.getLocalizer().getPoseEstimate());
+            Logger.logFile("Velocity:" + robotHardware.getLocalizer().getPoseVelocity());
             try {
                 Logger.flushToFile();
             }
@@ -151,21 +152,20 @@ public class AutonomousGenericTest extends LinearOpMode {
         velConstraint = getVelocityConstraint(15, 10, TRACK_WIDTH);
         accelConstraint = getAccelerationConstraint(10);
         // move to shoot
-        Pose2d p0 = new Pose2d(0,0,0);
-        Pose2d p1 = new Pose2d(20, 0, 0);
-        Pose2d p2 = new Pose2d(40, -10, -Math.PI/4);
+        Pose2d p0 = new Pose2d(12,40,Math.PI/2);
+        Pose2d p1 = new Pose2d(0, 12, Math.PI/4 + Math.PI);
+        Pose2d p1b= new Pose2d(0,12, Math.PI/4);
+        Pose2d p2 = new Pose2d(24, -10, 0);
 
-        Trajectory trj = robotHardware.mecanumDrive.trajectoryBuilder(p0)
-                .lineTo(p1.vec(), velConstraint, accelConstraint)
-                //.splineToSplineHeading(p2, p2.getHeading(), constraints)
+        Trajectory trj = robotHardware.mecanumDrive.trajectoryBuilder(p0, true)
+                .splineTo(p1.vec(), p1.getHeading(), velConstraint, accelConstraint)
                 .build();
         SplineMoveTask moveTask1 = new SplineMoveTask(robotHardware.mecanumDrive, trj);
         taskList.add(new RobotSleep(1000));
         taskList.add(moveTask1);
         taskList.add(new RobotSleep(1000));
-        Trajectory trj2 = robotHardware.mecanumDrive.trajectoryBuilder(p1)
+        Trajectory trj2 = robotHardware.mecanumDrive.trajectoryBuilder(p1b)
                 .splineTo(p2.vec(), p2.getHeading(), velConstraint, accelConstraint)
-                //.splineToSplineHeading(p2, p2.getHeading(), constraints)
                 .build();
         SplineMoveTask moveTask2= new SplineMoveTask(robotHardware.mecanumDrive, trj2);
         taskList.add(moveTask2);

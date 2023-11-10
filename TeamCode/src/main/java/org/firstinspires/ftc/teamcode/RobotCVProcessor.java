@@ -62,7 +62,12 @@ public class RobotCVProcessor {
     }
 
     public void stopStreaming() {
-        visionPortal.stopStreaming();
+        try {
+            visionPortal.stopStreaming();
+        }
+        catch (Exception ex) {
+            Logger.logFile("stopStreaming:" + ex);
+        }
     }
 
     public void saveNextImage() {
@@ -70,7 +75,12 @@ public class RobotCVProcessor {
     }
 
     public void close() {
-        visionPortal.close();
+        try {
+            visionPortal.close();
+        }
+        catch (Exception ex) {
+            Logger.logFile("vision close:" + ex);
+        }
     }
 
     public TEAM_PROP_POS getRecognitionResult() {
