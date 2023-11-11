@@ -12,12 +12,7 @@ public class RobotFactory {
         if(theRobot == null){
             Logger.logFile("Creating new RobotHardware Instance");
             theRobot = new RobotHardware();
-            try {
-                theRobot.init(hardwareMap, robotProfile);
-            }
-            catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            theRobot.init(hardwareMap, robotProfile);
         }
         else {
             Logger.logFile("Use existing RobotHardware Instance");

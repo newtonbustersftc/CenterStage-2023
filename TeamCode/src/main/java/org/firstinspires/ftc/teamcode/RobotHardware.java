@@ -69,7 +69,6 @@ public class RobotHardware {
         rlMotor = hardwareMap.get(DcMotorEx.class, "RLMotor");
         frMotor = hardwareMap.get(DcMotorEx.class, "FRMotor");
         flMotor = hardwareMap.get(DcMotorEx.class, "FLMotor");
-        resetDriveAndEncoders();
 
         expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub 2");
         intakeServo = hardwareMap.servo.get("intakeServo");
@@ -101,6 +100,7 @@ public class RobotHardware {
         //mecanumDrive.setLocalizer(realSenseLocalizer);
         initGyro();
         resetImu();
+        resetDriveAndEncoders();
     }
 
     public List<DcMotorEx> getDriveMotors() {
@@ -131,7 +131,7 @@ public class RobotHardware {
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         expansionHub1.clearBulkCache();
-        //expansionHub2.clearBulkCache();
+        expansionHub2.clearBulkCache();
     }
 
     public HardwareMap getHardwareMap() {
@@ -277,13 +277,15 @@ public class RobotHardware {
     }
 
     public void enableManualCaching(boolean enable) {
+        Logger.logFile("hub1:"+expansionHub1);
+        Logger.logFile("hub2:"+expansionHub2);
         if (enable) {
             expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
             expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
         else {
             expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-            expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+//            expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);    //null pointer exception on expansionHub2
         }
     }
 
@@ -302,7 +304,7 @@ public class RobotHardware {
         for(DcMotorEx liftMotor:liftMotors) {
             liftMotor.setPower(0);
         }
-        turnUpSignalBlocker();
+//        turnUpSignalBlocker();
     }
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}

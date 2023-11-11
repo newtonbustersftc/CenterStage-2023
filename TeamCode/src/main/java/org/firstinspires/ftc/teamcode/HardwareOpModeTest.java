@@ -93,8 +93,22 @@ public class HardwareOpModeTest extends OpMode {
 //            turretTurnTest = true;
         }
         if (gamepad1.dpad_down) {
-//            turretTurnTest = false;
+//            robotHardware.setMotorPower(0.5,0.5,0.5,0.5);
+            robotHardware.setMotorPower(0.5,0,0,0);
         }
+
+        if(gamepad1.dpad_up){
+              robotHardware.setMotorPower(0,0.5,0,0);
+        }
+
+        if(gamepad1.dpad_left){
+              robotHardware.setMotorPower(0,0,0.5,0);
+        }
+
+        if(gamepad1.dpad_right){
+              robotHardware.setMotorPower(0,0,0,0.5);
+        }
+
 //        blocking = robotHardware.isMagneticTouched();
 
         if (gamepad1.dpad_left) {

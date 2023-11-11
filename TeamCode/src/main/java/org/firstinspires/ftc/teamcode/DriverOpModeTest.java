@@ -117,7 +117,8 @@ public class DriverOpModeTest extends OpMode {
 
         double movAngle;
         if (fieldMode) {
-            movAngle = padAngle+((isRedTeam)?Math.PI/2:-Math.PI/2) - currPose.getHeading();
+//            movAngle = padAngle+((isRedTeam)?Math.PI/2:-Math.PI/2) - currPose.getHeading();
+            movAngle = padAngle-currPose.getHeading();
         }
         else {
             movAngle = padAngle;

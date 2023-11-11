@@ -24,12 +24,12 @@
     "f": 0.0
   },
   "rrParam": {
-    "kA": 0.00001,
+    "kA": 0.002,
     "kV": 0.017,
     "kStatic": 0.085,
     "lateralMultiplier": 1.0,
-    "maxVel": 20.0,
-    "maxAcc": 20.0
+    "maxVel": 30.0,
+    "maxAcc": 30.0
   },
   "cvParam": {
     "redLowerBound": {
@@ -66,15 +66,15 @@
     },
     "blueLowerBound": {
       "val": [
-        110.0,
+        120.0,
         50.0,
-        80.0,
+        50.0,
         0.0
       ]
     },
     "blueUpperBound": {
       "val": [
-        130.0,
+        200.0,
         255.0,
         255.0,
         0.0
@@ -91,11 +91,11 @@
     "useControlHubImu": true,
     "autoTurretReset": false,
     "trackWidth": 13.5,
-    "encoderOffset": 1.5,
+    "encoderOffset": 0,
     "wheelBase": 12,
     "wheelRadius": 0.945,
     "ticksPerRev": 2000,
-    "forwardOffset": 4.16,
+    "forwardOffset": 1.5,
     "leftEncoderReverse": false,
     "rightEncoderReverse": true,
     "horizontalEncoderReverse": true,
@@ -142,20 +142,20 @@
     ]
   },
   "poses": {
-    "TURRET_ANGLE_1_RIGHT": {
-      "x": -925,
+    "TEAM_PROP_POS_LEFT": {
+      "x": 2,
+      "y": 24,
+      "heading": 90.0
+    },
+    "TEAM_PROP_POS_CENTER": {
+      "x": 24,
       "y": 0,
       "heading": 0.0
     },
-    "DROP_HIGH_1_RIGHT": {
-      "x": 65.0,
-      "y": 0.0,
-      "heading": 0.0
-    },
-    "DROP_HIGH_ARM_RIGHT": {
-      "x": -1850,
-      "y": 0.44,
-      "heading": 0.0
+    "TEAM_PROP_POS_RIGHT": {
+      "x": 2,
+      "y": 24,
+      "heading": -90.0
     }
   },
   "autonParam": {
@@ -165,9 +165,6 @@
     "normVelocity": 30.0,
     "normAngVelo": 30.0,
     "normAcceleration": 20.0,
-    "liftHighDrop": 1063,
-    "liftMidDrop": 780,
-    "liftLowDrop": 440,
     "liftGroundDrop": 40,
     "liftStack5": 141,
     "liftStack4": 106,
@@ -186,24 +183,7 @@
     "armLengthPostPick": 0.13,
     "armLengthPostLeftPickHighPole": 0.5,
     "armLengthPostRightPickHighPole": 0.52,
-    "turretForwardPos": -925,
-    "turretDropPosRight": -975,
-    "turretPickPosRight": 915,
-    "turretDropPosLeft": -70,
-    "turretPickPosLeft": -2775,
-    "turretGroundLeft": -640,
-    "turretGroundRight": -1350,
-    "turretDropPosLeftHighPole": -130,
-    "turretDropPosRightHighPole": -30,
-    "turretDropPosLeftMidPole_begin": 915,
-    "turretDropPosRightMidPole_begin": -915,
-    "turretDropPosLeftMidPole_deliver":915,
-    "turretDropPosRightMidPole_deliver": -900,
-    "turretLeft1FinalPos": -1850,
-    "turretRight1FinalPos": 925,
-    "turretLeft2FinalPos": -925,
-    "turretLeft3FinalPos": -925,
-    "forward": 50,
+     "forward": 50,
     "forward_mid": 32,
     "back1": 8,
     "backPick": 21

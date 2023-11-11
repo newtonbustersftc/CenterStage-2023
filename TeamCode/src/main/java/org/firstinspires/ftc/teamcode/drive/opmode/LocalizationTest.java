@@ -93,6 +93,17 @@ public class LocalizationTest extends LinearOpMode {
             telemetry.addData("heading", Math.toDegrees(poseEstimate.getHeading()));
             telemetry.addData("velo", velo);
             telemetry.update();
+
+            Logger.logFile("Right: " +ttl.rightEncoder.getCurrentPosition());
+            Logger.logFile("Left: " + ttl.leftEncoder.getCurrentPosition());
+            Logger.logFile("Front: "+ttl.frontEncoder.getCurrentPosition());
+//            telemetry.addData("Back", ttl.backEncoder.getCurrentPosition());
+//            telemetry.addData("Right: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.RIGHT));
+//            telemetry.addData("Left: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.LEFT));
+//            telemetry.addData("Horiz: ", robotHardware.getEncoderCounts(RobotHardware.EncoderType.HORIZONTAL));
+            Logger.logFile("x: "+ poseEstimate.getX());
+            Logger.logFile("y: "+ poseEstimate.getY());
+            Logger.logFile("heading: "+ Math.toDegrees(poseEstimate.getHeading()));
         }
     }
 }

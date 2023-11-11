@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Canvas;
+import android.util.Log;
 import android.util.Size;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -102,13 +103,16 @@ public class RobotCVProcessor {
             this.profile = profile;
             this.isRed = isRed;
             if (isRed) {
-                lowerBound = profile.cvParam.redLowerBound;
-                upperBound = profile.cvParam.redUpperBound;
+                lowerBound = this.profile.cvParam.redLowerBound;
+                upperBound = this.profile.cvParam.redUpperBound;
             }
             else {
-                lowerBound = profile.cvParam.blueLowerBound;
-                upperBound = profile.cvParam.blueUpperBound;
+                lowerBound = this.profile.cvParam.blueLowerBound;
+                upperBound = this.profile.cvParam.blueUpperBound;
             }
+            Logger.logFile("isRed = "+ isRed);
+            Logger.logFile("lowerBound="+lowerBound);
+            Logger.logFile("upperBound="+upperBound);
         }
 
         public void setSaveImage(boolean saveImage) {
@@ -128,7 +132,6 @@ public class RobotCVProcessor {
             Mat procMat = frame.submat(new Rect(offsetX, offsetY,
                     frame.width()*(100-robotProfile.cvParam.cropLeftPercent-robotProfile.cvParam.cropRightPercent)/100,
                     frame.height()*(100-robotProfile.cvParam.cropTopPercent-robotProfile.cvParam.cropBottomPercent)/100));
-
             Imgproc.cvtColor(procMat, hsvMat, Imgproc.COLOR_RGB2HSV_FULL);
             // 2. Create MASK
             if (lowerBound.val[0] > upperBound.val[0]) {
@@ -144,6 +147,17 @@ public class RobotCVProcessor {
                 maskMat2.release();
             } else {
                 // Non RED situation
+                Logger.logFile("here in blue: upper="+upperBound + " lower="+lowerBound);
+                Mat maskMat1 = new Mat();
+                Mat maskMat2 = new Mat();
+//                Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
+//                Core.inRange(hsvMat, lowerBound,
+//                        new Scalar(260,100,100), maskMat1);
+//                Core.inRange(hsvMat, new Scalar(200, 50, 50),
+//                        upperBound, maskMat2);
+//                Core.add(maskMat1, maskMat2, maskMat);
+                maskMat1.release();
+                maskMat2.release();
                 Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
             }
             // 3. Loop through the contours, find the largest one
@@ -151,29 +165,39 @@ public class RobotCVProcessor {
             List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
             Imgproc.findContours(maskMat, contours, hierarchey, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
             Iterator<MatOfPoint> each = contours.iterator();
+            Logger.logFile("size of contours: "+contours.size());
             while (each.hasNext()) {
                 MatOfPoint wrapper = each.next();
                 double area = Imgproc.contourArea(wrapper);
-                if (area > 100) {
+                Logger.logFile("area="+area);
+                if (area > 1000) {
                     Rect rec = Imgproc.boundingRect(wrapper);
                     Imgproc.rectangle(frame, new Rect(offsetX + rec.x,
                             offsetY + rec.y, rec.width, rec.height), DRAW_COLOR, 2);
                     if (area>lastArea) {
                         lastCenter = offsetX + rec.x + rec.width/2;
                         lastArea = area;
+                        Logger.logFile("last center: "+lastCenter);
+                        Logger.logFile("last area: "+ lastArea);if(saveImage){
+                            saveImage(frame);
+                        }
                     }
                 }
             }
-            if (saveImage) {
-                //need to save pic to file
-                String timestamp = new SimpleDateFormat("MMdd-HHmmss-S", Locale.US).format(new Date());
-                Mat mbgr = new Mat();
-                Imgproc.cvtColor(frame, mbgr, Imgproc.COLOR_RGB2BGR, 3);
-                Imgcodecs.imwrite("/sdcard/FIRST/S" + timestamp + ".jpg", mbgr);
-                mbgr.release();
-                saveImage = false;
-            }
+
+            Logger.logFile("so.... last area = "+lastArea);
+
             return frame;
+        }
+
+        private void saveImage(Mat frame) {
+            //need to save pic to file
+            String timestamp = new SimpleDateFormat("MMdd-HHmmss-S", Locale.US).format(new Date());
+            Mat mbgr = new Mat();
+            Imgproc.cvtColor(frame, mbgr, Imgproc.COLOR_RGB2BGR, 3);
+            Imgcodecs.imwrite("/sdcard/FIRST/S" + timestamp + ".jpg", mbgr);
+            mbgr.release();
+            saveImage = false;
         }
 
         public TEAM_PROP_POS getRecognitionResult() {

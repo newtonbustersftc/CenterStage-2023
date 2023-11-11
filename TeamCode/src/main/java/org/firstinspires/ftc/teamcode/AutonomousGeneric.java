@@ -47,29 +47,35 @@ public class AutonomousGeneric extends LinearOpMode {
     }
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotHardware.enableManualCaching(false);
-        robotHardware.initSetup(this);
+//        robotHardware.clearBulkCache();
+//        robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         //robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
+        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
+        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        if(startPosMode.startsWith("RED"))
+            isRedAlliance = true;
+
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
-        robotCVProcessor.initWebCam("Webcam 1", false);
+        robotCVProcessor.initWebCam("Webcam 1", true);
+        robotCVProcessor.frameProcessor.setSaveImage(true);
+        Thread.sleep(3000); //take time to process
         RobotCVProcessor.TEAM_PROP_POS team_prop_pos = robotCVProcessor.getRecognitionResult();
         Logger.logFile("team_prop_pos = " + team_prop_pos);
 
-        AprilTagRecognition aprilTagRecognition = new AprilTagRecognition(true,hardwareMap);
-        aprilTagRecognition.initAprilTag();
-//        AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
-//        aprilTagSignalRecognition.startRecognition();
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile);
-        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
-        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-        robotHardware.resetImu();
-//        signalRecognition.startRecognition();
+//        AprilTagRecognition aprilTagRecognition = new AprilTagRecognition(true,hardwareMap);
+//        aprilTagRecognition.initAprilTag();
+
+        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile,team_prop_pos);
+//        robotHardware.resetImu();
+
+        //        signalRecognition.startRecognition();
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
@@ -78,6 +84,7 @@ public class AutonomousGeneric extends LinearOpMode {
                 telemetry.addData("Start Position", startPosMode);
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
+                telemetry.addData("Team prop pos = ", team_prop_pos);
                 telemetry.update();
             }
         }
@@ -95,7 +102,7 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.setMotorStopBrake(true);
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
-        robotHardware.turnDownSignalBlocker();
+//        robotHardware.turnDownSignalBlocker();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size()>0) {
             loopCount++;

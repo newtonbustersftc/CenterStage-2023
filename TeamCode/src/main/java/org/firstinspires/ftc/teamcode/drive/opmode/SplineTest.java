@@ -63,10 +63,10 @@ public class SplineTest extends LinearOpMode {
         accelConstraint = getAccelerationConstraint(15);
 
         TrajectorySequence traj = drive.trajectorySequenceBuilder(new Pose2d(0,0, 0))
-                .lineTo(new Vector2d(0, -6))
-                .lineTo(new Vector2d(60, -6))
-                .lineTo(new Vector2d(60, -52))
-                .lineTo(new Vector2d(80, -52))
+//                .lineTo(new Vector2d(0, -6))
+                .splineTo(new Vector2d(60, -6),Math.toRadians(90))
+//                .lineTo(new Vector2d(60, -52))
+//                .lineTo(new Vector2d(80, -52))
                 .waitSeconds(2)
                 .build();
 

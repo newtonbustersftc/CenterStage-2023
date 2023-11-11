@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
@@ -53,10 +54,6 @@ public class StraightTest extends LinearOpMode {
         drive.setPoseEstimate(new Pose2d(0,0,0));
         Logger.logFile("Begin:" + robotHardware.getLocalizer().getPoseEstimate());
         Logger.logFile("Begin IMU:" + robotHardware.getGyroHeading());
-        List<Double> wheelPositions = drive.getWheelPositions();
-        for(double position:wheelPositions){
-            Logger.logFile("Encoder:" + position);
-        }
 //        Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
 //        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
 //        Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
@@ -81,10 +78,12 @@ public class StraightTest extends LinearOpMode {
         }
 
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
-        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(30, 10, TRACK_WIDTH);
+        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(10, 10, TRACK_WIDTH);
         TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(10);
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
-                .forward(DISTANCE, velConstraint, accelConstraint)
+//                .lineTo(new Vector2d(-DISTANCE, 0))
+                .lineTo(new Vector2d(0, DISTANCE-20))
+//                .forward(DISTANCE, velConstraint, accelConstraint)
                 .build();
 
         if (isStopRequested()) return;
@@ -92,10 +91,7 @@ public class StraightTest extends LinearOpMode {
         drive.followTrajectorySequence(trajectory);
         Logger.logFile("Final:" + robotHardware.getLocalizer().getPoseEstimate());
         Logger.logFile("Final IMU:" + robotHardware.getGyroHeading());
-        List<Double> wheelPositions2 = drive.getWheelPositions();
-        for(double position:wheelPositions2){
-            Logger.logFile("Encoder:" + position);
-        }
+
 //        Logger.logFile("FR Encoder:" + robotHardware.getFRMotorEncoderCnt());
 ////        Logger.logFile("FL Encoder:" + robotHardware.getFLMotorEncoderCnt());
 //        Logger.logFile("RR Encoder:" + robotHardware.getRRMotorEncoderCnt());
