@@ -39,7 +39,7 @@ public class RobotHardware {
     public double extensionPos;
     HardwareMap hardwareMap;
     DcMotorEx rrMotor, rlMotor, frMotor, flMotor;
-    DcMotorEx intakeMotor, hangerMotor, liftMotorLeft, liftMotorRight;
+    DcMotorEx intakeMotor, hangerMotor;
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     //private
     Servo dronePivotServo, droneReleaseServo, intakeServo1, intakeServo2,
@@ -82,25 +82,19 @@ public class RobotHardware {
         gripperRotateServo = hardwareMap.servo.get("gripperRotateServo");
 
         intakeMotor = hardwareMap.get(DcMotorEx.class,"intakeMotor");
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         hangerMotor = hardwareMap.get(DcMotorEx.class,"hangerMotor");
-
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //??
 
         liftMotors = new DcMotorEx[2];
         liftMotors[0] = hardwareMap.get(DcMotorEx.class,"liftMotorLeft");
         liftMotors[1] = hardwareMap.get(DcMotorEx.class,"liftMotorRight");
         liftMotors[0].setMode(DcMotor.RunMode.RUN_USING_ENCODER); //??
         liftMotors[1].setMode(DcMotor.RunMode.RUN_USING_ENCODER);  //??
+        liftMotors[1].setDirection(DcMotorSimple.Direction.REVERSE);
 
         //two distance sensors
         distanceSensorLeft = hardwareMap.get(DistanceSensor.class, "leftDistanceSensor");
         distanceSensorRight = hardwareMap.get(DistanceSensor.class, "rightDistanceSensor");
-
-//        magneticSensor = hardwareMap.touchSensor.get("Magnetic Sensor");
-//        liftTouch = hardwareMap.touchSensor.get("Lift Touch");
-//        extensionServo = hardwareMap.servo.get("Arm Extension");
-//        lightServo = hardwareMap.servo.get("LightControl");
-//        signalBlockerServo = hardwareMap.servo.get("SignalBlocker");
 
         // Use manual cache mode for most efficiency, but each program
         // needs to call clearBulkCache() in the while loop
@@ -156,6 +150,23 @@ public class RobotHardware {
 
     public Localizer getLocalizer() {
         return mecanumDrive.getLocalizer();
+    }
+
+    public void startIntake() {
+        intakeMotor.setPower(profile.hardwareSpec.intakePower);
+        intakeServo1.setPosition(profile.hardwareSpec.intakeServo1In);
+        intakeServo2.setPosition(profile.hardwareSpec.intakeServo2In);
+    }
+    public void reverseIntake() {
+        intakeMotor.setPower(-profile.hardwareSpec.intakePower);
+        intakeServo1.setPosition(profile.hardwareSpec.intakeServo1Out);
+        intakeServo2.setPosition(profile.hardwareSpec.intakeServo2Out);
+    }
+
+    public void stopIntake() {
+        intakeMotor.setPower(0);
+        intakeServo1.setPosition(profile.hardwareSpec.intakeServo1Stop);
+        intakeServo2.setPosition(profile.hardwareSpec.intakeServo2Stop);
     }
 
     public void closeDronePivotServo() {
@@ -251,31 +262,16 @@ public class RobotHardware {
     }
 
     public void setLiftPosition(int newLiftPos) {
-        long currPos = liftMotors[0].getCurrentPosition();
-        boolean goUp = newLiftPos>currPos;
-        if (!goUp) {
-            if (extensionPos < profile.hardwareSpec.extensionDriverMin && newLiftPos < profile.hardwareSpec.liftSafeRotate) {
-                newLiftPos = profile.hardwareSpec.liftSafeRotate;
-            }
-            else {
-                newLiftPos = Math.max(0, newLiftPos);
-            }
-        }
-        else {
-            newLiftPos = Math.min(newLiftPos, profile.hardwareSpec.liftMax);
-        }
-        for(DcMotorEx liftMotor : liftMotors) {
-            liftMotor.setTargetPosition(newLiftPos);
-            liftMotor.setPower(goUp ? profile.hardwareSpec.liftPowerUp : profile.hardwareSpec.liftPowerDown);
-            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
+        int currPos = liftMotors[0].getCurrentPosition();
+        setLiftPosition(newLiftPos, (currPos<newLiftPos)?profile.hardwareSpec.liftPowerUp:
+                profile.hardwareSpec.liftPowerDown);
     }
 
-    public void setLiftPositionUnsafe(int newLiftPos, double power) {
+    public void setLiftPosition(int newLiftPos, double power) {
         for(DcMotorEx liftMotor : liftMotors) {
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             liftMotor.setTargetPosition(newLiftPos);
             liftMotor.setPower(power);
-            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
     }
 
@@ -290,31 +286,8 @@ public class RobotHardware {
         return liftMotors[0].getTargetPosition();
     }
 
-    public boolean pickUpCheck(boolean isRed) {
-        if (((DistanceSensor)coneSensor).getDistance(DistanceUnit.INCH)>profile.hardwareSpec.coneDistInch) {
-            return false;
-        }
-        NormalizedRGBA rgba = coneSensor.getNormalizedColors();
-        double total = rgba.red + rgba.blue + rgba.green;
-        double rp = rgba.red/total;
-        double bp = rgba.blue/total;
-        double gp = rgba.green/total;
-        if (isRed && rp>profile.hardwareSpec.mainColorMin && bp<profile.hardwareSpec.otherColorMax && gp<profile.hardwareSpec.otherColorMax) {
-            return true;
-        }
-        if (!isRed && bp>profile.hardwareSpec.mainColorMin && rp<profile.hardwareSpec.otherColorMax && gp<profile.hardwareSpec.otherColorMax) {
-            return true;
-        }
-        return false;
-    }
-
-    public void turnOnLight(boolean isOn) {
-        double p = (isOn) ? profile.hardwareSpec.lightPower : 0.5;
-//        lightServo.setPosition(p);
-    }
-
     public boolean isLiftMoving() {
-        return Math.abs(liftMotors[0].getVelocity())>10;
+        return Math.abs(liftMotors[0].getVelocity())>5;
     }
 
     public void mecanumDrive2(double power, double angle, double rotation){
@@ -357,7 +330,8 @@ public class RobotHardware {
             rrMotor.setPower(rrPower);
         }
         catch (Exception ex) {
-            // nothing to handle
+            Logger.logFile("setMotorPower exception: " + ex);
+            ex.printStackTrace();
         }
     }
 
@@ -377,18 +351,13 @@ public class RobotHardware {
         }
         else {
             expansionHub1.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-//            expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);    //null pointer exception on expansionHub2
+            expansionHub2.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
     }
 
     public void clearBulkCache() {
-        try {
-            expansionHub1.clearBulkCache();
-            expansionHub2.clearBulkCache();
-        }
-        catch (Exception ex) {
-            // expansionHub2 might not be there
-        }
+        expansionHub1.clearBulkCache();
+        expansionHub2.clearBulkCache();
     }
 
     public void stopAll() {
@@ -396,7 +365,6 @@ public class RobotHardware {
         for(DcMotorEx liftMotor:liftMotors) {
             liftMotor.setPower(0);
         }
-//        turnUpSignalBlocker();
     }
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
@@ -467,10 +435,6 @@ public class RobotHardware {
         return profile;
     }
 
-    public boolean isLiftTouched() {return liftTouch.isPressed();}
-
-    public boolean isMagneticTouched() {return magneticSensor.isPressed();}
-
     public int getFLMotorEncoderCnt(){
         return this.flMotor.getCurrentPosition();
     }
@@ -487,82 +451,43 @@ public class RobotHardware {
         return this.rrMotor.getCurrentPosition();
     }
 
-
     public void resetLiftPos() {
         for(DcMotorEx liftMotor : liftMotors) {
             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
     }
 
-    public void extensionExtend() {
-        extensionPos = Math.min(profile.hardwareSpec.extensionFullOutPos, extensionPos + .1);
-//        extensionServo.setPosition(extensionPos);
-    }
-
-    public void extensionRetract() {
-        extensionPos = Math.max(profile.hardwareSpec.extensionInitPos, extensionPos - .1);
-//        extensionServo.setPosition(extensionPos);
-    }
-
-    public void setExtensionPosition(double extensionPos) {
-        this.extensionPos = Math.max(Math.min(extensionPos, profile.hardwareSpec.extensionFullOutPos),
-                profile.hardwareSpec.extensionInitPos);
-//        extensionServo.setPosition(this.extensionPos);
-    }
-
-    public double getExtensionPosition() {
-        return extensionPos;
-    }
-
     public void grabberOpen() {
         gripOpen = true;
         gripperServo.setPosition(profile.hardwareSpec.grabberOpenPos);
-//        turnOffLight();
     }
 
     public void grabberClose() {
         gripOpen = false;
         gripperServo.setPosition(profile.hardwareSpec.grabberClosePos);
-        turnOnLight();
-    }
-
-    public void grabberMoveSafe() {
-        gripOpen = true;
-        gripperServo.setPosition(profile.hardwareSpec.grabberSafePos);
-//        turnOffLight();
     }
 
     public boolean isGripOpen() {
         return gripOpen;
     }
 
-    public void grabberInit() {
-        gripOpen = true;
-        gripperServo.setPosition(profile.hardwareSpec.grabberInitPos);
-//        turnOffLight();
+    public void grabberUp() {
+        gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateServoUp);
     }
 
-    public void turnOnLight() {
-//        lightServo.setPosition(profile.hardwareSpec.lightPower);
+    public void grabberIn() {
+        gripperInOutServo.setPosition(profile.hardwareSpec.gripperInOutServoIn);
     }
 
-//    public void turnOffLight() {
-//        lightServo.setPosition(0.5);
-//    }
-
-    public void turnDownSignalBlocker(){
-//        signalBlockerServo.setPosition(profile.hardwareSpec.signalBlockerDown);
-    }
-
-    public void turnUpSignalBlocker(){
-//        signalBlockerServo.setPosition(profile.hardwareSpec.signalBlockerUp);
+    public void grabberOut() {
+        gripperInOutServo.setPosition(profile.hardwareSpec.gripperInOutServoOut);
     }
 
     public void initSetupNoAuto(OpMode opmod) {
-//        extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
-        grabberClose();
-        // Goes down to touch first
-        setLiftPositionUnsafe(-5000, 0.3);
+        /*
+        grabberOpen();
+        resetLiftPos();
+        setLiftPosition(profile.hardwareSpec.liftOutMin);
         long t = System.currentTimeMillis();
         while (!isLiftTouched() && (System.currentTimeMillis()-t)<3000) {
             try {
@@ -572,21 +497,8 @@ public class RobotHardware {
             }
         }
         resetLiftPos();
-        setLiftPosition(0);
-        // goes up again until touch no more
-        int i = 0;
-        while (isLiftTouched()) {
-            i = i+1;
-            setLiftPosition(i);
-            try {
-                Thread.sleep(10);
-            }
-            catch (Exception ex) {
-            }
-        }
         resetLiftPos();
-//        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
-        grabberInit();
+         */
     }
 
     public void initSetup(LinearOpMode opmode) {

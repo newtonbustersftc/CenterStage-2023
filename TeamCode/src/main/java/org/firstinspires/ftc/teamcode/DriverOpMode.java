@@ -108,10 +108,8 @@ public class DriverOpMode extends OpMode {
 
 
         handleMovement();
-        handleExtension();
         //handleGripper();
         handleGripperV2();
-        handleLiftV2();
         if (gamepad1.b || gamepad2.b) {
             currentTask.prepare();
         }
@@ -167,38 +165,6 @@ public class DriverOpMode extends OpMode {
         telemetry.addData("RR Dir:", robotHardware.rrMotor.getDirection());
     }
 
-    public void handleExtension() {
-        if (currentTask!=null) {
-            return; // task going on
-        }
-        if (safeDrive) {
-            if (Math.abs(gamepad2.right_stick_y)<0.2) {
-                //telemetry.addData("Extension Pos", "FOR ROTATE");
-            }
-            else {
-                safeDrive = false;
-                if (robotHardware.isGripOpen()) {
-                    currentTask = forPickUp;
-                    currentTask.prepare();
-                }
-            }
-        }
-        else if (justAutoPole) {
-            justAutoPole = Math.abs(gamepad2.right_stick_y)<0.2;    // continue to hold extension until stick moved
-        }
-        else if (gamepad2.right_stick_y > 0){
-//            robotHardware.setExtensionPosition(robotProfile.hardwareSpec.extensionInitPos);
-            double extensionTempPos = Math.max(0, gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionInitPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
-            robotHardware.setExtensionPosition(extensionTempPos);
-            telemetry.addData("Extension Pos", extensionTempPos);
-        }
-        else {
-            double extensionTempPos = Math.max(0, -gamepad2.right_stick_y) * (robotHardware.profile.hardwareSpec.extensionFullOutPos - robotHardware.profile.hardwareSpec.extensionDriverMin) + robotHardware.profile.hardwareSpec.extensionDriverMin;
-            robotHardware.setExtensionPosition(extensionTempPos);
-            telemetry.addData("Extension Pos", extensionTempPos);
-        }
-    }
-
     /**public void handleLift() {
         // robotHardware.isMagneticTouched() liftMax
         if (liftCanChange) {
@@ -221,29 +187,6 @@ public class DriverOpMode extends OpMode {
         }
         liftCanChange = !gamepad2.right_bumper && gamepad2.right_trigger <0.3;
     }*/
-
-    public void handleLiftV2() {
-        // robotHardware.isMagneticTouched() liftMax
-        if (liftCanChange) {
-            int[] pos = (robotHardware.isGripOpen())?robotProfile.hardwareSpec.liftPickPos:robotProfile.hardwareSpec.liftDropPos;
-            int currPos = robotHardware.getTargetLiftPosition();
-            if (gamepad2.right_bumper) {    // going up
-                int n = 0;
-                while (n<pos.length-1 && pos[n]<currPos+15) {   // need the 50 range because lift maybe shifting up/down a bit
-                    n++;
-                }
-                robotHardware.setLiftPosition(pos[n]);
-            }
-            else if (gamepad2.left_bumper) { // going down
-                int n = pos.length - 1;
-                while (n>0 && pos[n] >= currPos-15) {
-                    n--;
-                }
-                robotHardware.setLiftPosition(pos[n]);
-            }
-        }
-        liftCanChange = !gamepad2.right_bumper && !leftBumperPressed;
-    }
 
     /**public void handleGripper() {
         if(gamepad2.left_trigger > 0.15 && gripperCanChange){

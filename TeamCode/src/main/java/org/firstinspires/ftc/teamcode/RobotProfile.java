@@ -59,6 +59,12 @@ public class RobotProfile {
         out.close();
     }
 
+    public String toString() {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
+    }
+
     public class PIDParam {
         public double p;
         public double i;
@@ -69,7 +75,6 @@ public class RobotProfile {
     public class HardwareSpec {
         public boolean revHubVertical;
         public boolean useControlHubImu;
-        public boolean autoTurretReset;
         public double ticksPerRev;
         public double trackWidth;
         public double encoderOffset;
@@ -79,44 +84,22 @@ public class RobotProfile {
         public boolean leftEncoderReverse;
         public boolean rightEncoderReverse;
         public boolean horizontalEncoderReverse;
-        public double grabberInitPos, grabberOpenPos, grabberClosePos, grabberSafePos;
-        public double extensionInitPos, extensionFullOutPos, extensionDriverMin, extensionFullInPos;
-        public double turretPower;
-        public double turretDecelerate;
-        public double lightPower;
-        public double coneDistInch;
-        public double mainColorMin;
-        public double otherColorMax;
-        public int turretMaxAhead;
-        public int turretMoveMax;
-        public int turret360;
-        public int turretOffset;
-        public double turretPowerDownMs;
-        public double turretRampDownP;
         public int liftMax;
-        public int liftSafeRotate;
+        public int liftOutMin;
         public double liftPowerUp, liftPowerDown;
-        public double signalBlockerDown, signalBlockerUp;
-        public double armLengthLeftDrop1;
-        int liftPickPos[];
-        int liftDropPos[];
-    }
+        public double grabberOpenPos;
+        public double grabberClosePos;
+        public double droneServoInitPos;
+        public double droneServoShootPos;
+        public double droneHookClosePos;
+        public double droneHookOpenPos;
+        public double intakePower;
+        public double intakeServo1In, intakeServo1Out, intakeServo1Stop;
+        public double intakeServo2In, intakeServo2Out, intakeServo2Stop;
+        public double gripperInOutServoOut, gripperInOutServoIn;
+        public double gripperRotateServoUp, gripperRotateServoLeft, gripperRotateServoRight;
 
-    public class PoleParameter {
-        public int gain;
-        public int focus;
-        public int exposureMs;
-        public int whiteBalance;
-        public Scalar lowerBound, upperBound;
-        public int samplesEachSide;
-        public int minSize;
-        public int[] cropXywh;
-        public int[] centerPosition;
-        public int closestPoleWidth;
-        public double aFactor;
-        public double bFactor;
     }
-
     public class RoadRunnerParam {
         public double kA;
         public double kV;
@@ -149,8 +132,6 @@ public class RobotProfile {
         Scalar redUpperBound;
         Scalar blueLowerBound;
         Scalar blueUpperBound;
-        Scalar greenLowerBound;
-        Scalar greenUpperBound;
         int cropTopPercent;
         int cropBottomPercent;
         int cropLeftPercent;
@@ -165,57 +146,13 @@ public class RobotProfile {
         double normVelocity;
         double normAngVelo;
         double normAcceleration;
-        int liftHighDrop;
-        int liftMidDrop;
-        int liftLowDrop;
-        int liftGroundDrop;
-        int liftStack5;
-        int liftStack4;
-        int liftUpSafe;
-        double armLengthLeftDrop1;
-        double armLengthRightDrop1;
-        double armLengthDropLow;
-        double armLengthDropLowRight;
-        double armLengthDropGround;
-        double armLengthDropGroundRight;
-        double armLengthDrop;
-        double armLengthPickLeft;
-        double armLengthPickRight;
-        double armLengthPostPick;
-        double armLengthPostLeftPickHighPole;
-        double armLengthPostRightPickHighPole;
-        double pickStraftLeft;
-        double pickStraftRight;
-        int turretGroundLeft;
-        int turretGroundRight;
-        int turretForwardPos;
-        int turretDropPosRight;
-        int turretPickPosRight;
-        int turretDropPosLeft;
-        int turretPickPosLeft;
-        int turretDropPosLeftHighPole;
-        int turretDropPosRightHighPole;
-        int turretDropPosLeftMidPole_begin;
-        int turretDropPosRightMidPole_begin;
-        int turretDropPosLeftMidPole_deliver;
-        int turretDropPosRightMidPole_deliver;
-        int turretLeft1FinalPos;
-        int turretRight1FinalPos;
-        int turretLeft2FinalPos;
-        int turretRight2FinalPos;
-        int turretLeft3FinalPos;
-        int turretRight3FinalPos;
-        double forwardPre1;
-        double forward;
-        //        double forward_mid;
-        double back1;
-        double backPick;
     }
 
     public void createSampleProfile() {
         hardwareSpec = new HardwareSpec();
         hardwareSpec.revHubVertical = true;
-        hardwareSpec.liftPickPos = new int[]{10, 12, 36, 10};
+        hardwareSpec.liftMax = 1000;
+        hardwareSpec.liftOutMin = 500;
 
     }
 }

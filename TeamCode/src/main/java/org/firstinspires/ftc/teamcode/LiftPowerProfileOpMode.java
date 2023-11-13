@@ -37,7 +37,7 @@ public class LiftPowerProfileOpMode extends LinearOpMode {
             double maxV = 0;
             // Testing lift
             long startTime = System.currentTimeMillis();
-            robotHardware.setLiftPositionUnsafe(robotProfile.hardwareSpec.liftMax-100, p);
+            robotHardware.setLiftPosition(robotProfile.hardwareSpec.liftMax-100, p);
             while (robotHardware.getLiftPosition()<robotProfile.hardwareSpec.liftMax-110) {
                 double v = robotHardware.getLiftVelocity();
                 if (v>maxV) {
@@ -56,9 +56,9 @@ public class LiftPowerProfileOpMode extends LinearOpMode {
 
     void resetLiftZeroPosition() {
         long currTime = System.currentTimeMillis();
-        while (!robotHardware.isLiftTouched() && (System.currentTimeMillis() - currTime)<10000) {
+        while (robotHardware.isLiftMoving() && (System.currentTimeMillis() - currTime)<10000) {
             int currPos = robotHardware.getLiftPosition();
-            robotHardware.setLiftPositionUnsafe(currPos - 2000, 0.2);
+            robotHardware.setLiftPosition(currPos - 2000, 0.2);
         }
         robotHardware.resetLiftPos();
     }

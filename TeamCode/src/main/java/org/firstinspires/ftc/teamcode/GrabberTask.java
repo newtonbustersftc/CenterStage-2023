@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 public class GrabberTask implements RobotControl {
-    public enum GrabberState { OPEN, CLOSE, INIT, SAFE };
+    public enum GrabberState { OPEN, CLOSE};
 
     RobotHardware robotHardware;
     long startTime;
@@ -32,12 +32,6 @@ public class GrabberTask implements RobotControl {
         startTime = System.currentTimeMillis();
         if (state==GrabberState.OPEN) {
             robotHardware.grabberOpen();
-        }
-        else if(state==GrabberState.INIT) {
-            robotHardware.grabberInit();
-        }
-        else if (state==GrabberState.SAFE) {
-            robotHardware.grabberMoveSafe();
         }
         else{
             robotHardware.grabberClose();

@@ -37,9 +37,11 @@ public class HardwareOpModeTest extends OpMode {
         }
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(hardwareMap);
         String startPosStr = prefs.getString("starting position", "none");
+        Logger.init();
+        Logger.logFile("---- Profile ----\n" + robotProfile + "--------\n");
         Logger.logFile("StartPos:" + startPosStr);
 
-        Logger.init();
+
         robotHardware = new RobotHardware();
         robotHardware.init(hardwareMap, robotProfile);
         robotHardware.grabberOpen();
@@ -64,24 +66,14 @@ public class HardwareOpModeTest extends OpMode {
         testHardware();
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
-//        telemetry.addData("Lift Touch", robotHardware.isLiftTouched());
-//        telemetry.addData("Magnetic Sensor", robotHardware.isMagneticTouched());
         telemetry.addData("Lift Position", robotHardware.getLiftPosition());
-//        telemetry.addData("Extension Position", robotHardware.extensionPos);
         telemetry.addData("Grabber", grabberPos);
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
                 .addData("RL - right ", robotHardware.rlMotor.getCurrentPosition())
                 .addData("RR -  left ", robotHardware.rrMotor.getCurrentPosition())
-                .addData("FR - center", robotHardware.frMotor.getCurrentPosition());
-//        NormalizedRGBA rgba = robotHardware.coneSensor.getNormalizedColors();
-//        double allcolor = rgba.red + rgba.blue + rgba.green;
-//        telemetry.addData("RED%", rgba.red / allcolor);
-//        telemetry.addData("BLUE%", rgba.blue / allcolor);
-//        telemetry.addData("Green%", rgba.green / allcolor);
-//        telemetry.addData("Dist inch", ((DistanceSensor)robotHardware.coneSensor).getDistance(DistanceUnit.INCH));
-//        telemetry.addData("PickRed", robotHardware.pickUpCheck(true));
-//        telemetry.addData("PickBlue", robotHardware.pickUpCheck(false));
-
+                .addData("FR - center", robotHardware.frMotor.getCurrentPosition())
+                .addData("Lift0", robotHardware.getLiftMotors()[0].getCurrentPosition())
+                .addData("Lift1", robotHardware.getLiftMotors()[1].getCurrentPosition());
         telemetry.update();
 
         if (gamepad1.x) { // Square
@@ -89,11 +81,18 @@ public class HardwareOpModeTest extends OpMode {
         } else if (gamepad1.y) { // Triangle
             robotHardware.grabberOpen();
         }
-        if (!turretTurnTest && gamepad1.dpad_up) {
-//            turretTurnTest = true;
+
+        if (gamepad1.left_bumper) {
+            robotHardware.startIntake();
         }
+        else if (gamepad1.right_bumper) {
+            robotHardware.reverseIntake();
+        }
+        else {
+            robotHardware.stopIntake();
+        }
+/*
         if (gamepad1.dpad_down) {
-//            robotHardware.setMotorPower(0.5,0.5,0.5,0.5);
             robotHardware.setMotorPower(0.5,0,0,0);
         }
 
@@ -108,14 +107,7 @@ public class HardwareOpModeTest extends OpMode {
         if(gamepad1.dpad_right){
               robotHardware.setMotorPower(0,0,0,0.5);
         }
-
-//        blocking = robotHardware.isMagneticTouched();
-
-        if (gamepad1.dpad_left) {
-//            robotHardware.extensionExtend();
-        } else if (gamepad1.dpad_right) {
-//            robotHardware.extensionRetract();
-        }
+ */
 
         if (!grabberChange) {
             if (gamepad1.right_bumper) {

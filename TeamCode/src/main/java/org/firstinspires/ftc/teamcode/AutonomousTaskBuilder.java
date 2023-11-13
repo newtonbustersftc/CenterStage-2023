@@ -30,7 +30,7 @@ public class AutonomousTaskBuilder {
     int parkingRow;
     String aimPole;
 
-    public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile) {
+    public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile, RobotCVProcessor.TEAM_PROP_POS teamPropPos) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
