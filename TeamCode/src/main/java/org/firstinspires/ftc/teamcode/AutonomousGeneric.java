@@ -51,8 +51,8 @@ public class AutonomousGeneric extends LinearOpMode {
         initRobot();
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotHardware.enableManualCaching(false);
-//        robotHardware.clearBulkCache();
-//        robotHardware.initSetup(this);
+        robotHardware.clearBulkCache();
+        robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         //robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();

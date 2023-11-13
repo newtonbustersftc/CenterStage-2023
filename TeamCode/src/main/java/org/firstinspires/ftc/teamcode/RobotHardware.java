@@ -250,7 +250,7 @@ public class RobotHardware {
     }
 
     public int getLiftPosition() {
-        return liftMotors[0].getCurrentPosition();
+        return liftMotors[1].getCurrentPosition();
     }
 
     public String getLiftMotorPos() {
@@ -258,7 +258,7 @@ public class RobotHardware {
     }
 
     public double getLiftVelocity() {
-        return liftMotors[0].getVelocity();
+        return liftMotors[1].getVelocity();
     }
 
     public void setLiftPosition(int newLiftPos) {
@@ -283,11 +283,11 @@ public class RobotHardware {
     }
 
     public int getTargetLiftPosition() {
-        return liftMotors[0].getTargetPosition();
+        return liftMotors[1].getTargetPosition();
     }
 
     public boolean isLiftMoving() {
-        return Math.abs(liftMotors[0].getVelocity())>5;
+        return Math.abs(liftMotors[1].getVelocity())>5;
     }
 
     public void mecanumDrive2(double power, double angle, double rotation){
@@ -475,12 +475,38 @@ public class RobotHardware {
         gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateServoUp);
     }
 
+    public void grabberLeft() {
+        gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateServoLeft);
+    }
+    public void grabberRight() {
+        gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateServoRight);
+    }
+
     public void grabberIn() {
         gripperInOutServo.setPosition(profile.hardwareSpec.gripperInOutServoIn);
     }
 
     public void grabberOut() {
         gripperInOutServo.setPosition(profile.hardwareSpec.gripperInOutServoOut);
+    }
+
+    public void droneShootPosition() {
+        dronePivotServo.setPosition(profile.hardwareSpec.droneServoShootPos);
+    }
+
+    public void droneInitPosition() {
+        dronePivotServo.setPosition(profile.hardwareSpec.droneServoInitPos);
+    }
+
+    public void droneLoadPosition() {
+        dronePivotServo.setPosition(profile.hardwareSpec.droneServoLoadPos);
+    }
+
+    public void droneRelease() {
+        droneReleaseServo.setPosition(profile.hardwareSpec.droneHookOpenPos);
+    }
+    public void droneHook() {
+        droneReleaseServo.setPosition(profile.hardwareSpec.droneHookClosePos);
     }
 
     public void initSetupNoAuto(OpMode opmod) {
@@ -503,11 +529,12 @@ public class RobotHardware {
 
     public void initSetup(LinearOpMode opmode) {
         resetDriveAndEncoders();
-        opmode.telemetry.addLine("PLEASE MOVE THE ROBOT AROUND");
+        opmode.telemetry.clearAll();
         boolean done = false;
         int frMin = 0, frMax = 0, rrMin = 0, rrMax = 0, flMin = 0, flMax = 0, rlMin = 0, rlMax = 0;
         int MIN_MAX = 1250;
         while (!opmode.isStopRequested() && !done) {
+            opmode.telemetry.addData("MSG:", "PLEASE MOVE THE ROBOT AROUND");
             opmode.telemetry.addData("FR", frMotor.getCurrentPosition());
             opmode.telemetry.addData("FL", flMotor.getCurrentPosition());
             opmode.telemetry.addData("RR", rrMotor.getCurrentPosition());
@@ -535,71 +562,47 @@ public class RobotHardware {
         }
         waitforUp(opmode, text);
         if (opmode.isStopRequested()) return;
-//        extensionServo.setPosition(profile.hardwareSpec.extensionDriverMin);
-//        grabberClose();
-//
-//        if (opmode.isStopRequested()) return;
-//
-//        // Lift position reset
-//        long startTime = System.currentTimeMillis();
-//        setLiftPower(-0.3);
-//        while (!isLiftTouched() && (System.currentTimeMillis() - startTime<3000) && !opmode.isStopRequested()) {
-//            try {
-//                Thread.sleep(10);
-//            }
-//            catch (Exception ex) {
-//            }
-//        }
-//        // continue to hold for half a second
-//        try {
-//            Thread.sleep(500);
-//        }
-//        catch (Exception ex) {
-//        }
-//        // now let's tension for go up
-//        Logger.logFile("Lift reset up tension");
-//        resetLiftPos();
-//        setLiftPositionUnsafe(0, 0.6); // holding
-//        // tension for lift motor 0, holding position 0 using motor 1,2
-//        liftMotors[0].setPower(0.2);
-//        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        try {
-//            Thread.sleep(500);
-//        }
-//        catch (Exception ex) {
-//        }
-//        // using motor 0 to hold position
-//        liftMotors[0].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        liftMotors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        liftMotors[0].setTargetPosition(0);
-//        liftMotors[0].setPower(0.8);
-//        liftMotors[1].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        liftMotors[1].setPower(0.1);
-//        liftMotors[2].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        liftMotors[2].setPower(0.1);
-//        try {
-//            Thread.sleep(500);
-//        }
-//        catch (Exception ex) {
-//        }
-//        resetLiftPos();
-//        setLiftPositionUnsafe(0, 0.5);
-//
-//        if (opmode.isStopRequested()) return;
-//        extensionServo.setPosition(profile.hardwareSpec.extensionInitPos);
-//        grabberInit();
+        // Lift position reset
+        long startTime = System.currentTimeMillis();
+        resetLiftPos();
+        // 1. move up
+        setLiftPosition(profile.hardwareSpec.liftOutMin+100, 0.3);
+        while (getLiftPosition() < profile.hardwareSpec.liftOutMin && (System.currentTimeMillis() - startTime)<3000) {
+            opmode.sleep(10);
+        }
+        setLiftPower(0);
+        grabberOpen();
+        grabberUp();
+        grabberIn();
+        opmode.sleep(500);
+        setLiftPower(-0.3);
+        long downStart = System.currentTimeMillis();
+        while (isLiftMoving() || (System.currentTimeMillis() - downStart) < 100) {
+            opmode.sleep(10);
+        }
+        resetLiftPos();
+        opmode.sleep(100);
+        setLiftPower(0.1);
+        opmode.sleep(300);
+        setLiftPosition(0);
+        droneRelease();
+        droneLoadPosition();
+        waitforUp(opmode, "Get Drone In Place Please, then UP");
+        droneHook();
+        try { Thread.sleep(500); } catch (Exception ex) {}
+        waitforUp(opmode, "UP -> Ready");
+        droneInitPosition();
     }
 
     void waitforUp(LinearOpMode opmode, String text) {
         opmode.telemetry.clearAll();
         // wait until dpad-up pressed
         while (!opmode.isStopRequested() && !opmode.gamepad1.dpad_up) {
-            opmode.telemetry.addLine(text);
-            if (Math.abs(frMotor.getCurrentPosition()-rlMotor.getCurrentPosition())>400 ||
-                    Math.abs(flMotor.getCurrentPosition()-rrMotor.getCurrentPosition())>400) {
-                opmode.telemetry.addLine("******************\nONE OF DEAD WHEEL MAY BE STUCK\n******************");
-            }
-
+//            if (Math.abs(frMotor.getCurrentPosition()-rlMotor.getCurrentPosition())>400 ||
+//                    Math.abs(flMotor.getCurrentPosition()-rrMotor.getCurrentPosition())>400) {
+//                opmode.telemetry.addLine("******************\nONE OF DEAD WHEEL MAY BE STUCK\n******************");
+//            }
+            opmode.telemetry.addData("MSG", text);
             opmode.telemetry.addData("FR", frMotor.getCurrentPosition());
             opmode.telemetry.addData("FL", flMotor.getCurrentPosition());
             opmode.telemetry.addData("RR", rrMotor.getCurrentPosition());

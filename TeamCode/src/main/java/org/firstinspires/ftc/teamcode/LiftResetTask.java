@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class LiftResetTask implements RobotControl {
-    enum Mode { UP, WAIT, DOWN, DONE };
+    enum Mode { UP, WAIT, DOWN, REST, DONE };
     Mode mode;
     RobotHardware robotHardware;
-    long startTime, waitStart;
+    long startTime, waitStart, restStart;
     RobotProfile profile;
 
     public LiftResetTask(RobotHardware hardware, RobotProfile profile) {
@@ -32,6 +32,7 @@ public class LiftResetTask implements RobotControl {
         if (mode==Mode.UP && (System.currentTimeMillis() - startTime > 100)) {
             if (robotHardware.getLiftPosition()>profile.hardwareSpec.liftOutMin ||
                 !robotHardware.isLiftMoving()) {
+                Logger.logFile("ResetLift WAIT mode");
                 robotHardware.setLiftPower(0);
                 mode = Mode.WAIT;
                 waitStart = System.currentTimeMillis();
@@ -41,13 +42,23 @@ public class LiftResetTask implements RobotControl {
             }
         }
         if (mode==Mode.WAIT && (System.currentTimeMillis() - waitStart > 200)) {
+            Logger.logFile("ResetLift DOWN mode");
             mode = Mode.DOWN;
             robotHardware.setLiftPosition(-5000, 0.3);
         }
-        if (mode==Mode.DOWN && (System.currentTimeMillis() - waitStart> 300)) {
-            if (!robotHardware.isLiftMoving()) {
-                robotHardware.resetLiftPos();
+        if (mode==Mode.DOWN && (System.currentTimeMillis() - waitStart> 500)) {
+            if (!robotHardware.isLiftMoving() || (System.currentTimeMillis() - waitStart>3000)) {
+                Logger.logFile("ResetLift REST mode");
                 robotHardware.setLiftPower(0);
+                mode = Mode.REST;
+                restStart = System.currentTimeMillis();
+            }
+        }
+        if (mode==Mode.REST) {
+            if (System.currentTimeMillis() - restStart >200) {
+                Logger.logFile("ResetLift DONE mode");
+                robotHardware.resetLiftPos();
+                robotHardware.setLiftPosition(0);
                 mode = Mode.DONE;
             }
         }

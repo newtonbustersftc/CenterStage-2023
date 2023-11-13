@@ -171,6 +171,20 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     public void handleGripper() {
+        if (currentTask==null && gamepad1.x) {
+            currentTask = new PixelUpTask(robotHardware, 500);
+            currentTask.prepare();
+        }
+        else if (currentTask==null && gamepad1.y) {
+            currentTask = new DropPixelTask(robotHardware);
+            currentTask.prepare();
+        }
+        if (currentTask==null && gamepad1.left_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin) {
+            robotHardware.grabberLeft();
+        }
+        else if (currentTask==null && gamepad1.right_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin) {
+            robotHardware.grabberRight();
+        }
     }
 
     /**
