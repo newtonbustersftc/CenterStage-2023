@@ -88,12 +88,13 @@ public class RobotProfile {
         public int liftOutMin;
         public double liftPowerUp, liftPowerDown;
         public double grabberOpenPos;
-        public double grabberClosePos;
+        public double gripperServo1Pixel, gripperServo2Pixel;
         public double droneServoInitPos;
         public double droneServoShootPos;
         public double droneServoLoadPos;
         public double droneHookClosePos;
         public double droneHookOpenPos;
+        public int intakeDropSpike;
         public double intakePower;
         public double intakeServo1In, intakeServo1Out, intakeServo1Stop;
         public double intakeServo2In, intakeServo2Out, intakeServo2Stop;

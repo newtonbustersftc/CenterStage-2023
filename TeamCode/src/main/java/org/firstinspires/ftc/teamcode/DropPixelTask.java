@@ -3,7 +3,8 @@ package org.firstinspires.ftc.teamcode;
 public class DropPixelTask implements RobotControl {
     RobotHardware robotHardware;
     long dropTime;
-    boolean grabberOut;
+    enum Mode { OPEN, IN, LIFT}
+    Mode mode;
 
     public DropPixelTask(RobotHardware hardware) {
         this.robotHardware = hardware;
@@ -16,17 +17,20 @@ public class DropPixelTask implements RobotControl {
     @Override
     public void prepare() {
         robotHardware.grabberOpen();
+        mode = Mode.OPEN;
         dropTime = System.currentTimeMillis();
-        grabberOut = true;
     }
 
     @Override
     public void execute() {
-        if (grabberOut && (System.currentTimeMillis() - dropTime) > 200) {
+        if (mode==Mode.OPEN && (System.currentTimeMillis() - dropTime) > 200) {
             robotHardware.grabberUp();
             robotHardware.grabberIn();
+            mode = Mode.IN;
+        }
+        else if (mode==Mode.IN && (System.currentTimeMillis() - dropTime) > 400) {
             robotHardware.setLiftPosition(0);
-            grabberOut = false;
+            mode = Mode.LIFT;
         }
     }
     @Override
@@ -35,6 +39,6 @@ public class DropPixelTask implements RobotControl {
 
     @Override
     public boolean isDone() {
-        return System.currentTimeMillis() - dropTime > 500;
+        return System.currentTimeMillis() - dropTime > 800;
     }
 }

@@ -107,6 +107,7 @@
     "droneServoShootPos": 0.4,
     "droneHookClosePos": 0.525,
     "droneHookOpenPos": 0.4,
+    "intakeDropSpike": -25,
     "intakePower": -0.5,
     "intakeServo1In": 0.0,
     "intakeServo1Out": 1.0,

@@ -66,14 +66,14 @@ public class HardwareOpModeTest extends OpMode {
         testHardware();
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
-        telemetry.addData("Lift Position", robotHardware.getLiftPosition());
         telemetry.addData("Grabber", grabberPos);
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
                 .addData("RL - right ", robotHardware.rlMotor.getCurrentPosition())
                 .addData("RR -  left ", robotHardware.rrMotor.getCurrentPosition())
                 .addData("FR - center", robotHardware.frMotor.getCurrentPosition())
                 .addData("Lift0", robotHardware.getLiftMotors()[0].getCurrentPosition())
-                .addData("Lift1", robotHardware.getLiftMotors()[1].getCurrentPosition());
+                .addData("Lift1", robotHardware.getLiftMotors()[1].getCurrentPosition())
+                .addData("Intake", robotHardware.intakeMotor.getCurrentPosition());
         telemetry.update();
 
         if (gamepad1.x) { // Square

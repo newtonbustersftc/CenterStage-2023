@@ -35,6 +35,7 @@ public class AutonomousGenericTest extends LinearOpMode {
     RobotHardware robotHardware;
     RobotProfile robotProfile;
 
+    Pose2d p0 = new Pose2d(12, 63, Math.PI/2);
     ArrayList<RobotControl> taskList;
     long loopCount = 0;
     int countTasks = 0;
@@ -62,7 +63,7 @@ public class AutonomousGenericTest extends LinearOpMode {
             robotHardware.setMotorStopBrake(false); // so we can adjust the robot
             robotHardware.enableManualCaching(false);
             //robotHardware.initSetup(this);
-            robotHardware.initSetupNoAuto(this);
+            //robotHardware.initSetupNoAuto(this);
             robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         }
         catch (Exception ex) {
@@ -93,7 +94,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         //cvp.close();
         //aprilTagSignalRecognition.stopRecognition();
         robotHardware.resetDriveAndEncoders();
-        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(12,40,Math.PI/2));
+        robotHardware.getLocalizer().setPoseEstimate(p0);
         taskList = new ArrayList<RobotControl>();
 
         setupTaskList1();
@@ -152,10 +153,9 @@ public class AutonomousGenericTest extends LinearOpMode {
         velConstraint = getVelocityConstraint(15, 10, TRACK_WIDTH);
         accelConstraint = getAccelerationConstraint(10);
         // move to shoot
-        Pose2d p0 = new Pose2d(12,40,Math.PI/2);
-        Pose2d p1 = new Pose2d(0, 12, Math.PI/4 + Math.PI);
-        Pose2d p1b= new Pose2d(0,12, Math.PI/4);
-        Pose2d p2 = new Pose2d(24, -10, 0);
+        Pose2d p1 = new Pose2d(9, 39, Math.PI/4 + Math.PI);
+        Pose2d p1b= new Pose2d(12, 39,Math.PI/4);
+        Pose2d p2 = new Pose2d(49, 39, 0);
 
         Trajectory trj = robotHardware.mecanumDrive.trajectoryBuilder(p0, true)
                 .splineTo(p1.vec(), p1.getHeading(), velConstraint, accelConstraint)
@@ -163,13 +163,17 @@ public class AutonomousGenericTest extends LinearOpMode {
         SplineMoveTask moveTask1 = new SplineMoveTask(robotHardware.mecanumDrive, trj);
         taskList.add(new RobotSleep(1000));
         taskList.add(moveTask1);
-        taskList.add(new RobotSleep(1000));
+        taskList.add(new DropSpikeMarkTask(robotHardware));
         Trajectory trj2 = robotHardware.mecanumDrive.trajectoryBuilder(p1b)
                 .splineTo(p2.vec(), p2.getHeading(), velConstraint, accelConstraint)
                 .build();
         SplineMoveTask moveTask2= new SplineMoveTask(robotHardware.mecanumDrive, trj2);
         taskList.add(moveTask2);
         taskList.add(new RobotSleep(1000));
+        taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
+        taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
+        taskList.add(new RobotSleep(1000));
+        taskList.add(new DropPixelTask(robotHardware));
     }
 
     void setupTaskList2() {

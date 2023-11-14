@@ -123,6 +123,17 @@ public class RobotHardware {
         }
     }
 
+    public void intakeDropSpike() {
+        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intakeMotor.setPower(0.15);
+        intakeMotor.setTargetPosition(profile.hardwareSpec.intakeDropSpike);
+    }
+
+    public void resetIntakeMotor() {
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     public void resetDriveAndEncoders() {
         flMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rlMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -269,8 +280,8 @@ public class RobotHardware {
 
     public void setLiftPosition(int newLiftPos, double power) {
         for(DcMotorEx liftMotor : liftMotors) {
-            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             liftMotor.setTargetPosition(newLiftPos);
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             liftMotor.setPower(power);
         }
     }
@@ -463,8 +474,11 @@ public class RobotHardware {
     }
 
     public void grabberClose() {
+        grabberClose(true);
+    }
+    public void grabberClose(boolean isOne) {
         gripOpen = false;
-        gripperServo.setPosition(profile.hardwareSpec.grabberClosePos);
+        gripperServo.setPosition(isOne?profile.hardwareSpec.gripperServo1Pixel:profile.hardwareSpec.gripperServo2Pixel);
     }
 
     public boolean isGripOpen() {
