@@ -11,34 +11,18 @@ import java.io.File;
 
 @TeleOp(name="SOLO DriverOpMode", group="Main")
 public class SoloDriverOpMode extends OpMode {
-    class LastLiftExtTut {
-        double extension = -1;
-        int liftPos = -1;
-        int tutPos = -1;
-        double robHead = -1;
-
-        public String toString() {
-            return "lift:" + liftPos + " Turret:" + tutPos + " Ext:" + extension + " Heading:" + robHead;
-        }
-    }
     RobotHardware robotHardware;
     RobotProfile robotProfile;
 
     boolean fieldMode;
     boolean isRedTeam;   // always true for current autonomous set up
-    boolean leftBumperPressed = false;
     double imuAngleOffset = Math.PI/2;
-    boolean liftCanChange = true;
-    boolean gripperCanChange = true;
-    boolean justAutoPole = false;
-    boolean touching = false;
-    double touchX, touchY;
-    int touchTurret;
     long loopCnt;
     double currHeading;
 
     RobotControl currentTask = null;
-    boolean safeDrive = false;
+    boolean intakePressed;
+    boolean liftPressed;
 
     @Override
     public void init() {
@@ -112,6 +96,7 @@ public class SoloDriverOpMode extends OpMode {
         handleMovement();
         handleGripper();
         handleLift();
+        handleIntake();
         telemetry.addData("Heading", Math.toDegrees(currHeading));
         telemetry.update();
     }
@@ -167,15 +152,35 @@ public class SoloDriverOpMode extends OpMode {
     // Use touch pad to control lift with 1 finger
 
     public void handleLift() {
-
+        if (!liftPressed && gamepad1.dpad_up) {
+            if (robotHardware.getLiftTargetPosition()>=robotProfile.hardwareSpec.liftOutMin) {
+                int newLiftPos = Math.min(robotProfile.hardwareSpec.liftMax, robotHardware.getLiftTargetPosition()+
+                        robotProfile.hardwareSpec.liftIncrement);
+                Logger.logFile("New lift pos: " + newLiftPos);
+                robotHardware.setLiftPosition(newLiftPos);
+            }
+        }
+        if (!liftPressed && gamepad1.dpad_down) {
+            if (robotHardware.getLiftTargetPosition()>=robotProfile.hardwareSpec.liftOutMin) {
+                int newLiftPos = Math.max(robotProfile.hardwareSpec.liftOutMin, robotHardware.getLiftTargetPosition()-
+                        robotProfile.hardwareSpec.liftIncrement);
+                Logger.logFile("New lift pos: " + newLiftPos);
+                robotHardware.setLiftPosition(newLiftPos);
+            }
+        }
+        liftPressed = gamepad1.dpad_down || gamepad1.dpad_up;
     }
 
     public void handleGripper() {
         if (currentTask==null && gamepad1.x) {
-            currentTask = new PixelUpTask(robotHardware, 500);
+            currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin);
             currentTask.prepare();
         }
         else if (currentTask==null && gamepad1.y) {
+            currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin, false);
+            currentTask.prepare();
+        }
+        else if (currentTask==null && gamepad1.b) {
             currentTask = new DropPixelTask(robotHardware);
             currentTask.prepare();
         }
@@ -185,6 +190,19 @@ public class SoloDriverOpMode extends OpMode {
         else if (currentTask==null && gamepad1.right_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin) {
             robotHardware.grabberRight();
         }
+    }
+
+    public void handleIntake() {
+        if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
+            RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();
+            if (currMode == RobotHardware.IntakeMode.OFF) {
+                robotHardware.startIntake();
+            }
+            else {
+                robotHardware.stopIntake();
+            }
+        }
+        intakePressed = gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3;
     }
 
     /**

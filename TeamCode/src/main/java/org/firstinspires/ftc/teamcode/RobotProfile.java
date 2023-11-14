@@ -86,6 +86,8 @@ public class RobotProfile {
         public boolean horizontalEncoderReverse;
         public int liftMax;
         public int liftOutMin;
+        public int liftIntakePos;
+        public int liftIncrement;
         public double liftPowerUp, liftPowerDown;
         public double grabberOpenPos;
         public double gripperServo1Pixel, gripperServo2Pixel;

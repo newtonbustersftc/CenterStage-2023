@@ -60,6 +60,8 @@ public class RobotHardware {
 
     DecimalFormat nf2 = new DecimalFormat("#.##");
     RobotProfile profile;
+    enum IntakeMode { ON, REVERSE, OFF }
+    IntakeMode intakeMode;
 
 
     public void init(HardwareMap hardwareMap, RobotProfile profile) {
@@ -107,6 +109,7 @@ public class RobotHardware {
         initGyro();
         resetImu();
         resetDriveAndEncoders();
+        intakeMode = IntakeMode.OFF;
     }
 
     public List<DcMotorEx> getDriveMotors() {
@@ -147,6 +150,7 @@ public class RobotHardware {
         rlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotors[1].setDirection(DcMotorSimple.Direction.REVERSE);
         expansionHub1.clearBulkCache();
         expansionHub2.clearBulkCache();
     }
@@ -164,94 +168,32 @@ public class RobotHardware {
     }
 
     public void startIntake() {
+        intakeMode = IntakeMode.ON;
+        setLiftPosition(profile.hardwareSpec.liftIntakePos);
+        grabberOpen();
+        grabberIn();
         intakeMotor.setPower(profile.hardwareSpec.intakePower);
         intakeServo1.setPosition(profile.hardwareSpec.intakeServo1In);
         intakeServo2.setPosition(profile.hardwareSpec.intakeServo2In);
     }
     public void reverseIntake() {
+        intakeMode = IntakeMode.REVERSE;
         intakeMotor.setPower(-profile.hardwareSpec.intakePower);
         intakeServo1.setPosition(profile.hardwareSpec.intakeServo1Out);
         intakeServo2.setPosition(profile.hardwareSpec.intakeServo2Out);
     }
 
     public void stopIntake() {
+        intakeMode = IntakeMode.OFF;
+        setLiftPosition(0);
         intakeMotor.setPower(0);
         intakeServo1.setPosition(profile.hardwareSpec.intakeServo1Stop);
         intakeServo2.setPosition(profile.hardwareSpec.intakeServo2Stop);
     }
 
-    public void closeDronePivotServo() {
-        dronePivotServo.setPosition(1900);
+    public IntakeMode getIntakeMode() {
+        return intakeMode;
     }
-
-    public void shootDronePivotServo() {
-        dronePivotServo.setPosition(1300);
-    }
-
-    public void releaseDroneReleaseServo() {
-        droneReleaseServo.setPosition(1300);
-    }
-
-    public void hookDroneReleaseServo() {
-        droneReleaseServo.setPosition(1550);
-    }
-
-    public void setIntakeServo1In() {
-        intakeServo1.setPosition(500);
-    }
-
-    public void setIntakeServo1Out() {
-        intakeServo1.setPosition(2500);
-    }
-
-    public void setIntakeServo1Off() {
-        intakeServo1.setPosition(1500);
-    }
-
-    public void setIntakeServo2In() {
-        intakeServo1.setPosition(500);
-    }
-
-    public void setIntakeServo2Out() {
-        intakeServo1.setPosition(2500);
-    }
-
-    public void setIntakeServo2Off() {
-        intakeServo1.setPosition(1500);
-    }
-
-    public void setGripperServoPick1Pixel() {
-        gripperServo.setPosition(1480);
-    }
-
-    public void setGripperServoPick2Pixel() {
-        gripperServo.setPosition(1650);
-    }
-
-    public void setGripperServoRelease() {
-        gripperServo.setPosition(1990);
-    }
-
-    public void setGripperInOutServoOut() {
-        gripperInOutServo.setPosition(1700);
-    }
-
-    public void setGripperInOutServoIn() {
-        gripperInOutServo.setPosition(1075);
-    }
-
-    public void setGripperRotateServoInside() {
-        gripperRotateServo.setPosition(1577);
-    }
-
-    public void setGripperRotateServoOutsideLeft() {
-        gripperRotateServo.setPosition(2155);
-    }
-
-    public void setGripperRotateServoOutsideRight() {
-        gripperRotateServo.setPosition(950);
-    }
-
     public double getDistanceSensorLeft(){
         return distanceSensorLeft.getDistance(DistanceUnit.INCH);
     }
@@ -262,6 +204,10 @@ public class RobotHardware {
 
     public int getLiftPosition() {
         return liftMotors[1].getCurrentPosition();
+    }
+
+    public int getLiftTargetPosition() {
+        return liftMotors[1].getTargetPosition();
     }
 
     public String getLiftMotorPos() {

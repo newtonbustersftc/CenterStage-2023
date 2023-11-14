@@ -2,13 +2,22 @@ package org.firstinspires.ftc.teamcode;
 
 public class PixelUpTask implements RobotControl {
     RobotHardware robotHardware;
-    long outTime;
+    long startTime, outTime;
     int liftPos;
-    boolean grabberOut = false;
+    enum Mode { DOWN, GRAB, UP, OUT}
+    Mode mode;
+    boolean isOne;
 
     public PixelUpTask(RobotHardware hardware, int liftPos) {
         this.robotHardware = hardware;
         this.liftPos = liftPos;
+        isOne = true;
+    }
+
+    public PixelUpTask(RobotHardware hardware, int liftPos, boolean isOne) {
+        this.robotHardware = hardware;
+        this.liftPos = liftPos;
+        this.isOne = isOne;
     }
 
     public String toString() {
@@ -17,25 +26,35 @@ public class PixelUpTask implements RobotControl {
 
     @Override
     public void prepare() {
-        robotHardware.setLiftPosition(liftPos);
-        grabberOut = false;
+        startTime = System.currentTimeMillis();
+        robotHardware.setLiftPosition(-100);
+        mode = Mode.DOWN;
     }
 
     @Override
     public void execute() {
-        if (!grabberOut &&
+        if (mode==Mode.DOWN && System.currentTimeMillis()-startTime>100) {
+            robotHardware.grabberClose(isOne);
+            mode = Mode.GRAB;
+        }
+        if (mode==Mode.GRAB && (System.currentTimeMillis()-startTime>250)) {
+            mode = Mode.UP;
+            robotHardware.setLiftPosition(liftPos);
+        }
+        if (mode==Mode.UP &&
                 robotHardware.getLiftPosition() > robotHardware.getRobotProfile().hardwareSpec.liftOutMin) {
             robotHardware.grabberOut();
-            grabberOut = true;
+            mode = mode.OUT;
             outTime = System.currentTimeMillis();
         }
     }
     @Override
     public void cleanUp() {
+        robotHardware.setLiftPosition(liftPos);
     }
 
     @Override
     public boolean isDone() {
-        return grabberOut && (System.currentTimeMillis() - outTime > 200);
+        return mode==mode.OUT && (System.currentTimeMillis() - outTime > 200);
     }
 }
