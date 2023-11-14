@@ -61,6 +61,7 @@ public class StraightTest extends LinearOpMode {
 
         int loopCnt = 0;
         long loopStart = System.currentTimeMillis();
+        Logger.logFile("1");
         while (!isStarted()) {
             robotHardware.clearBulkCache();
             robotHardware.getLocalizer().update();
@@ -76,18 +77,18 @@ public class StraightTest extends LinearOpMode {
                 telemetry.update();
             }
         }
-
+        Logger.logFile("2");
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(10, 10, TRACK_WIDTH);
         TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(10);
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
 //                .lineTo(new Vector2d(-DISTANCE, 0))
-                .lineTo(new Vector2d(0, DISTANCE-20))
+                .lineTo(new Vector2d(-DISTANCE, 0))
 //                .forward(DISTANCE, velConstraint, accelConstraint)
                 .build();
 
         if (isStopRequested()) return;
-
+        Logger.logFile("3");
         drive.followTrajectorySequence(trajectory);
         Logger.logFile("Final:" + robotHardware.getLocalizer().getPoseEstimate());
         Logger.logFile("Final IMU:" + robotHardware.getGyroHeading());

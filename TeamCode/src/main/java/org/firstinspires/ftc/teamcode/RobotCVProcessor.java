@@ -32,6 +32,8 @@ public class RobotCVProcessor {
     VisionPortal visionPortal;
     FrameProcessor frameProcessor;
     boolean isRed;
+    boolean isRecorded = false;
+    double finalCenter;
 
     public enum TEAM_PROP_POS { LEFT, CENTER, RIGHT, NONE };
 
@@ -52,6 +54,7 @@ public class RobotCVProcessor {
         builder.enableLiveView(withPreview);      // Enable LiveView (RC preview).
         builder.setAutoStopLiveView(true);     // Automatically stop LiveView (RC preview) when all vision processors are disabled.
         visionPortal = builder.build();
+        Logger.logFile("after cv init");
     }
 
     public float getFrameRate() {
@@ -85,7 +88,9 @@ public class RobotCVProcessor {
     }
 
     public TEAM_PROP_POS getRecognitionResult() {
-        return frameProcessor.getRecognitionResult();
+        TEAM_PROP_POS team_prop_pos = frameProcessor.getRecognitionResult();
+        Logger.logFile("team_prop_pos = " + team_prop_pos);
+        return team_prop_pos;
     }
 
     class FrameProcessor implements VisionProcessor {
@@ -125,6 +130,7 @@ public class RobotCVProcessor {
 
         @Override
         public Object processFrame(Mat frame, long captureTimeNanos) {
+
             // Sample code to high light RED objects
             // 1. Crop and Convert to HSV
             int offsetX = frame.width()*robotProfile.cvParam.cropLeftPercent/100;
@@ -147,17 +153,6 @@ public class RobotCVProcessor {
                 maskMat2.release();
             } else {
                 // Non RED situation
-                Logger.logFile("here in blue: upper="+upperBound + " lower="+lowerBound);
-                Mat maskMat1 = new Mat();
-                Mat maskMat2 = new Mat();
-//                Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
-//                Core.inRange(hsvMat, lowerBound,
-//                        new Scalar(260,100,100), maskMat1);
-//                Core.inRange(hsvMat, new Scalar(200, 50, 50),
-//                        upperBound, maskMat2);
-//                Core.add(maskMat1, maskMat2, maskMat);
-                maskMat1.release();
-                maskMat2.release();
                 Core.inRange(hsvMat, lowerBound, upperBound, maskMat);
             }
             // 3. Loop through the contours, find the largest one
@@ -165,27 +160,32 @@ public class RobotCVProcessor {
             List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
             Imgproc.findContours(maskMat, contours, hierarchey, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
             Iterator<MatOfPoint> each = contours.iterator();
-            Logger.logFile("size of contours: "+contours.size());
             while (each.hasNext()) {
                 MatOfPoint wrapper = each.next();
                 double area = Imgproc.contourArea(wrapper);
-                Logger.logFile("area="+area);
                 if (area > 1000) {
+                    Logger.logFile("size of contours: " + contours.size());
                     Rect rec = Imgproc.boundingRect(wrapper);
                     Imgproc.rectangle(frame, new Rect(offsetX + rec.x,
                             offsetY + rec.y, rec.width, rec.height), DRAW_COLOR, 2);
-                    if (area>lastArea) {
+                    if (area>lastArea && area<10000) {
                         lastCenter = offsetX + rec.x + rec.width/2;
                         lastArea = area;
                         Logger.logFile("last center: "+lastCenter);
-                        Logger.logFile("last area: "+ lastArea);if(saveImage){
+                        Logger.logFile("last area: "+ lastArea);
+                        if(saveImage){
                             saveImage(frame);
                         }
                     }
                 }
             }
-
-            Logger.logFile("so.... last area = "+lastArea);
+            if(contours.size()>0 && !isRecorded && lastCenter !=-1){
+                finalCenter = lastCenter;
+                Logger.logFile("so....finalCenter="+finalCenter);
+                Logger.logFile("so....finalArea="+lastArea);
+                isRecorded = true;
+                visionPortal.stopStreaming();
+            }
 
             return frame;
         }
@@ -201,13 +201,13 @@ public class RobotCVProcessor {
         }
 
         public TEAM_PROP_POS getRecognitionResult() {
-            if (lastCenter == -1) {
+            if (finalCenter == -1) {
                 return TEAM_PROP_POS.NONE;
             }
-            else if (lastCenter < 720/4) {
+            else if (finalCenter < 720/4) {
                 return TEAM_PROP_POS.LEFT;
             }
-            else if (lastCenter > 720*3/4) {
+            else if (finalCenter > 720*2/3) {
                 return TEAM_PROP_POS.RIGHT;
             }
             return TEAM_PROP_POS.CENTER;

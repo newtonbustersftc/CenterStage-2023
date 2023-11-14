@@ -126,18 +126,33 @@
   },
   "poses": {
     "TEAM_PROP_POS_LEFT": {
-      "x": 2,
-      "y": 24,
-      "heading": 90.0
+      "x": -17,
+      "y": -12,
+      "heading": 0.0
     },
     "TEAM_PROP_POS_CENTER": {
-      "x": 24,
-      "y": 0,
+      "x": -27,
+      "y": -5,
       "heading": 0.0
     },
     "TEAM_PROP_POS_RIGHT": {
-      "x": 2,
-      "y": 24,
+      "x": -17,
+      "y": 10,
+      "heading": 90.0
+    },
+    "DROPBOARD_APRILTAG_LEFT": {
+      "x": -20,
+      "y": -37,
+      "heading": -90.0
+    },
+    "DROPBOARD_APRILTAG_CENTER": {
+      "x": -25,
+      "y": -37,
+      "heading": -90.0
+    },
+    "DROPBOARD_APRILTAG_RIGHT": {
+      "x": -30,
+      "y": -37,
       "heading": -90.0
     }
   },

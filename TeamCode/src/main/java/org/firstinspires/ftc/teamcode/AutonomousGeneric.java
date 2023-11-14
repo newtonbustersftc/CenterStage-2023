@@ -52,9 +52,8 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         robotHardware.enableManualCaching(false);
         robotHardware.clearBulkCache();
-        robotHardware.initSetup(this);
+//        robotHardware.initSetup(this);
         robotHardware.setMotorStopBrake(false); // so we can adjust the robot
-        //robotVision = robotHardware.getRobotVision();
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
@@ -63,11 +62,11 @@ public class AutonomousGeneric extends LinearOpMode {
             isRedAlliance = true;
 
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
-        robotCVProcessor.initWebCam("Webcam 1", true);
-        robotCVProcessor.frameProcessor.setSaveImage(true);
+        robotCVProcessor.initWebCam("Webcam 2", true);
+        robotCVProcessor.frameProcessor.setSaveImage(false);
         Thread.sleep(3000); //take time to process
         RobotCVProcessor.TEAM_PROP_POS team_prop_pos = robotCVProcessor.getRecognitionResult();
-        Logger.logFile("team_prop_pos = " + team_prop_pos);
+
 
 //        AprilTagRecognition aprilTagRecognition = new AprilTagRecognition(true,hardwareMap);
 //        aprilTagRecognition.initAprilTag();
