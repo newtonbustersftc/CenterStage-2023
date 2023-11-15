@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
 
+import android.content.SharedPreferences;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 //import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.acmerobotics.roadrunner.trajectory.*;
@@ -69,6 +71,9 @@ public class AutonomousGenericTest extends LinearOpMode {
         catch (Exception ex) {
             ex.printStackTrace();
         }
+        SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
+        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        boolean isRed = startPosMode.startsWith("RED");
         long loopStart = System.currentTimeMillis();
         //AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
         //aprilTagSignalRecognition.startRecognition();
@@ -94,10 +99,12 @@ public class AutonomousGenericTest extends LinearOpMode {
         //cvp.close();
         //aprilTagSignalRecognition.stopRecognition();
         robotHardware.resetDriveAndEncoders();
+        p0 = robotProfile.getProfilePose( isRed ? "START_POSE_RED_LEFT" : "START_POSE_BLUE_LEFT");
         robotHardware.getLocalizer().setPoseEstimate(p0);
         taskList = new ArrayList<RobotControl>();
 
-        setupTaskList1();
+        //setupTaskList1();
+        setupTaskList2();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
@@ -177,6 +184,7 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList2() {
+        taskList.add(new RobotSleep((1000)));
     }
 
     void setupTaskList3() {

@@ -48,6 +48,7 @@ public class SoloDriverOpMode extends OpMode {
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
         isRedTeam = startPosMode.startsWith("RED");
+        imuAngleOffset = -Math.PI/2;
 
         Logger.logFile("IMU Offset is " + Math.toDegrees(imuAngleOffset));
         Logger.logFile("Current IMU Angle " + Math.toDegrees(currHeading));
