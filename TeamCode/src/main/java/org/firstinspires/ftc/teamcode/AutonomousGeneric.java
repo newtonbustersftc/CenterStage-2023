@@ -67,11 +67,17 @@ public class AutonomousGeneric extends LinearOpMode {
         Thread.sleep(3000); //take time to process
         RobotCVProcessor.TEAM_PROP_POS team_prop_pos = robotCVProcessor.getRecognitionResult();
 
+        Pose2d starting_pose_blue_left = robotProfile.getProfilePose("START_POSE_BLUE_LEFT");
+        Pose2d starting_pose_blue_right = robotProfile.getProfilePose("START_POSE_BLUE_RIGHT");
+        Pose2d starting_pose_red_left = robotProfile.getProfilePose("START_POSE_RED_LEFT");
+        Pose2d starting_pose_red_right = robotProfile.getProfilePose("START_POSE_RED_RIGHT");
 
+        Pose2d startingPose = startPosMode.startsWith("BLUE")?(startPosMode.contains("LEFT")? starting_pose_blue_left:starting_pose_blue_right):
+                              (startPosMode.contains("LEFT")?starting_pose_red_left:starting_pose_red_right);
 //        AprilTagRecognition aprilTagRecognition = new AprilTagRecognition(true,hardwareMap);
 //        aprilTagRecognition.initAprilTag();
 
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile,team_prop_pos);
+        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile,team_prop_pos, startingPose);
 //        robotHardware.resetImu();
 
         //        signalRecognition.startRecognition();
@@ -89,7 +95,19 @@ public class AutonomousGeneric extends LinearOpMode {
         }
 //        Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
 //        aprilTagSignalRecognition.stopRecognition();
-        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
+
+        if(startPosMode.equals("BLUE_LEFT")){
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_left);
+        }else if(startPosMode.equals("BLUE_RIGHT")){
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_right);
+        }else if(startPosMode.equals("RED_LEFT")){
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_left);
+        }else if(startPosMode.equals("RED_RIGHT")){
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_right);
+        }else{
+            // TODO: 11/14/23 ??
+        }
+//        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         robotHardware.resetDriveAndEncoders();
         taskList = builder.buildTaskList();
         TaskReporter.report(taskList);

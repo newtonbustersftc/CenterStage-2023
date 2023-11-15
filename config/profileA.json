@@ -128,35 +128,115 @@
     "gripperRotateServoRight":0.225
   },
   "poses": {
-    "TEAM_PROP_POS_LEFT": {
-      "x": -17,
-      "y": -12,
-      "heading": 0.0
+    "START_POSE_BLUE_LEFT":{
+      "x":12,
+      "y":62,
+      "heading":90
     },
-    "TEAM_PROP_POS_CENTER": {
-      "x": -27,
-      "y": -5,
-      "heading": 0.0
+    "START_POSE_BLUE_RIGHT":{
+      "x":-36,
+      "y":62,
+      "heading":90
     },
-    "TEAM_PROP_POS_RIGHT": {
-      "x": -17,
-      "y": 10,
+    "START_POSE_RED_LEFT":{
+      "x":-36,
+      "y":-62,
+      "heading":-90
+    },
+    "START_POSE_RED_RIGHT":{
+      "x":12,
+      "y":-62,
+      "heading":-90
+    },
+    "TEAM_PROP_POS_BLUELEFT_LEFT": {
+      "x": 30,
+      "y": 40,
+      "heading": 45.0
+    },
+    "TEAM_PROP_POS_BLUELEFT_CENTER": {
+      "x": 16,
+      "y": 35,
       "heading": 90.0
     },
-    "DROPBOARD_APRILTAG_LEFT": {
-      "x": -20,
-      "y": -37,
+    "TEAM_PROP_POS_BLUELEFT_RIGHT": {
+      "x": 13,
+      "y": 36,
+      "heading":0.0
+    },
+    "TEAM_PROP_POS_BLUERIGHT_LEFT": {
+      "x": -35,
+      "y": 36,
+      "heading": 180.0
+    },
+    "TEAM_PROP_POS_BLUERIGHT_CENTER": {
+      "x": -46,
+      "y": 33,
+      "heading": 135.0
+    },
+    "TEAM_PROP_POS_BLUERIGHT_RIGHT": {
+      "x": -40,
+      "y": 43,
+      "heading":45
+    },
+    "TEAM_PROP_POS_REDLEFT_LEFT": {
+      "x": -52,
+      "y":-36 ,
+      "heading": -135.0
+    },
+    "TEAM_PROP_POS_REDLEFT_CENTER": {
+      "x": -36,
+      "y": -30,
       "heading": -90.0
     },
-    "DROPBOARD_APRILTAG_CENTER": {
-      "x": -25,
-      "y": -37,
-      "heading": -90.0
-    },
-    "DROPBOARD_APRILTAG_RIGHT": {
+    "TEAM_PROP_POS_REDLEFT_RIGHT": {
       "x": -30,
-      "y": -37,
+      "y": -46,
+      "heading":-135
+    },
+    "TEAM_PROP_POS_REDRIGHT_LEFT": {
+      "x": 12,
+      "y": -46,
+      "heading": -45.0
+    },
+    "TEAM_PROP_POS_REDRIGHT_CENTER": {
+      "x": 12,
+      "y": -28,
       "heading": -90.0
+    },
+    "TEAM_PROP_POS_REDRIGHT_RIGHT": {
+      "x": 20,
+      "y": 34,
+      "heading":-135.0
+    },
+    "DROPBOARD_APRILTAG_BLUE_LEFT": {
+      "x": 50,
+      "y": 44,
+      "heading": 0.0
+    },
+    "DROPBOARD_APRILTAG_BLUE_CENTER": {
+      "x": 51,
+      "y": 38,
+      "heading": 0.0
+    },
+    "DROPBOARD_APRILTAG_BLUE_RIGHT": {
+      "x": 51,
+      "y": 32,
+      "heading": 0.0
+    },
+    "DROPBOARD_APRILTAG_RED_LEFT": {
+      "x": 51,
+      "y": -32,
+      "heading": 0.0
+    },
+    "DROPBOARD_APRILTAG_RED_CENTER": {
+      "x": 51,
+      "y": -38,
+      "heading": 0.0
+    },
+    "DROPBOARD_APRILTAG_RED_RIGHT": {
+      "x": 51,
+      "y": -43,
+      "heading": 0.0
     }
   },
   "autonParam": {
@@ -184,7 +264,7 @@
     "armLengthPostPick": 0.13,
     "armLengthPostLeftPickHighPole": 0.5,
     "armLengthPostRightPickHighPole": 0.52,
-     "forward": 50,
+    "forward": 50,
     "forward_mid": 32,
     "back1": 8,
     "backPick": 21
@@ -218,7 +298,6 @@
     "centerPosition": [
       17,38,73,111,156,190,229,261,298,330,370,405,447,483,523,566,603
     ],
-    "closestPoleWidth": 104,
     "aFactor": 35.657,
     "bFactor": -0.052
   }

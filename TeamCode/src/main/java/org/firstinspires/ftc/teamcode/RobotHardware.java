@@ -129,7 +129,7 @@ public class RobotHardware {
     public void intakeDropSpike() {
         intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intakeMotor.setPower(0.15);
+        intakeMotor.setPower(0.3); //0.15
         intakeMotor.setTargetPosition(profile.hardwareSpec.intakeDropSpike);
     }
 
