@@ -62,7 +62,6 @@ public class HardwareOpModeTest extends OpMode {
         robotHardware.clearBulkCache();
         robotHardware.getLocalizer().update();
         currPose = robotHardware.getLocalizer().getPoseEstimate();
-
         testHardware();
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
@@ -73,7 +72,9 @@ public class HardwareOpModeTest extends OpMode {
                 .addData("FR - center", robotHardware.frMotor.getCurrentPosition())
                 .addData("Lift0", robotHardware.getLiftMotors()[0].getCurrentPosition())
                 .addData("Lift1", robotHardware.getLiftMotors()[1].getCurrentPosition())
-                .addData("Intake", robotHardware.intakeMotor.getCurrentPosition());
+                .addData("Intake", robotHardware.intakeMotor.getCurrentPosition())
+                .addData("Distance Sensor Left = ", robotHardware.distanceSensorLeft.getDistance(DistanceUnit.MM))
+                .addData("Distane Sensor Right=", robotHardware.distanceSensorRight.getDistance(DistanceUnit.MM));
         telemetry.update();
 
         if (gamepad1.x) { // Square
@@ -91,12 +92,18 @@ public class HardwareOpModeTest extends OpMode {
         else {
             robotHardware.stopIntake();
         }
-/*
+
         if (gamepad1.dpad_down) {
-            robotHardware.setMotorPower(0.5,0,0,0);
+//            robotHardware.setMotorPower(0.5,0,0,0);
+            double distance_left = robotHardware.distanceSensorLeft.getDistance(DistanceUnit.MM);
+            double distance_right = robotHardware.distanceSensorRight.getDistance(DistanceUnit.MM);
+            telemetry.addData("distance left=", distance_left);
+            telemetry.addData("distance right=", distance_right);
+            Logger.logFile("distance left="+distance_left);
+            Logger.logFile("distance right="+distance_right);
         }
 
-        if(gamepad1.dpad_up){
+/*        if(gamepad1.dpad_up){
               robotHardware.setMotorPower(0,0.5,0,0);
         }
 
