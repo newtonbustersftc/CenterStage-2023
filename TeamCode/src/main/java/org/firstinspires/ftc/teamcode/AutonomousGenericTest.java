@@ -185,6 +185,7 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     void setupTaskList2() {
         taskList.add(new RobotSleep((1000)));
+        taskList.add(new DropSpikeMarkTask(robotHardware));
     }
 
     void setupTaskList3() {

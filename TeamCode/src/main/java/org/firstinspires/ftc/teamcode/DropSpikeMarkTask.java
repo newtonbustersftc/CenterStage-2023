@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 public class DropSpikeMarkTask implements RobotControl {
     RobotHardware robotHardware;
     long startTime;
+    int step = 1;
 
     public DropSpikeMarkTask(RobotHardware hardware) {
         this.robotHardware = hardware;
@@ -14,12 +15,16 @@ public class DropSpikeMarkTask implements RobotControl {
 
     @Override
     public void prepare() {
-        robotHardware.intakeDropSpike();
+        robotHardware.intakeDropSpike(0);
         startTime = System.currentTimeMillis();
     }
 
     @Override
     public void execute() {
+        if (System.currentTimeMillis() - startTime > step * 100) {
+            robotHardware.intakeDropSpike(step);
+            step++;
+        }
     }
     @Override
     public void cleanUp() {
@@ -28,6 +33,6 @@ public class DropSpikeMarkTask implements RobotControl {
 
     @Override
     public boolean isDone() {
-        return System.currentTimeMillis() - startTime > 1000;
+        return step==18;
     }
 }

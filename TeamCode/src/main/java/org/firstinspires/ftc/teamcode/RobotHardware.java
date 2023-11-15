@@ -126,14 +126,20 @@ public class RobotHardware {
         }
     }
 
-    public void intakeDropSpike() {
-        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intakeMotor.setPower(0.3); //0.15
-        intakeMotor.setTargetPosition(profile.hardwareSpec.intakeDropSpike);
+    public void intakeDropSpike(int step) {
+        if (step==0) {
+            intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            intakeMotor.setTargetPosition(0);
+            intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            intakeMotor.setPower(0.5); //0.15
+        }
+        else {
+            intakeMotor.setTargetPosition((profile.hardwareSpec.intakeDropSpikeStep*step));
+        }
     }
 
     public void resetIntakeMotor() {
+        intakeMotor.setPower(0);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
