@@ -35,7 +35,6 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.teamcode.Logger;
 import org.firstinspires.ftc.teamcode.RobotFactory;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 import org.firstinspires.ftc.teamcode.RobotProfile;
@@ -164,7 +163,6 @@ public class NBMecanumDrive extends MecanumDrive {
         setLocalizer(new StandardTrackingWheelLocalizer(robotHardware.getHardwareMap(), profile));
         //setLocalizer(new RealSenseLocalizer(hardwareMap));
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
-        Logger.logFile("here in NMMecanumDrive");
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
