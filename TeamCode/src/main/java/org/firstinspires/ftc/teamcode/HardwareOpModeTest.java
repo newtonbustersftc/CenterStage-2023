@@ -26,6 +26,7 @@ public class HardwareOpModeTest extends OpMode {
     boolean blocking = false;
     boolean turretTurnTest = false;
     RobotControl currentTask = null;
+    double droppingServoPosition = 0.5;
 
     @Override
     public void init() {
@@ -74,7 +75,9 @@ public class HardwareOpModeTest extends OpMode {
                 .addData("Lift1", robotHardware.getLiftMotors()[1].getCurrentPosition())
                 .addData("Intake", robotHardware.intakeMotor.getCurrentPosition())
                 .addData("Distance Sensor Left = ", robotHardware.distanceSensorLeft.getDistance(DistanceUnit.MM))
-                .addData("Distane Sensor Right=", robotHardware.distanceSensorRight.getDistance(DistanceUnit.MM));
+                .addData("Distane Sensor Right=", robotHardware.distanceSensorRight.getDistance(DistanceUnit.MM))
+                .addData("DroppingServo position= ", droppingServoPosition)
+                .addData("droppingServo pos from robot: ", robotHardware.getDroppingServoNumber());
         telemetry.update();
 
         if (gamepad1.x) { // Square
@@ -103,18 +106,21 @@ public class HardwareOpModeTest extends OpMode {
             Logger.logFile("distance right="+distance_right);
         }
 
-/*        if(gamepad1.dpad_up){
-              robotHardware.setMotorPower(0,0.5,0,0);
+       if(gamepad1.a) {
+            robotHardware.setLiftPosition(500);
+       }
+       if(gamepad1.b){
+            robotHardware.setLiftPosition(100);
         }
 
         if(gamepad1.dpad_left){
-              robotHardware.setMotorPower(0,0,0.5,0);
+              robotHardware.initDroppingStick();
         }
 
-        if(gamepad1.dpad_right){
-              robotHardware.setMotorPower(0,0,0,0.5);
+         if(gamepad1.dpad_right){
+              robotHardware.releaseDroppingStick();
         }
- */
+
 
         if (!grabberChange) {
             if (gamepad1.right_bumper) {
