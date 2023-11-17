@@ -27,7 +27,7 @@
     "kA": 0.002,
     "kV": 0.017,
     "kStatic": 0.085,
-    "lateralMultiplier": 1.0,
+    "lateralMultiplier": 1.0042,
     "maxVel": 30.0,
     "maxAcc": 30.0
   },
@@ -90,7 +90,7 @@
     "revHubVertical": true,
     "useControlHubImu": true,
     "autoTurretReset": false,
-    "trackWidth": 13.5,
+    "trackWidth": 14,
     "encoderOffset": 0,
     "wheelBase": 12,
     "wheelRadius": 0.945,
@@ -107,6 +107,8 @@
     "droneServoShootPos": 0.4,
     "droneHookClosePos": 0.525,
     "droneHookOpenPos": 0.4,
+    "droppingServoUp":1.0,
+    "droppingServoDown":0.7,
     "intakeDropSpikeStep": -5,
     "intakePower": -0.5,
     "intakeServo1In": 0.0,
@@ -174,7 +176,7 @@
       "heading": 135.0
     },
     "TEAM_PROP_POS_BLUERIGHT_RIGHT": {
-      "x": -40,
+      "x": -41,
       "y": 43,
       "heading":45
     },

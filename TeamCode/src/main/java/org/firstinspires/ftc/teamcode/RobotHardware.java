@@ -30,6 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.AxesSigns;
 import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public class RobotHardware {
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     //private
     Servo dronePivotServo, droneReleaseServo, intakeServo1, intakeServo2,
-            gripperServo, gripperInOutServo, gripperRotateServo;
+            gripperServo, gripperInOutServo, gripperRotateServo, droppingServo;
 
     TouchSensor magneticSensor, liftTouch;
     NormalizedColorSensor coneSensor;
@@ -62,6 +63,7 @@ public class RobotHardware {
     RobotProfile profile;
     enum IntakeMode { ON, REVERSE, OFF }
     IntakeMode intakeMode;
+    AprilTagDetection aprilTag;
 
 
     public void init(HardwareMap hardwareMap, RobotProfile profile) {
@@ -75,6 +77,7 @@ public class RobotHardware {
         flMotor = hardwareMap.get(DcMotorEx.class, "FLMotor");
         dronePivotServo = hardwareMap.servo.get("dronePivotServo");
         droneReleaseServo = hardwareMap.servo.get("droneReleaseServo");
+        droppingServo = hardwareMap.servo.get("droppingServo");
 
         expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub 2");
         intakeServo1 = hardwareMap.servo.get("intakeServo1");
@@ -132,9 +135,11 @@ public class RobotHardware {
             intakeMotor.setTargetPosition(0);
             intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             intakeMotor.setPower(0.5); //0.15
+            Logger.logFile("intakeDropSpike step=0");
         }
         else {
             intakeMotor.setTargetPosition((profile.hardwareSpec.intakeDropSpikeStep*step));
+            Logger.logFile("intakeDropSpike step = "+ step + ", targetPosition = "+profile.hardwareSpec.intakeDropSpikeStep*step);
         }
     }
 
@@ -328,6 +333,7 @@ public class RobotHardware {
         for(DcMotorEx liftMotor:liftMotors) {
             liftMotor.setPower(0);
         }
+
     }
 
     public enum EncoderType {LEFT, RIGHT, HORIZONTAL}
@@ -584,5 +590,44 @@ public class RobotHardware {
 
     DcMotorEx[] getLiftMotors() {
         return liftMotors;
+    }
+
+    public void initDroppingStick(){
+        this.droppingServo.setPosition(0.2);
+    }
+
+    public void releaseDroppingStick(){
+        this.droppingServo.setPosition(0.6);
+    }
+
+    public double getDroppingServoNumber(){
+        return this.droppingServo.getPosition();
+    }
+
+    public void storeDesiredAprilTag(AprilTagDetection desiredTag){
+        this.aprilTag = desiredTag;
+        Logger.logFile("Tag id="+this.aprilTag.id);
+        Logger.logFile("range="+this.aprilTag.ftcPose.range);
+        Logger.logFile("bearing="+this.aprilTag.ftcPose.bearing);
+        Logger.logFile("yaw="+this.aprilTag.ftcPose.yaw);
+        Logger.logFile("x="+this.aprilTag.ftcPose.x);
+        Logger.logFile("y="+this.aprilTag.ftcPose.y);
+        Logger.logFile("z="+this.aprilTag.ftcPose.z);
+        Logger.logFile("roll="+this.aprilTag.ftcPose.roll);
+        Logger.logFile("pitch="+this.aprilTag.ftcPose.pitch);
+        Logger.logFile("elevation="+this.aprilTag.ftcPose.elevation);
+        Logger.logFile("field position="+this.aprilTag.metadata.fieldPosition.toString());
+        Logger.flushToFile();
+    }
+
+    public AprilTagDetection getDesiredAprilTag(){
+        return this.aprilTag;
+    }
+
+    public int getDesireAprilTagID(){
+        if(this.aprilTag == null)
+            return -1;
+        else
+            return this.aprilTag.id;
     }
 }

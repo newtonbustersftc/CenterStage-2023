@@ -44,8 +44,8 @@ public class AprilTagRecognition {
         aprilTag = new AprilTagProcessor.Builder()
 
                 // The following default settings are available to un-comment and edit as needed.
-                .setDrawAxes(true)
-                .setDrawCubeProjection(true)
+//                .setDrawAxes(true)
+//                .setDrawCubeProjection(true)
                 //.setDrawTagOutline(true)
                 //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
@@ -58,7 +58,7 @@ public class AprilTagRecognition {
                 // ... these parameters are fx, fy, cx, cy.
 
                 .build();
-                aprilTag.setDecimation(3);
+//                aprilTag.setDecimation(3);
 
         // Create the vision portal by using a builder.
         VisionPortal.Builder builder = new VisionPortal.Builder();
@@ -90,12 +90,22 @@ public class AprilTagRecognition {
         // Build the Vision Portal, using the above settings.
         visionPortal = builder.build();
 
+
         // Disable or re-enable the aprilTag processor at any time.
         //visionPortal.setProcessorEnabled(aprilTag, true);
-
+        Logger.logFile("In AprilTagRecognition: visionPortal camera state:"+visionPortal.getCameraState());
+        Logger.logFile("visionPortal fps="+visionPortal.getFps());
     }   // end method initAprilTag()
 
+    public void stopStream(){
+        visionPortal.stopStreaming();
+    }
+
+    public void resumeStream(){
+        visionPortal.resumeStreaming();
+    }
     public List getAprilTagResult(){
+
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         Logger.logFile("# AprilTags Detected"+currentDetections.size());
         return currentDetections;

@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.vision.VisionPortal;
 
 import java.util.ArrayList;
 
@@ -28,6 +29,7 @@ public class AutonomousGeneric extends LinearOpMode {
     boolean isRedAlliance = false;
 
     Pose2d startPos = new Pose2d();
+    AprilTagRecognition aprilTagRecognition;
 
     public void initRobot() {
         try {
@@ -58,7 +60,7 @@ public class AutonomousGeneric extends LinearOpMode {
         long loopCnt = 0;
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-        if(startPosMode.startsWith("RED"))
+        if (startPosMode.startsWith("RED"))
             isRedAlliance = true;
 
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
@@ -66,47 +68,50 @@ public class AutonomousGeneric extends LinearOpMode {
         robotCVProcessor.frameProcessor.setSaveImage(false);
         Thread.sleep(3000); //take time to process
         RobotCVProcessor.TEAM_PROP_POS team_prop_pos = robotCVProcessor.getRecognitionResult();
+        robotCVProcessor.close();
+
+        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
+        aprilTagRecognition.initAprilTag();
 
         Pose2d starting_pose_blue_left = robotProfile.getProfilePose("START_POSE_BLUE_LEFT");
         Pose2d starting_pose_blue_right = robotProfile.getProfilePose("START_POSE_BLUE_RIGHT");
         Pose2d starting_pose_red_left = robotProfile.getProfilePose("START_POSE_RED_LEFT");
         Pose2d starting_pose_red_right = robotProfile.getProfilePose("START_POSE_RED_RIGHT");
 
-        Pose2d startingPose = startPosMode.startsWith("BLUE")?(startPosMode.contains("LEFT")? starting_pose_blue_left:starting_pose_blue_right):
-                              (startPosMode.contains("LEFT")?starting_pose_red_left:starting_pose_red_right);
-//        AprilTagRecognition aprilTagRecognition = new AprilTagRecognition(true,hardwareMap);
-//        aprilTagRecognition.initAprilTag();
+        Pose2d startingPose = startPosMode.startsWith("BLUE") ? (startPosMode.contains("LEFT") ? starting_pose_blue_left : starting_pose_blue_right) :
+                (startPosMode.contains("LEFT") ? starting_pose_red_left : starting_pose_red_right);
 
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile,team_prop_pos, startingPose);
+        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, team_prop_pos, startingPose, aprilTagRecognition);
 //        robotHardware.resetImu();
+//        if (aprilTagRecognition.visionPortal.getCameraState().equals(VisionPortal.CameraState.CAMERA_DEVICE_READY)) {
+//            aprilTagRecognition.stopStream();
+//        }
 
-        //        signalRecognition.startRecognition();
+        if (startPosMode.equals("BLUE_LEFT")) {
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_left);
+        } else if (startPosMode.equals("BLUE_RIGHT")) {
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_right);
+        } else if (startPosMode.equals("RED_LEFT")) {
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_left);
+        } else if (startPosMode.equals("RED_RIGHT")) {
+            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_right);
+        } else {
+            // TODO: 11/14/23 ??
+        }
+
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
-            if (loopCnt%100==0) {
-                telemetry.addData("Start Position", startPosMode);
+            if (loopCnt % 100 == 0) {
+                telemetry.addData("Start Position", startingPose);
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("Team prop pos = ", team_prop_pos);
                 telemetry.update();
             }
         }
-//        Logger.logFile("Recognition Result:" + aprilTagSignalRecognition.getRecognitionResult());
-//        aprilTagSignalRecognition.stopRecognition();
 
-        if(startPosMode.equals("BLUE_LEFT")){
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_left);
-        }else if(startPosMode.equals("BLUE_RIGHT")){
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_right);
-        }else if(startPosMode.equals("RED_LEFT")){
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_left);
-        }else if(startPosMode.equals("RED_RIGHT")){
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_right);
-        }else{
-            // TODO: 11/14/23 ??
-        }
 //        robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
         robotHardware.resetDriveAndEncoders();
         taskList = builder.buildTaskList();
@@ -121,7 +126,7 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.clearBulkCache();
 //        robotHardware.turnDownSignalBlocker();
         // run until the end of the match (driver presses STOP)
-        while (opModeIsActive() && taskList.size()>0) {
+        while (opModeIsActive() && taskList.size() > 0) {
             loopCount++;
 
             robotHardware.clearBulkCache();
@@ -150,15 +155,14 @@ public class AutonomousGeneric extends LinearOpMode {
                 }
             }
         }
-        // Regardless, open the clamp to save the servo
-        try {
-            Logger.logFile("Autonomous - Final Location:" + robotHardware.getLocalizer().getPoseEstimate());
-            Logger.flushToFile();
+            // Regardless, open the clamp to save the servo
+            try {
+                Logger.logFile("Autonomous - Final Location:" + robotHardware.getLocalizer().getPoseEstimate());
+                Logger.flushToFile();
+            } catch (Exception ex) {
+            }
+            robotHardware.stopAll();
+            robotHardware.setMotorStopBrake(false);
+            aprilTagRecognition.visionPortal.close();
         }
-        catch (Exception ex) {
-        }
-        robotHardware.stopAll();
-        robotHardware.setMotorStopBrake(false);
-    }
-
 }

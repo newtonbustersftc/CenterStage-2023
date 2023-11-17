@@ -32,7 +32,7 @@ public class DriveConstants {
     public static final boolean RUN_USING_ENCODER = false;
     public static PIDFCoefficients MOTOR_VELO_PID;
 
-    public static double LATERAL_MULTIPLIER = 1;
+    public static double LATERAL_MULTIPLIER = 60.25/60;
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
@@ -51,7 +51,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 0.945; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 13.5; // in
+    public static double TRACK_WIDTH = 14; // 1.79in
     public static double WHEEL_BASE = 12;
 
     /*
@@ -65,12 +65,12 @@ public class DriveConstants {
     public static double kStatic = 0.085;
 
     //test by BL
-    public static double MAX_ACCEL = 30;
-    public static double MAX_VEL = 30;   //need to verify about 30 : MAX_VEL = rpmToVelocity(MAX_RPM); AutomaticFeedforwardTuner.java
+    public static double MAX_ACCEL = 20;
+    public static double MAX_VEL = 20;   //need to verify about 30 : MAX_VEL = rpmToVelocity(MAX_RPM); AutomaticFeedforwardTuner.java
     public static double kP = 10;
     public static double kI = 0.5;
     public static double kD = 0.1;
-    public static double MAX_ANG_VEL = Math.toRadians(60);
+    public static double MAX_ANG_VEL =Math.toRadians(60); //; 3.41
     public static double MAX_ANG_ACCEL = Math.toRadians(60);
 //    public static final PIDCoefficients MOTOR_VELO_PID = null;
 

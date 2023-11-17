@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 /**
  * SplineMoveTask
@@ -17,10 +18,12 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 public class SplineMoveTask implements RobotControl {
 
     NBMecanumDrive drive;
-    Trajectory trajectory;
+    Trajectory trajectory, trajectoryTag;
     TrajectorySequence trajectorySequence;
     Pose2d targetPose;
     TrajectoryVelocityConstraint velocityConstraint;
+    RobotHardware robotHardware;
+    AprilTagDetection desiredTag;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
         this.drive = drive;
@@ -39,12 +42,25 @@ public class SplineMoveTask implements RobotControl {
         this.targetPose = null;
     }
 
+    //AprilTag
+    public SplineMoveTask(NBMecanumDrive drive, RobotHardware robotHardware){
+        this.drive = drive;
+        this.robotHardware = robotHardware;
+        this.targetPose = null;
+        Logger.logFile("SplineMoveTask constructor");
+    }
+
     public String toString() {
-        if (trajectory!=null) {
+        if (trajectory != null) {
             return "SplineMove " + trajectory.start() + " -> " + trajectory.end();
-        }
-        else {
+        } else if (trajectorySequence != null) {
             return "SplineMove " + trajectorySequence.start() + " -> " + trajectorySequence.end();
+        } else if (trajectoryTag != null) {
+            return "SplineMove " + trajectoryTag.start() + " -> " + trajectoryTag.end();
+        } else if (robotHardware != null){
+            return "SplineMove - going to create new trajectory based on AprilTag." ;
+        }else{
+            return "the robot should not come to here.... trajectory, trajectorySequence, or trajectoryTag should be not null..";
         }
     }
 
@@ -53,7 +69,9 @@ public class SplineMoveTask implements RobotControl {
     }
 
     public void prepare(){
+        Logger.logFile("SplineMoveTask....1");
         if (targetPose!=null) {
+            Logger.logFile("SplineMoveTask....2");
             Pose2d currPose = drive.getPoseEstimate();
             double ang = Math.atan2(targetPose.getX() - currPose.getX(), targetPose.getY() - currPose.getY());
             boolean forward = Math.abs(currPose.getHeading() - ang) < Math.PI / 2;
@@ -61,10 +79,44 @@ public class SplineMoveTask implements RobotControl {
                         .splineToSplineHeading(targetPose, targetPose.getHeading()).build();
             drive.followTrajectoryAsync(trajectory);
         }else if(trajectorySequence!=null) {
+            Logger.logFile("SplineMoveTask....3");
             drive.followTrajectorySequenceAsync(trajectorySequence);
         }else if(trajectory !=null) {
+            Logger.logFile("SplineMoveTask....4");
             drive.followTrajectoryAsync(trajectory);
+        }else if(robotHardware != null ){ //this must be the detected AprilTag
+            Logger.logFile("SplineMoveTask....5");
+            Pose2d currentPose = drive.getPoseEstimate();
+            Logger.logFile("currentPose x:"+currentPose.getX() + " y:"+currentPose.getY());
+            desiredTag = robotHardware.getDesiredAprilTag();
+            double heading=desiredTag.ftcPose.yaw, x=desiredTag.ftcPose.x, y=desiredTag.ftcPose.y;
+            double reCalculatedX, reCalculatedY;
+
+            //adjust Y because of the camera location,
+            if(x < 0){
+                reCalculatedY = currentPose.getY() + Math.abs(x);
+            }else{
+                reCalculatedY = currentPose.getY() - x;
+            }
+
+            //adjust X to back up a bit to have enough space for lift
+            reCalculatedX = currentPose.getX()  + desiredTag.ftcPose.range * Math.cos(Math.toRadians(heading));
+            Logger.logFile("reCalculatedX="+reCalculatedX);
+            Logger.logFile("reCalculatedY="+reCalculatedY);
+            Logger.logFile("heading="+heading);
+            Logger.flushToFile();
+
+//            if(desiredTag.id==1){
+//                targetPose = new Pose2d(reCalculatedX , reCalculatedY , heading);
+//            }else {
+              targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY + 4, heading);
+//            }
+            trajectoryTag = drive.trajectoryBuilder(currentPose)
+                        .splineTo(targetPose.vec(), Math.toRadians(heading))
+                        .build();
+            drive.followTrajectoryAsync(trajectoryTag);
         }
+
     }
 
     public void execute() {

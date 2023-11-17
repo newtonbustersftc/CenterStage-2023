@@ -15,6 +15,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,14 +31,17 @@ public class AutonomousTaskBuilder {
     String startPosMode;
     Pose2d startingPose;
     RobotCVProcessor.TEAM_PROP_POS team_prop_pos;  //= RobotCVProcessor.TEAM_PROP_POS.CENTER;
-
+    TrajectorySequence dropBoard_traj_a=null, dropBoard_traj_b=null, dropBoard_traj_c=null;
+    AprilTagRecognition aprilTagRecognition;
+    boolean isRightLeft=false;
     public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile,
-                                 RobotCVProcessor.TEAM_PROP_POS teamPropPos, Pose2d startingPose) {
+                                 RobotCVProcessor.TEAM_PROP_POS teamPropPos, Pose2d startingPose, AprilTagRecognition aprilTagRecognition) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         this.team_prop_pos = teamPropPos;
         this.startingPose = startingPose;
+        this.aprilTagRecognition = aprilTagRecognition;
     }
 
     public ArrayList<RobotControl> buildTaskList() {
@@ -88,7 +92,7 @@ public class AutonomousTaskBuilder {
         Pose2d droppBoard_aprilTag_red_center = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_CENTER");
         Pose2d droppBoard_aprilTag_red_right = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_RIGHT");
 
-        TrajectorySequence team_prop_pos_traj=null,dropBoard_traj=null, dropBoard_traj_a=null, dropBoard_traj_b=null;
+        TrajectorySequence  team_prop_pos_traj=null,dropBoard_traj=null;
 
         //Blue side share same drop board destination
         if(startPosMode.startsWith("BLUE")){
@@ -99,20 +103,16 @@ public class AutonomousTaskBuilder {
                                 .setReversed(true)
                                 .splineTo(prop_pos_blueleft_left.vec(), prop_pos_blueleft_left.getHeading() + Math.PI)
                                 .build();
-                    }else if(team_prop_pos == RobotCVProcessor.TEAM_PROP_POS.CENTER){
-                        team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
-                                .setReversed(true)
-                                .splineTo(prop_pos_blueleft_center.vec(), prop_pos_blueleft_center.getHeading() + Math.PI)
-                                .build();
-                    }else {   //must be team_prop_pos == RobotCVProcessor.TEAM_PROP_POS.RIGHT
-                        team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
-                                .setReversed(true)
-                                .splineTo(prop_pos_blueleft_right.vec(), prop_pos_blueleft_right.getHeading() + Math.PI)
-                                .build();
                     }
                     taskList.add(new SplineMoveTask(drive, team_prop_pos_traj));
                     taskList.add(new RobotSleep(1000));
                     taskList.add(new DropSpikeMarkTask(robotHardware));
+                    //go directly to dropboard with AprilTag detection
+                    dropBoard_traj = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+                            .splineTo(droppBoard_aprilTag_blue_left.vec(), droppBoard_aprilTag_blue_left.getHeading())
+                            .build();
+                    taskList.add(new SplineMoveTask(drive, dropBoard_traj));
+                    goToDropBoard();
                 }else{                               //"BLUE_RIGHT
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                             .setReversed(true)
@@ -122,30 +122,15 @@ public class AutonomousTaskBuilder {
                     taskList.add(new RobotSleep(1000));
                     taskList.add(new DropSpikeMarkTask(robotHardware));
 
-                    //todo make a decision whether go under through middle/center or by the wall(alliance might block)
-                    Pose2d pose_a = new Pose2d(-50,12, 0); //through center
-                    Pose2d pose_b = new Pose2d(15, 12, 0);
-                    dropBoard_traj_a = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
-                            .splineTo(pose_a.vec(), pose_a.getHeading())
-                            .build();
-                    taskList.add(new SplineMoveTask(drive, dropBoard_traj_a));
-                    dropBoard_traj_b = drive.trajectorySequenceBuilder(dropBoard_traj_a.end())
-                            .lineTo(pose_b.vec())
-                            .build();
-                    taskList.add(new SplineMoveTask(drive, dropBoard_traj_b));
-                }
-                //todo, the BLUE_RIGHT "left" always go to dropboard "center"
-                //both BLUE sides all share same drop board "left" after drop team_prop on spike mark:
-                dropBoard_traj = drive.trajectorySequenceBuilder(startPosMode.contains("LEFT")?team_prop_pos_traj.end():dropBoard_traj_b.end())
-                        .splineTo(droppBoard_aprilTag_blue_left.vec(), droppBoard_aprilTag_blue_left.getHeading())
-                        .build();
-                taskList.add(new SplineMoveTask(drive, dropBoard_traj));
-                taskList.add(new RobotSleep(1000));
-                taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-                taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
-                taskList.add(new RobotSleep(1000));
-                taskList.add(new DropPixelTask(robotHardware));
+                    isRightLeft = true;
+//                    Pose2d pose_a = new Pose2d(-36,7, 0);
+//                    Pose2d pose_b = new Pose2d(13, 12, 0);
+                    Pose2d pose_a = new Pose2d(-32,60, 0); //transition point
+                    Pose2d pose_b = new Pose2d(15, 60, 0);
+                    Pose2d pose_c = new Pose2d(38, 39, 0);
 
+                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, team_prop_pos,true);
+                }
             }else if(team_prop_pos == RobotCVProcessor.TEAM_PROP_POS.CENTER){
                 if(startPosMode.contains("LEFT")){ // "BLUE_LEFT"
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
@@ -155,6 +140,11 @@ public class AutonomousTaskBuilder {
                     taskList.add(new SplineMoveTask(drive, team_prop_pos_traj));
                     taskList.add(new RobotSleep(1000));
                     taskList.add(new DropSpikeMarkTask(robotHardware));
+                    dropBoard_traj = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+                            .splineTo(droppBoard_aprilTag_blue_center.vec(), droppBoard_aprilTag_blue_center.getHeading())
+                            .build();
+                    taskList.add(new SplineMoveTask(drive, dropBoard_traj));
+                    goToDropBoard();
                 }else{                              // must be "BLUE_RIGHT"
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                             .setReversed(true)
@@ -166,28 +156,14 @@ public class AutonomousTaskBuilder {
 
 //                    Pose2d pose_a = new Pose2d(-50,12, 0); //through center
 //                    Pose2d pose_b = new Pose2d(15, 12, 0);
-                    Pose2d pose_a = new Pose2d(-32,60, 0); //transition point
-                    Pose2d pose_b = new Pose2d(15, 60, 0);
-                    dropBoard_traj_a = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
-                            .splineTo(pose_a.vec(), pose_a.getHeading())
-                            .build();
-                    taskList.add(new SplineMoveTask(drive, dropBoard_traj_a));
-                    dropBoard_traj_b = drive.trajectorySequenceBuilder(dropBoard_traj_a.end())
-                            .lineTo(pose_b.vec())
-                            .build();
-                    taskList.add(new SplineMoveTask(drive, dropBoard_traj_b));
-                }
+//                    Pose2d pose_a = new Pose2d(-32,60, 0); //transition point
+//                    Pose2d pose_b = new Pose2d(15, 60, 0);
+                    Pose2d pose_a = new Pose2d(-55,38, 0); //transition point
+                    Pose2d pose_b = new Pose2d(15, 38, 0);
+                    Pose2d pose_c = new Pose2d(36, 36, 0);
 
-                //both BLUE sides all going to drop board "center" after drop team_prop on spike mark:
-                dropBoard_traj = drive.trajectorySequenceBuilder(startPosMode.contains("LEFT")?team_prop_pos_traj.end():dropBoard_traj_b.end())
-                        .splineTo(droppBoard_aprilTag_blue_center.vec(), droppBoard_aprilTag_blue_center.getHeading())
-                        .build();
-                taskList.add(new SplineMoveTask(drive, dropBoard_traj));
-                taskList.add(new RobotSleep(1000));
-                taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-                taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
-                taskList.add(new RobotSleep(1000));
-                taskList.add(new DropPixelTask(robotHardware));
+                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, team_prop_pos, false);
+                }
             }else{  //must be team_prop_pos == RobotCVProcessor.TEAM_PROP_POS.RIGHT
                 if(startPosMode.contains("LEFT")){ // "BLUE_LEFT"
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
@@ -197,6 +173,11 @@ public class AutonomousTaskBuilder {
                     taskList.add(new SplineMoveTask(drive, team_prop_pos_traj));
                     taskList.add(new RobotSleep(1000));
                     taskList.add(new DropSpikeMarkTask(robotHardware));
+                    dropBoard_traj = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+                            .splineTo(droppBoard_aprilTag_blue_right.vec(), droppBoard_aprilTag_blue_right.getHeading())
+                            .build();
+                    taskList.add(new SplineMoveTask(drive, dropBoard_traj));
+                    goToDropBoard();
                 }else{                              // must be "BLUE_RIGHT"
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                             .setReversed(true)
@@ -205,29 +186,17 @@ public class AutonomousTaskBuilder {
                     taskList.add(new SplineMoveTask(drive, team_prop_pos_traj));
                     taskList.add(new RobotSleep(1000));
                     taskList.add(new DropSpikeMarkTask(robotHardware));
-                    Pose2d pose_a = new Pose2d(-32,60, 0); //transition point
-                    Pose2d pose_b = new Pose2d(15, 60, 0);
+//                    Pose2d pose_a = new Pose2d(-32,60, 0); //transition point
+//                    Pose2d pose_b = new Pose2d(15, 60, 0);
+//                    Pose2d pose_a = new Pose2d(-50,12, 45); //transition point
+//                    Pose2d pose_b = new Pose2d(15, 12, 0);
+                    Pose2d pose_a = new Pose2d(-32,38, 0); //transition point
+                    Pose2d pose_b = new Pose2d(15, 38, 0);
+                    Pose2d pose_c = new Pose2d(36, 32, 0);
 
-                    dropBoard_traj_a = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
-                            .splineTo(pose_a.vec(), pose_a.getHeading())
-                            .build();
-                    taskList.add(new SplineMoveTask(drive, dropBoard_traj_a));
-                    dropBoard_traj_b = drive.trajectorySequenceBuilder(dropBoard_traj_a.end())
-                            .lineTo(pose_b.vec())
-                            .build();
-                    taskList.add(new SplineMoveTask(drive, dropBoard_traj_b));
+                    goToDropBoard(pose_a, pose_b, pose_c, team_prop_pos_traj, team_prop_pos, false);
+
                 }
-
-                //both BLUE sides all going to drop board "right" after drop team_prop on spike mark:
-                dropBoard_traj = drive.trajectorySequenceBuilder(startPosMode.contains("LEFT")?team_prop_pos_traj.end():dropBoard_traj_b.end())
-                        .splineTo(droppBoard_aprilTag_blue_right.vec(), droppBoard_aprilTag_blue_right.getHeading())
-                        .build();
-                taskList.add(new SplineMoveTask(drive, dropBoard_traj));
-                taskList.add(new RobotSleep(1000));
-                taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-                taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
-                taskList.add(new RobotSleep(1000));
-                taskList.add(new DropPixelTask(robotHardware));
             }
         }else{  //"RED" side
             if(team_prop_pos == RobotCVProcessor.TEAM_PROP_POS.LEFT){
@@ -256,6 +225,44 @@ public class AutonomousTaskBuilder {
 
 
         return taskList;
+    }
+
+    void goToDropBoard(Pose2d pose_a, Pose2d pose_b, Pose2d pose_c, TrajectorySequence team_prop_pos_traj,
+                       RobotCVProcessor.TEAM_PROP_POS team_prop_pos, boolean isRightLeft){
+        dropBoard_traj_a = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+                .splineTo(pose_a.vec(), pose_a.getHeading())
+                .build();
+        taskList.add(new SplineMoveTask(drive, dropBoard_traj_a));
+        dropBoard_traj_b = drive.trajectorySequenceBuilder(dropBoard_traj_a.end())
+                .lineTo(pose_b.vec())
+                .build();
+        taskList.add(new SplineMoveTask(drive, dropBoard_traj_b));
+        if(isRightLeft) {
+            dropBoard_traj_c = drive.trajectorySequenceBuilder(dropBoard_traj_b.end())
+                    .splineTo(pose_c.vec(),pose_c.getHeading())
+                    .build();
+//            dropBoard_traj_c = drive.trajectorySequenceBuilder((dropBoard_traj_b2.end()))
+//                    .turn(Math.toRadians(-15))
+//                    .build();
+        }else{
+            dropBoard_traj_c = drive.trajectorySequenceBuilder(dropBoard_traj_b.end())
+                    .lineTo(pose_c.vec())
+                    .build();
+        }
+        taskList.add(new SplineMoveTask(drive, dropBoard_traj_c));
+        taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,  team_prop_pos, drive));
+
+        //need AprilTag to re-route the path, more accurate this way
+        taskList.add(new SplineMoveTask(drive, robotHardware)); //which will call RobotHardware to get the desired TagID dynamically
+        goToDropBoard();
+    }
+
+    void goToDropBoard(){
+        taskList.add(new RobotSleep(1000));
+        taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
+        taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
+        taskList.add(new RobotSleep(1000));
+        taskList.add(new DropPixelTask(robotHardware));
     }
 
     Pose2d getProfilePose(String name) {
