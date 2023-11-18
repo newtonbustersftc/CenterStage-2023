@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.drive.MecanumDrive;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.localization.Localizer;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -28,6 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.util.AxesSigns;
 import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -64,7 +67,8 @@ public class RobotHardware {
     enum IntakeMode { ON, REVERSE, OFF }
     IntakeMode intakeMode;
     AprilTagDetection aprilTag;
-
+    TrajectorySequence aprilTagTrajectory;
+    Pose2d lastLocation;
 
     public void init(HardwareMap hardwareMap, RobotProfile profile) {
         Logger.logFile("RobotHardware init()");
@@ -594,11 +598,11 @@ public class RobotHardware {
     }
 
     public void initDroppingStick(){
-        this.droppingServo.setPosition(0.2);
+        this.droppingServo.setPosition(0);
     }
 
     public void releaseDroppingStick(){
-        this.droppingServo.setPosition(0.6);
+        this.droppingServo.setPosition(0.65);
     }
 
     public double getDroppingServoNumber(){
@@ -625,10 +629,21 @@ public class RobotHardware {
         return this.aprilTag;
     }
 
-    public int getDesireAprilTagID(){
-        if(this.aprilTag == null)
-            return -1;
-        else
-            return this.aprilTag.id;
+    public void setAprilTagTrajectory(TrajectorySequence aprilTagTraj){
+        this.aprilTagTrajectory =aprilTagTraj;
+    }
+
+    public TrajectorySequence getAprilTagTrajectory(){
+        Logger.logFile("robothardware aprilTagTrajectory is "+ this.aprilTagTrajectory);
+
+        return this.aprilTagTrajectory;
+    }
+
+    public Pose2d getLastLocation(){
+        return lastLocation;
+    }
+
+    public void setLastLocation(Pose2d lastLocation){
+        this.lastLocation = lastLocation;
     }
 }

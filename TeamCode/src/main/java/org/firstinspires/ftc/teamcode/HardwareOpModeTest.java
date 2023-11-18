@@ -104,11 +104,14 @@ public class HardwareOpModeTest extends OpMode {
         }
         liftChange = gamepad1.dpad_up || gamepad2.dpad_down;
 
-/*        if(gamepad1.dpad_up){
-              robotHardware.setMotorPower(0,0.5,0,0);
+        if(gamepad1.dpad_up){
+              robotHardware.initDroppingStick();
+        }
+        if(gamepad1.dpad_down){
+            robotHardware.releaseDroppingStick();
         }
 
-        if(gamepad1.dpad_left){
+/*        if(gamepad1.dpad_left){
               robotHardware.setMotorPower(0,0,0.5,0);
         }
 

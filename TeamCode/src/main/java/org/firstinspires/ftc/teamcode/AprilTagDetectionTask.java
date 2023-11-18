@@ -34,22 +34,24 @@ public class AprilTagDetectionTask implements RobotControl {
     AprilTagRecognition aprilTagRecognition;
     RobotCVProcessor.TEAM_PROP_POS team_prop_pos;
     NBMecanumDrive drive;
+    boolean isRed;
 
     public AprilTagDetectionTask(RobotHardware robotHardware, AprilTagRecognition aprilTagRecognition,
-                                 RobotCVProcessor.TEAM_PROP_POS team_prop_pos, NBMecanumDrive drive){
+                                 RobotCVProcessor.TEAM_PROP_POS team_prop_pos, NBMecanumDrive drive, boolean isRed){
         this.robotHardware = robotHardware;
         this.aprilTagRecognition = aprilTagRecognition;
         this.team_prop_pos = team_prop_pos;
         this.drive = drive;
+        this.isRed = isRed;
     }
     @Override
     public void prepare()  {
        if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
-           DESIRED_TAG_ID = 1;
+           DESIRED_TAG_ID = isRed ? 4:1;
        }else if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER )){
-           DESIRED_TAG_ID = 2;
+           DESIRED_TAG_ID = isRed ? 5:2;
        }else if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)){
-           DESIRED_TAG_ID = 3;
+           DESIRED_TAG_ID = isRed ? 6:3;
        }
 
        Logger.logFile("In AprilTagDetectionTask -> desired_tag_id="+DESIRED_TAG_ID);

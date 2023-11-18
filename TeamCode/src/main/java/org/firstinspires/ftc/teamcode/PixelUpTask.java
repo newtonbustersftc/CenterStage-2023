@@ -33,11 +33,11 @@ public class PixelUpTask implements RobotControl {
 
     @Override
     public void execute() {
-        if (mode==Mode.DOWN && System.currentTimeMillis()-startTime>100) {
+        if (mode==Mode.DOWN && System.currentTimeMillis()-startTime>200) {
             robotHardware.grabberClose(isOne);
             mode = Mode.GRAB;
         }
-        if (mode==Mode.GRAB && (System.currentTimeMillis()-startTime>350)) {
+        if (mode==Mode.GRAB && (System.currentTimeMillis()-startTime>450)) {
             mode = Mode.UP;
             robotHardware.setLiftPosition(liftPos);
         }

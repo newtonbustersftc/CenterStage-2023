@@ -99,9 +99,9 @@
     "leftEncoderReverse": false,
     "rightEncoderReverse": true,
     "horizontalEncoderReverse": true,
-    "grabberOpenPos": 0.69,
-    "gripperServo1Pixel": 0.47,
-    "gripperServo2Pixel": 0.54,
+    "grabberOpenPos": 0.31,
+    "gripperServo1Pixel": 0.69,
+    "gripperServo2Pixel": 0.53,
     "droneServoInitPos": 0.7,
     "droneServoLoadPos": 0.55,
     "droneServoShootPos": 0.4,
@@ -217,12 +217,12 @@
     },
     "DROPBOARD_APRILTAG_BLUE_CENTER": {
       "x": 51,
-      "y": 38,
+      "y": 36,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_RIGHT": {
       "x": 51,
-      "y": 32,
+      "y": 29,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_LEFT": {

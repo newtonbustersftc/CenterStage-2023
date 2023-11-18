@@ -24,6 +24,7 @@ public class SplineMoveTask implements RobotControl {
     TrajectoryVelocityConstraint velocityConstraint;
     RobotHardware robotHardware;
     AprilTagDetection desiredTag;
+    boolean isRed;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
         this.drive = drive;
@@ -43,10 +44,11 @@ public class SplineMoveTask implements RobotControl {
     }
 
     //AprilTag
-    public SplineMoveTask(NBMecanumDrive drive, RobotHardware robotHardware){
+    public SplineMoveTask(NBMecanumDrive drive, RobotHardware robotHardware, boolean isRed){
         this.drive = drive;
         this.robotHardware = robotHardware;
         this.targetPose = null;
+        this.isRed = isRed;
         Logger.logFile("SplineMoveTask constructor");
     }
 
@@ -100,17 +102,22 @@ public class SplineMoveTask implements RobotControl {
             }
 
             //adjust X to back up a bit to have enough space for lift
-            reCalculatedX = currentPose.getX()  + desiredTag.ftcPose.range * Math.cos(Math.toRadians(heading));
+            reCalculatedX = currentPose.getX()  + desiredTag.ftcPose.range * Math.cos(Math.toRadians(desiredTag.ftcPose.bearing));
             Logger.logFile("reCalculatedX="+reCalculatedX);
             Logger.logFile("reCalculatedY="+reCalculatedY);
             Logger.logFile("heading="+heading);
             Logger.flushToFile();
 
-            targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY + 4, heading);
+            if(isRed){
+                targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY , heading);
+            }else {
+                targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY + 6, heading);
+            }
             trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
                         .splineTo(targetPose.vec(), Math.toRadians(heading))
                         .build();
             robotHardware.setAprilTagTrajectory(trajectoryTag);
+            robotHardware.setLastLocation(targetPose);
             drive.followTrajectorySequenceAsync(trajectoryTag);
 
         }
