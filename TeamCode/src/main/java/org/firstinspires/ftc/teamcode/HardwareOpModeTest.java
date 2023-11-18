@@ -24,7 +24,7 @@ public class HardwareOpModeTest extends OpMode {
 
     boolean grabberChange =  false;
     boolean blocking = false;
-    boolean turretTurnTest = false;
+    boolean liftChange = false;
     RobotControl currentTask = null;
 
     @Override
@@ -47,6 +47,7 @@ public class HardwareOpModeTest extends OpMode {
         robotHardware.grabberOpen();
         robotHardware.resetImu();
         robotHardware.enableManualCaching(true);
+        robotHardware.resetDriveAndEncoders();
 
         try {
             Thread.sleep(100);
@@ -92,16 +93,16 @@ public class HardwareOpModeTest extends OpMode {
         //else {
         //    robotHardware.stopIntake();
         //}
-
-        if (gamepad1.dpad_down) {
-//            robotHardware.setMotorPower(0.5,0,0,0);
-            double distance_left = robotHardware.distanceSensorLeft.getDistance(DistanceUnit.MM);
-            double distance_right = robotHardware.distanceSensorRight.getDistance(DistanceUnit.MM);
-            telemetry.addData("distance left=", distance_left);
-            telemetry.addData("distance right=", distance_right);
-            Logger.logFile("distance left="+distance_left);
-            Logger.logFile("distance right="+distance_right);
+        int pos = robotHardware.getLiftMotors()[1].getCurrentPosition();
+        if (!liftChange && gamepad1.dpad_down) {
+            pos = pos - 20;
+            robotHardware.setLiftPosition(pos);
         }
+        else if (!liftChange && gamepad1.dpad_up) {
+            pos = pos + 20;
+            robotHardware.setLiftPosition(pos);
+        }
+        liftChange = gamepad1.dpad_up || gamepad2.dpad_down;
 
 /*        if(gamepad1.dpad_up){
               robotHardware.setMotorPower(0,0.5,0,0);

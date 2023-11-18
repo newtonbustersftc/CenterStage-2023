@@ -161,7 +161,8 @@ public class RobotHardware {
         rlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftMotors[1].setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotors[0].setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotors[1].setDirection(DcMotorSimple.Direction.FORWARD);
         expansionHub1.clearBulkCache();
         expansionHub2.clearBulkCache();
     }

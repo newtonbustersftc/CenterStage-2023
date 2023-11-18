@@ -192,10 +192,10 @@ public class SoloDriverOpMode extends OpMode {
             currentTask.prepare();
             grabberRaised = false;
         }
-        if (currentTask==null && gamepad1.left_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin) {
+        if (currentTask==null && gamepad1.left_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin-100) {
             robotHardware.grabberLeft();
         }
-        else if (currentTask==null && gamepad1.right_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin) {
+        else if (currentTask==null && gamepad1.right_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin-100) {
             robotHardware.grabberRight();
         }
     }
@@ -207,7 +207,12 @@ public class SoloDriverOpMode extends OpMode {
                 robotHardware.startIntake();
             }
             else {
-                robotHardware.stopIntake();
+                if (gamepad1.options) {
+                    robotHardware.reverseIntake();
+                }
+                else {
+                    robotHardware.stopIntake();
+                }
             }
         }
         intakePressed = gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3;
