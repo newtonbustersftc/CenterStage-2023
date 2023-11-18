@@ -25,6 +25,7 @@ public class SoloDriverOpMode extends OpMode {
     boolean liftPressed;
     boolean launchPressed;
     int launchStage = 0;
+    boolean grabberRaised = false;
 
     @Override
     public void init() {
@@ -179,14 +180,17 @@ public class SoloDriverOpMode extends OpMode {
         if (currentTask==null && gamepad1.x) {
             currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin);
             currentTask.prepare();
+            grabberRaised = true;
         }
         else if (currentTask==null && gamepad1.y) {
             currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin, false);
             currentTask.prepare();
+            grabberRaised = true;
         }
         else if (currentTask==null && gamepad1.b) {
             currentTask = new DropPixelTask(robotHardware);
             currentTask.prepare();
+            grabberRaised = false;
         }
         if (currentTask==null && gamepad1.left_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin) {
             robotHardware.grabberLeft();
@@ -197,7 +201,7 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     public void handleIntake() {
-        if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
+        if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3) && !grabberRaised) {
             RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();
             if (currMode == RobotHardware.IntakeMode.OFF) {
                 robotHardware.startIntake();
