@@ -23,6 +23,8 @@ public class SoloDriverOpMode extends OpMode {
     RobotControl currentTask = null;
     boolean intakePressed;
     boolean liftPressed;
+    boolean launchPressed;
+    int launchStage = 0;
 
     @Override
     public void init() {
@@ -98,6 +100,7 @@ public class SoloDriverOpMode extends OpMode {
         handleGripper();
         handleLift();
         handleIntake();
+        handleLauncher();
         telemetry.addData("Heading", Math.toDegrees(currHeading));
         telemetry.update();
     }
@@ -204,6 +207,23 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         intakePressed = gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3;
+    }
+
+    public void handleLauncher() {
+        if (gamepad2.x && !launchPressed) {
+            if (launchStage == 0) {
+                robotHardware.droneShootPosition();
+                launchStage++;
+            } else if (launchStage == 1) {
+                robotHardware.droneRelease();
+                launchStage++;
+            } else if (launchStage == 2) {
+                robotHardware.droneHook();
+                robotHardware.droneInitPosition();
+                launchStage++;
+            }
+        }
+        launchPressed = gamepad2.x;
     }
 
     /**
