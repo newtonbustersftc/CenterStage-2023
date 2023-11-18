@@ -23,14 +23,14 @@ public class LiftResetTask implements RobotControl {
         Logger.logFile("Resetting Lift Position");
         startTime = System.currentTimeMillis();
         robotHardware.resetLiftPos();
-        robotHardware.setLiftPosition(profile.hardwareSpec.liftOutMin+100, 0.3);
+        robotHardware.setLiftPosition(300, 0.3);
         mode = Mode.UP;
     }
 
     @Override
     public void execute() {
         if (mode==Mode.UP && (System.currentTimeMillis() - startTime > 100)) {
-            if (robotHardware.getLiftPosition()>profile.hardwareSpec.liftOutMin ||
+            if (robotHardware.getLiftPosition()>300 ||
                 !robotHardware.isLiftMoving()) {
                 Logger.logFile("ResetLift WAIT mode");
                 robotHardware.setLiftPower(0);
@@ -44,12 +44,12 @@ public class LiftResetTask implements RobotControl {
         if (mode==Mode.WAIT && (System.currentTimeMillis() - waitStart > 200)) {
             Logger.logFile("ResetLift DOWN mode");
             mode = Mode.DOWN;
-            robotHardware.setLiftPosition(-5000, 0.3);
+            robotHardware.setLiftPosition(-5000, 0.1);
         }
         if (mode==Mode.DOWN && (System.currentTimeMillis() - waitStart> 500)) {
-            if (!robotHardware.isLiftMoving() || (System.currentTimeMillis() - waitStart>3000)) {
+            if (!robotHardware.isLiftMoving() || (System.currentTimeMillis() - waitStart>6000)) {
                 Logger.logFile("ResetLift REST mode");
-                robotHardware.setLiftPower(0);
+                robotHardware.setLiftPower(0.05);
                 mode = Mode.REST;
                 restStart = System.currentTimeMillis();
             }

@@ -37,7 +37,7 @@ public class PixelUpTask implements RobotControl {
             robotHardware.grabberClose(isOne);
             mode = Mode.GRAB;
         }
-        if (mode==Mode.GRAB && (System.currentTimeMillis()-startTime>250)) {
+        if (mode==Mode.GRAB && (System.currentTimeMillis()-startTime>350)) {
             mode = Mode.UP;
             robotHardware.setLiftPosition(liftPos);
         }

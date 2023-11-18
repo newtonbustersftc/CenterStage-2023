@@ -161,7 +161,8 @@ public class RobotHardware {
         rlMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        liftMotors[1].setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotors[0].setDirection(DcMotorSimple.Direction.REVERSE);
+        liftMotors[1].setDirection(DcMotorSimple.Direction.FORWARD);
         expansionHub1.clearBulkCache();
         expansionHub2.clearBulkCache();
     }
@@ -547,7 +548,7 @@ public class RobotHardware {
         grabberUp();
         grabberIn();
         opmode.sleep(500);
-        setLiftPower(-0.3);
+        setLiftPower(-0.1);
         long downStart = System.currentTimeMillis();
         while (isLiftMoving() || (System.currentTimeMillis() - downStart) < 100) {
             opmode.sleep(10);
