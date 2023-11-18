@@ -18,8 +18,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 public class SplineMoveTask implements RobotControl {
 
     NBMecanumDrive drive;
-    Trajectory trajectory, trajectoryTag;
-    TrajectorySequence trajectorySequence;
+    Trajectory trajectory;
+    TrajectorySequence trajectorySequence, trajectoryTag;
     Pose2d targetPose;
     TrajectoryVelocityConstraint velocityConstraint;
     RobotHardware robotHardware;
@@ -106,15 +106,13 @@ public class SplineMoveTask implements RobotControl {
             Logger.logFile("heading="+heading);
             Logger.flushToFile();
 
-//            if(desiredTag.id==1){
-//                targetPose = new Pose2d(reCalculatedX , reCalculatedY , heading);
-//            }else {
-              targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY + 4, heading);
-//            }
-            trajectoryTag = drive.trajectoryBuilder(currentPose)
+            targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY + 4, heading);
+            trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
                         .splineTo(targetPose.vec(), Math.toRadians(heading))
                         .build();
-            drive.followTrajectoryAsync(trajectoryTag);
+            robotHardware.setAprilTagTrajectory(trajectoryTag);
+            drive.followTrajectorySequenceAsync(trajectoryTag);
+
         }
 
     }

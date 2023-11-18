@@ -151,8 +151,8 @@
       "heading":-90
     },
     "TEAM_PROP_POS_BLUELEFT_LEFT": {
-      "x": 30,
-      "y": 40,
+      "x": 31,
+      "y": 41,
       "heading": 45.0
     },
     "TEAM_PROP_POS_BLUELEFT_CENTER": {
@@ -181,33 +181,33 @@
       "heading":45
     },
     "TEAM_PROP_POS_REDLEFT_LEFT": {
-      "x": -52,
-      "y":-36 ,
+      "x": -54,
+      "y":-41 ,
       "heading": -135.0
     },
     "TEAM_PROP_POS_REDLEFT_CENTER": {
-      "x": -36,
-      "y": -30,
+      "x": -40,
+      "y": -35,
       "heading": -90.0
     },
     "TEAM_PROP_POS_REDLEFT_RIGHT": {
-      "x": -30,
-      "y": -46,
-      "heading":-135
+      "x": -37,
+      "y": -36,
+      "heading":180
     },
     "TEAM_PROP_POS_REDRIGHT_LEFT": {
-      "x": 12,
-      "y": -46,
-      "heading": -45.0
+      "x": 11,
+      "y": -36,
+      "heading": 0.0
     },
     "TEAM_PROP_POS_REDRIGHT_CENTER": {
-      "x": 12,
-      "y": -28,
-      "heading": -90.0
+      "x": 22,
+      "y": -33,
+      "heading": -45.0
     },
     "TEAM_PROP_POS_REDRIGHT_RIGHT": {
-      "x": 20,
-      "y": 34,
+      "x": 17,
+      "y": 43,
       "heading":-135.0
     },
     "DROPBOARD_APRILTAG_BLUE_LEFT": {
@@ -227,12 +227,12 @@
     },
     "DROPBOARD_APRILTAG_RED_LEFT": {
       "x": 51,
-      "y": -32,
+      "y": -31,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_CENTER": {
       "x": 51,
-      "y": -38,
+      "y": -37,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_RIGHT": {

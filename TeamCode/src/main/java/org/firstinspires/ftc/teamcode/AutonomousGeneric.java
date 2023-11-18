@@ -62,6 +62,7 @@ public class AutonomousGeneric extends LinearOpMode {
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
         if (startPosMode.startsWith("RED"))
             isRedAlliance = true;
+        String parking = prefs.getString(AutonomousOptions.PARKING_PREF, AutonomousOptions.PARKING_LOCATION[0]);
 
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
         robotCVProcessor.initWebCam("Webcam 2", true);
@@ -106,6 +107,7 @@ public class AutonomousGeneric extends LinearOpMode {
             if (loopCnt % 100 == 0) {
                 telemetry.addData("Start Position", startingPose);
                 telemetry.addData("CurrPose", currPose);
+                telemetry.addData("Parking = ", parking);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("Team prop pos = ", team_prop_pos);
                 telemetry.update();
