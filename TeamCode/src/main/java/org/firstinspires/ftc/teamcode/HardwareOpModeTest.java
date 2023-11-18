@@ -83,15 +83,15 @@ public class HardwareOpModeTest extends OpMode {
             robotHardware.grabberOpen();
         }
 
-        if (gamepad1.left_bumper) {
-            robotHardware.startIntake();
-        }
-        else if (gamepad1.right_bumper) {
-            robotHardware.reverseIntake();
-        }
-        else {
-            robotHardware.stopIntake();
-        }
+        //if (gamepad1.left_bumper) {
+        //    robotHardware.startIntake();
+        //}
+        //else if (gamepad1.right_bumper) {
+        //    robotHardware.reverseIntake();
+        //}
+        //else {
+        //    robotHardware.stopIntake();
+        //}
 
         if (gamepad1.dpad_down) {
 //            robotHardware.setMotorPower(0.5,0,0,0);
