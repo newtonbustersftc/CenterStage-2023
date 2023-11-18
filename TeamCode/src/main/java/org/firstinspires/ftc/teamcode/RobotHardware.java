@@ -547,7 +547,7 @@ public class RobotHardware {
         grabberUp();
         grabberIn();
         opmode.sleep(500);
-        setLiftPower(-0.3);
+        setLiftPower(-0.1);
         long downStart = System.currentTimeMillis();
         while (isLiftMoving() || (System.currentTimeMillis() - downStart) < 100) {
             opmode.sleep(10);

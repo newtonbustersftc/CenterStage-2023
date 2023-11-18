@@ -44,12 +44,12 @@ public class LiftResetTask implements RobotControl {
         if (mode==Mode.WAIT && (System.currentTimeMillis() - waitStart > 200)) {
             Logger.logFile("ResetLift DOWN mode");
             mode = Mode.DOWN;
-            robotHardware.setLiftPosition(-5000, 0.3);
+            robotHardware.setLiftPosition(-5000, 0.1);
         }
         if (mode==Mode.DOWN && (System.currentTimeMillis() - waitStart> 500)) {
-            if (!robotHardware.isLiftMoving() || (System.currentTimeMillis() - waitStart>3000)) {
+            if (!robotHardware.isLiftMoving() || (System.currentTimeMillis() - waitStart>6000)) {
                 Logger.logFile("ResetLift REST mode");
-                robotHardware.setLiftPower(0);
+                robotHardware.setLiftPower(0.05);
                 mode = Mode.REST;
                 restStart = System.currentTimeMillis();
             }
