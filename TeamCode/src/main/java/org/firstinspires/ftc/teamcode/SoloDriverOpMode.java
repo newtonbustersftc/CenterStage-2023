@@ -62,6 +62,9 @@ public class SoloDriverOpMode extends OpMode {
         robotHardware.droneInitPosition();
 
         loopCnt = 0;
+
+        telemetry.addLine("Init Complete!");
+        telemetry.update();
     }
 
     /**
