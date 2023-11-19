@@ -110,9 +110,9 @@ public class SplineMoveTask implements RobotControl {
             Logger.flushToFile();
 
             if(isRed){
-                targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY , heading);
+                targetPose = new Pose2d(reCalculatedX - 1.5, reCalculatedY , heading);
             }else {
-                targetPose = new Pose2d(reCalculatedX - 5, reCalculatedY + 6, heading);
+                targetPose = new Pose2d(reCalculatedX - 1.5, reCalculatedY + 6, heading);
             }
             trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
                         .splineTo(targetPose.vec(), Math.toRadians(heading))

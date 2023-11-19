@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import android.content.SharedPreferences;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
@@ -13,6 +12,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityCons
 import com.qualcomm.robotcore.util.RobotLog;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,19 +27,20 @@ public class AutonomousTaskBuilder {
     String parking;
     Pose2d startingPose;
     Pose2d lastLocation;
-    RobotCVProcessor.TEAM_PROP_POS team_prop_pos;  //= RobotCVProcessor.TEAM_PROP_POS.CENTER;
+    RobotCVProcessor.TEAM_PROP_POS teamPropPos;  //= RobotCVProcessor.TEAM_PROP_POS.CENTER;
     TrajectorySequence dropBoard_traj_a=null, dropBoard_traj_b=null, dropBoard_traj_c=null;
     AprilTagRecognition aprilTagRecognition;
     boolean isFarSideLeft =false;
     TrajectorySequence  team_prop_pos_traj=null,dropBoard_traj=null,lastTrajectory=null;
     boolean isRed;
+    boolean isFar;
 
     public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile,
                                  RobotCVProcessor.TEAM_PROP_POS teamPropPos, Pose2d startingPose, AprilTagRecognition aprilTagRecognition) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
-        this.team_prop_pos = teamPropPos;
+        this.teamPropPos = teamPropPos;
         this.startingPose = startingPose;
         this.aprilTagRecognition = aprilTagRecognition;
     }
@@ -49,13 +50,12 @@ public class AutonomousTaskBuilder {
             SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
             delayString = prefs.getString(AutonomousOptions.START_DELAY_PREF, "0").replace(" sec", "");
             startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-            parking = prefs.getString(AutonomousOptions.PARKING_PREF,AutonomousOptions.PARKING_LOCATION[0]);
             Logger.logFile(AutonomousOptions.START_POS_MODES_PREF + " - " + startPosMode);
             Logger.logFile(AutonomousOptions.START_DELAY_PREF + " - " + delayString);
-            Logger.logFile(AutonomousOptions.PARKING_PREF + " - " + parking);
             if(startPosMode.startsWith("RED")){
                 isRed = true;
             }
+            isFar = (startPosMode.equals("BLUE_RIGHT") || startPosMode.equals("RED_LEFT"));
         } catch (Exception e) {
             RobotLog.e("SharedPref exception " + e);
             this.delayString = "0";
@@ -71,55 +71,99 @@ public class AutonomousTaskBuilder {
         if (!delayString.equals("0")) {
             taskList.add(new RobotSleep(Integer.parseInt(delayString) * 1000));
         }
+        Pose2d propPose = robotProfile.getProfilePose("TEAM_PROP_POS_" + teamPropPos + "_" +startPosMode);
+        Pose2d dropPose = robotProfile.getProfilePose("DROPBOARD_APRILTAG_" + (isRed?"RED":"BLUE") + "_" + teamPropPos);
+        Pose2d parkingPose = robotProfile.getProfilePose("PARKING_" + startPosMode);
 
-        Pose2d prop_pos_blueleft_left = robotProfile.getProfilePose("TEAM_PROP_POS_BLUELEFT_LEFT");
-        Pose2d prop_pos_blueleft_center = robotProfile.getProfilePose("TEAM_PROP_POS_BLUELEFT_CENTER");
-        Pose2d prop_pos_blueleft_right= robotProfile.getProfilePose("TEAM_PROP_POS_BLUELEFT_RIGHT");
+        team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
+                .setReversed(true)
+                .splineTo(propPose.vec(), propPose.getHeading() + Math.PI)
+                .build();
 
-        Pose2d prop_pos_blueright_left = robotProfile.getProfilePose("TEAM_PROP_POS_BLUERIGHT_LEFT");
-        Pose2d prop_pos_blueright_center = robotProfile.getProfilePose("TEAM_PROP_POS_BLUERIGHT_CENTER");
-        Pose2d prop_pos_blueright_right= robotProfile.getProfilePose("TEAM_PROP_POS_BLUERIGHT_RIGHT");
-
-        Pose2d prop_pos_redleft_left = robotProfile.getProfilePose("TEAM_PROP_POS_REDLEFT_LEFT");
-        Pose2d prop_pos_redleft_center= robotProfile.getProfilePose("TEAM_PROP_POS_REDLEFT_CENTER");
-        Pose2d prop_pos_redleft_right= robotProfile.getProfilePose("TEAM_PROP_POS_REDLEFT_RIGHT");
-
-        Pose2d prop_pos_redright_left= robotProfile.getProfilePose("TEAM_PROP_POS_REDRIGHT_LEFT");
-        Pose2d prop_pos_redright_center = robotProfile.getProfilePose("TEAM_PROP_POS_REDRIGHT_CENTER");
-        Pose2d prop_pos_redright_right= robotProfile.getProfilePose("TEAM_PROP_POS_REDRIGHT_RIGHT");
-
-        Pose2d droppBoard_aprilTag_blue_left = robotProfile.getProfilePose("DROPBOARD_APRILTAG_BLUE_LEFT");
-        Pose2d droppBoard_aprilTag_blue_center = robotProfile.getProfilePose("DROPBOARD_APRILTAG_BLUE_CENTER");
-        Pose2d droppBoard_aprilTag_blue_right = robotProfile.getProfilePose("DROPBOARD_APRILTAG_BLUE_RIGHT");
-
-        Pose2d droppBoard_aprilTag_red_left = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_LEFT");
-        Pose2d droppBoard_aprilTag_red_center = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_CENTER");
-        Pose2d droppBoard_aprilTag_red_right = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_RIGHT");
-
-        if(lastTrajectory == null){
-            if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
-                if(startPosMode.startsWith("BLUE")){
-                    lastLocation = new Pose2d(droppBoard_aprilTag_blue_left.vec(), droppBoard_aprilTag_blue_left.getHeading());
-                }else {
-                    lastLocation = new Pose2d(droppBoard_aprilTag_red_left.vec(), droppBoard_aprilTag_red_left.getHeading());
-                }
-            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)){
-                if(startPosMode.startsWith("BLUE")){
-                    lastLocation = new Pose2d(droppBoard_aprilTag_blue_center.vec(), droppBoard_aprilTag_blue_center.getHeading());
-                }else {
-                    lastLocation = new Pose2d(droppBoard_aprilTag_red_center.vec(), droppBoard_aprilTag_red_center.getHeading());
-                }
-            }else{
-                if(startPosMode.startsWith("BLUE")){
-                    lastLocation = new Pose2d(droppBoard_aprilTag_blue_right.vec(), droppBoard_aprilTag_blue_right.getHeading());
-                }else {
-                    lastLocation = new Pose2d(droppBoard_aprilTag_red_right.vec(), droppBoard_aprilTag_red_right.getHeading());
-                }
-            }
+        taskList.add(new SplineMoveTask(drive, team_prop_pos_traj));
+        taskList.add(new RobotSleep(1000));
+        taskList.add(new DropSpikeMarkTask(robotHardware));
+        if (!isFar) {
+            dropBoard_traj = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+                    .splineTo(dropPose.vec(), dropPose.getHeading())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, dropBoard_traj));
         }
+        else {
+            Pose2d wp1 = robotProfile.getProfilePose("WAY_POINT1_" + teamPropPos + "_" +startPosMode);
+            Pose2d wp2 = robotProfile.getProfilePose("WAY_POINT2_" + teamPropPos + "_" +startPosMode);
+            Pose2d wp3 = robotProfile.getProfilePose("WAY_POINT3_" + teamPropPos + "_" +startPosMode);
+            TrajectorySequenceBuilder bldr = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+                    .splineTo(wp1.vec(), wp1.getHeading())
+                    .splineTo(wp2.vec(), wp2.getHeading());
+            if (wp3!=null) {
+                bldr.splineTo(wp3.vec(), wp3.getHeading())    ;
+            }
+            dropBoard_traj = bldr.build();
+//            dropBoard_traj = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+//                    .splineTo(wp1.vec(), wp1.getHeading())
+//                    .splineTo(wp2.vec(), wp2.getHeading())
+//                    .build();
+            taskList.add(new SplineMoveTask(drive, dropBoard_traj));
+            taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,  teamPropPos, drive, isRed ));
+            taskList.add(new SplineMoveTask(drive, robotHardware, isRed));
+        }
+        goToDropBoard();
+        TrajectorySequence parkingTraj = drive.trajectorySequenceBuilder(dropBoard_traj.end())
+                .lineTo(parkingPose.vec())
+                .build();
+        taskList.add(new SplineMoveTask(drive, parkingTraj));
+
+        taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,  teamPropPos, drive, isRed ));
+//        Pose2d prop_pos_blueleft_left = robotProfile.getProfilePose("TEAM_PROP_POS_BLUELEFT_LEFT");
+//        Pose2d prop_pos_blueleft_center = robotProfile.getProfilePose("TEAM_PROP_POS_BLUELEFT_CENTER");
+//        Pose2d prop_pos_blueleft_right= robotProfile.getProfilePose("TEAM_PROP_POS_BLUELEFT_RIGHT");
+//
+//        Pose2d prop_pos_blueright_left = robotProfile.getProfilePose("TEAM_PROP_POS_BLUERIGHT_LEFT");
+//        Pose2d prop_pos_blueright_center = robotProfile.getProfilePose("TEAM_PROP_POS_BLUERIGHT_CENTER");
+//        Pose2d prop_pos_blueright_right= robotProfile.getProfilePose("TEAM_PROP_POS_BLUERIGHT_RIGHT");
+//
+//        Pose2d prop_pos_redleft_left = robotProfile.getProfilePose("TEAM_PROP_POS_REDLEFT_LEFT");
+//        Pose2d prop_pos_redleft_center= robotProfile.getProfilePose("TEAM_PROP_POS_REDLEFT_CENTER");
+//        Pose2d prop_pos_redleft_right= robotProfile.getProfilePose("TEAM_PROP_POS_REDLEFT_RIGHT");
+//
+//        Pose2d prop_pos_redright_left= robotProfile.getProfilePose("TEAM_PROP_POS_REDRIGHT_LEFT");
+//        Pose2d prop_pos_redright_center = robotProfile.getProfilePose("TEAM_PROP_POS_REDRIGHT_CENTER");
+//        Pose2d prop_pos_redright_right= robotProfile.getProfilePose("TEAM_PROP_POS_REDRIGHT_RIGHT");
+//
+//        Pose2d droppBoard_aprilTag_blue_left = robotProfile.getProfilePose("DROPBOARD_APRILTAG_BLUE_LEFT");
+//        Pose2d droppBoard_aprilTag_blue_center = robotProfile.getProfilePose("DROPBOARD_APRILTAG_BLUE_CENTER");
+//        Pose2d droppBoard_aprilTag_blue_right = robotProfile.getProfilePose("DROPBOARD_APRILTAG_BLUE_RIGHT");
+//
+//        Pose2d droppBoard_aprilTag_red_left = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_LEFT");
+//        Pose2d droppBoard_aprilTag_red_center = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_CENTER");
+//        Pose2d droppBoard_aprilTag_red_right = robotProfile.getProfilePose("DROPBOARD_APRILTAG_RED_RIGHT");
+//
+//        if(lastTrajectory == null){
+//            if(teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
+//                if(startPosMode.startsWith("BLUE")){
+//                    lastLocation = new Pose2d(droppBoard_aprilTag_blue_left.vec(), droppBoard_aprilTag_blue_left.getHeading());
+//                }else {
+//                    lastLocation = new Pose2d(droppBoard_aprilTag_red_left.vec(), droppBoard_aprilTag_red_left.getHeading());
+//                }
+//            }else if(teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)){
+//                if(startPosMode.startsWith("BLUE")){
+//                    lastLocation = new Pose2d(droppBoard_aprilTag_blue_center.vec(), droppBoard_aprilTag_blue_center.getHeading());
+//                }else {
+//                    lastLocation = new Pose2d(droppBoard_aprilTag_red_center.vec(), droppBoard_aprilTag_red_center.getHeading());
+//                }
+//            }else{
+//                if(startPosMode.startsWith("BLUE")){
+//                    lastLocation = new Pose2d(droppBoard_aprilTag_blue_right.vec(), droppBoard_aprilTag_blue_right.getHeading());
+//                }else {
+//                    lastLocation = new Pose2d(droppBoard_aprilTag_red_right.vec(), droppBoard_aprilTag_red_right.getHeading());
+//                }
+//            }
+//        }
         //Blue side share same drop board destination
+        /*
         if(startPosMode.startsWith("BLUE")){
-            if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
+            if(teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
                 if(startPosMode.contains("LEFT")){   //"BLUE_LEFT" - near side
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                                 .setReversed(true)
@@ -156,9 +200,9 @@ public class AutonomousTaskBuilder {
                     Pose2d pose_b = new Pose2d(0, 10, 0);
                     Pose2d pose_c = new Pose2d(40, 27, 0);
 
-                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, team_prop_pos, isFarSideLeft);
+                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, teamPropPos, isFarSideLeft);
                 }
-            }else if(team_prop_pos.equals( RobotCVProcessor.TEAM_PROP_POS.CENTER)){
+            }else if(teamPropPos.equals( RobotCVProcessor.TEAM_PROP_POS.CENTER)){
                 if(startPosMode.contains("LEFT")){ // "BLUE_LEFT"
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                             .setReversed(true)
@@ -190,7 +234,7 @@ public class AutonomousTaskBuilder {
 //                    Pose2d pose_c = new Pose2d(36, 36, 0);
                     Pose2d pose_c = droppBoard_aprilTag_blue_center;
 
-                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, team_prop_pos, isFarSideLeft);
+                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, teamPropPos, isFarSideLeft);
                 }
             }else{  //must be team_prop_pos == RobotCVProcessor.TEAM_PROP_POS.RIGHT
                 if(startPosMode.contains("LEFT")){ // "BLUE_LEFT"
@@ -222,11 +266,11 @@ public class AutonomousTaskBuilder {
                     Pose2d pose_b = new Pose2d(15, 38, 0);
 //                    Pose2d pose_c = new Pose2d(36, 32, 0);
                     Pose2d pose_c = droppBoard_aprilTag_blue_right;
-                    goToDropBoard(pose_a, pose_b, pose_c, team_prop_pos_traj, team_prop_pos, isFarSideLeft);
+                    goToDropBoard(pose_a, pose_b, pose_c, team_prop_pos_traj, teamPropPos, isFarSideLeft);
                 }
             }
         }else{  //"RED" side
-            if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
+            if(teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
                 if(startPosMode.contains("LEFT")){   //"RED_LEFT" - far side
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                                 .setReversed(true)
@@ -245,7 +289,7 @@ public class AutonomousTaskBuilder {
 //                    Pose2d pose_c = new Pose2d(36, -32, 0);
                     Pose2d pose_c = droppBoard_aprilTag_red_left;
 
-                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, team_prop_pos, isFarSideLeft);
+                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, teamPropPos, isFarSideLeft);
 
                 }else{                               //"RED_RIGHT near side
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
@@ -263,7 +307,7 @@ public class AutonomousTaskBuilder {
                     taskList.add(new SplineMoveTask(drive, dropBoard_traj));
                     goToDropBoard();
                 }
-            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)){
+            }else if(teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)){
                 if(startPosMode.contains("LEFT")){ // "RED_LEFT" - far side
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                             .setReversed(true)
@@ -282,7 +326,7 @@ public class AutonomousTaskBuilder {
 //                    Pose2d pose_c = new Pose2d(36, -40, 0);
                     Pose2d pose_c = droppBoard_aprilTag_red_center;
 
-                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, team_prop_pos, isFarSideLeft);
+                    goToDropBoard(pose_a,pose_b, pose_c, team_prop_pos_traj, teamPropPos, isFarSideLeft);
                 }else{                              // must be "RED_RIGHT" near side
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                             .setReversed(true)
@@ -320,7 +364,7 @@ public class AutonomousTaskBuilder {
                     Pose2d pose_c = new Pose2d(40, -30, 0);
 
                     isFarSideLeft =true;
-                    goToDropBoard(pose_a, pose_b, pose_c, team_prop_pos_traj, team_prop_pos, isFarSideLeft);
+                    goToDropBoard(pose_a, pose_b, pose_c, team_prop_pos_traj, teamPropPos, isFarSideLeft);
                 }else{                              // must be "RED_RIGHT" - near side
                     team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
                             .setReversed(true)
@@ -394,6 +438,7 @@ public class AutonomousTaskBuilder {
 //            }
 //        }
 //        taskList.add(new SplineMoveTask(drive, parkingTrajectory));
+         */
         return taskList;
     }
 

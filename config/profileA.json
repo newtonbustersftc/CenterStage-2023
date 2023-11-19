@@ -119,7 +119,7 @@
     "intakeServo2Out": 1.0,
     "intakeServo2Stop": 0.5,
     "liftMax": 1500,
-    "liftOutMin": 700,
+    "liftOutMin": 500,
     "liftIntakePos": 200,
     "liftIncrement": 250,
     "liftPowerUp": 0.4,
@@ -136,6 +136,21 @@
       "y":62,
       "heading":90
     },
+    "TEAM_PROP_POS_LEFT_BLUE_LEFT": {
+      "x": 31,
+      "y": 41,
+      "heading": 45.0
+    },
+    "TEAM_PROP_POS_CENTER_BLUE_LEFT": {
+      "x": 16,
+      "y": 33,
+      "heading": 90.0
+    },
+    "TEAM_PROP_POS_RIGHT_BLUE_LEFT": {
+      "x": 11,
+      "y": 34,
+      "heading":0.0
+    },
     "START_POSE_BLUE_RIGHT":{
       "x":-36,
       "y":62,
@@ -146,99 +161,175 @@
       "y":-62,
       "heading":-90
     },
+
     "START_POSE_RED_RIGHT":{
       "x":12,
       "y":-62,
       "heading":-90
     },
-    "TEAM_PROP_POS_BLUELEFT_LEFT": {
-      "x": 31,
-      "y": 41,
-      "heading": 45.0
-    },
-    "TEAM_PROP_POS_BLUELEFT_CENTER": {
-      "x": 16,
-      "y": 35,
-      "heading": 90.0
-    },
-    "TEAM_PROP_POS_BLUELEFT_RIGHT": {
-      "x": 13,
-      "y": 36,
-      "heading":0.0
-    },
-    "TEAM_PROP_POS_BLUERIGHT_LEFT": {
+    "TEAM_PROP_POS_LEFT_BLUE_RIGHT": {
       "x": -35,
       "y": 36,
       "heading": 180.0
     },
-    "TEAM_PROP_POS_BLUERIGHT_CENTER": {
+    "WAY_POINT1_LEFT_BLUE_RIGHT": {
+      "x": -40,
+      "y": 8,
+      "heading": 0
+    },
+    "WAY_POINT2_LEFT_BLUE_RIGHT": {
+      "x": 0,
+      "y": 0,
+      "heading": 0
+    },
+    "WAY_POINT3_LEFT_BLUE_RIGHT": {
+      "x": 24,
+      "y": 28,
+      "heading": 0
+    },
+    "WAY_POINT1_CENTER_BLUE_RIGHT": {
+      "x": -50,
+      "y": 38,
+      "heading": 0
+    },
+    "WAY_POINT2_CENTER_BLUE_RIGHT": {
+      "x": 15,
+      "y": 38,
+      "heading": 0
+    },
+    "WAY_POINT1_RIGHT_BLUE_RIGHT": {
+      "x": -32,
+      "y": 38,
+      "heading": 0
+    },
+    "WAY_POINT2_RIGHT_BLUE_RIGHT": {
+      "x": 15,
+      "y": 38,
+      "heading": 0
+    },
+    "TEAM_PROP_POS_CENTER_BLUE_RIGHT": {
       "x": -46,
       "y": 33,
       "heading": 135.0
     },
-    "TEAM_PROP_POS_BLUERIGHT_RIGHT": {
+    "TEAM_PROP_POS_RIGHT_BLUE_RIGHT": {
       "x": -41,
-      "y": 43,
+      "y": 38,
       "heading":45
     },
-    "TEAM_PROP_POS_REDLEFT_LEFT": {
-      "x": -54,
-      "y":-41 ,
+    "TEAM_PROP_POS_LEFT_RED_LEFT": {
+      "x": -41,
+      "y":-35 ,
+      "heading": -45.0
+    },
+    "TEAM_PROP_POS_CENTER_RED_LEFT": {
+      "x": -46,
+      "y": -33,
       "heading": -135.0
     },
-    "TEAM_PROP_POS_REDLEFT_CENTER": {
-      "x": -40,
-      "y": -35,
-      "heading": -90.0
-    },
-    "TEAM_PROP_POS_REDLEFT_RIGHT": {
-      "x": -37,
+    "TEAM_PROP_POS_RIGHT_RED_LEFT": {
+      "x": -35,
       "y": -36,
       "heading":180
     },
-    "TEAM_PROP_POS_REDRIGHT_LEFT": {
+    "WAY_POINT1_RIGHT_RED_LEFT": {
+      "x": -40,
+      "y": -8,
+      "heading": 0
+    },
+    "WAY_POINT2_RIGHT_RED_LEFT": {
+      "x": 0,
+      "y": 0,
+      "heading": 0
+    },
+    "WAY_POINT3_RIGHT_RED_LEFT": {
+      "x": 24,
+      "y": -28,
+      "heading": 0
+    },
+    "WAY_POINT1_CENTER_RED_LEFT": {
+      "x": -50,
+      "y": -38,
+      "heading": 0
+    },
+    "WAY_POINT2_CENTER_RED_LEFT": {
+      "x": 15,
+      "y": -38,
+      "heading": 0
+    },
+    "WAY_POINT1_LEFT_RED_LEFT": {
+      "x": -32,
+      "y": -38,
+      "heading": 0
+    },
+    "WAY_POINT2_LEFT_RED_LEFT": {
+      "x": 15,
+      "y": -38,
+      "heading": 0
+    },
+    "TEAM_PROP_POS_LEFT_RED_RIGHT": {
       "x": 11,
-      "y": -36,
+      "y": -34,
       "heading": 0.0
     },
-    "TEAM_PROP_POS_REDRIGHT_CENTER": {
-      "x": 22,
-      "y": -33,
-      "heading": -45.0
+    "TEAM_PROP_POS_CENTER_RED_RIGHT": {
+      "x": 16,
+      "y": -35,
+      "heading": -90.0
     },
-    "TEAM_PROP_POS_REDRIGHT_RIGHT": {
-      "x": 17,
-      "y": 43,
-      "heading":-135.0
+    "TEAM_PROP_POS_RIGHT_RED_RIGHT": {
+      "x": 31,
+      "y": -41,
+      "heading":-45.0
     },
     "DROPBOARD_APRILTAG_BLUE_LEFT": {
-      "x": 50,
+      "x": 49,
       "y": 44,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_CENTER": {
-      "x": 51,
-      "y": 36,
+      "x": 49,
+      "y": 37,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_RIGHT": {
-      "x": 51,
+      "x": 49,
       "y": 29,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_LEFT": {
-      "x": 51,
-      "y": -31,
+      "x": 49,
+      "y": -29,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_CENTER": {
-      "x": 51,
+      "x": 49,
       "y": -37,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_RIGHT": {
-      "x": 51,
-      "y": -43,
+      "x": 49,
+      "y": -44,
+      "heading": 0.0
+    },
+    "PARKING_BLUE_LEFT": {
+      "x": 49,
+      "y": 62,
+      "heading": 0.0
+    },
+    "PARKING_BLUE_RIGHT": {
+      "x": 49,
+      "y": 12,
+      "heading": 0.0
+    },
+    "PARKING_RED_LEFT": {
+      "x": 49,
+      "y": -12,
+      "heading": 0.0
+    },
+    "PARKING_RED_RIGHT": {
+      "x": 49,
+      "y": -62,
       "heading": 0.0
     }
   },

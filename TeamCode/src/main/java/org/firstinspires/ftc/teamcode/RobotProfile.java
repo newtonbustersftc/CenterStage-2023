@@ -47,7 +47,12 @@ public class RobotProfile {
 
     public Pose2d getProfilePose(String name) {
         AutoPose ap = poses.get(name);
-        return new Pose2d(ap.x, ap.y, Math.toRadians(ap.heading));
+        if (ap==null) {
+            return null;
+        }
+        else {
+            return new Pose2d(ap.x, ap.y, Math.toRadians(ap.heading));
+        }
     }
 
     public void saveToFile(File file) throws FileNotFoundException {

@@ -66,23 +66,19 @@ public class AutonomousGeneric extends LinearOpMode {
 
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
         robotCVProcessor.initWebCam("Webcam 2", true);
-        robotCVProcessor.frameProcessor.setSaveImage(false);
-        Thread.sleep(200); //take time to process
+        robotCVProcessor.frameProcessor.setSaveImage(true);
+        Thread.sleep(1000); //take time to process
 
-        Pose2d starting_pose_blue_left = robotProfile.getProfilePose("START_POSE_BLUE_LEFT");
-        Pose2d starting_pose_blue_right = robotProfile.getProfilePose("START_POSE_BLUE_RIGHT");
-        Pose2d starting_pose_red_left = robotProfile.getProfilePose("START_POSE_RED_LEFT");
-        Pose2d starting_pose_red_right = robotProfile.getProfilePose("START_POSE_RED_RIGHT");
+        Pose2d startingPose = robotProfile.getProfilePose("START_POSE_" + startPosMode);
 
-        Pose2d startingPose = startPosMode.startsWith("BLUE") ? (startPosMode.contains("LEFT") ? starting_pose_blue_left : starting_pose_blue_right) :
-                (startPosMode.contains("LEFT") ? starting_pose_red_left : starting_pose_red_right);
-
+        robotHardware.getLocalizer().setPoseEstimate(startingPose);
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
             loopCnt++;
             if (loopCnt % 100 == 0) {
-                telemetry.addData("Start Position", startingPose);
+                telemetry.addData("Start Position", startPosMode);
+                telemetry.addData("Start Pose2d", startingPose);
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("Parking = ", parking);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
@@ -90,21 +86,18 @@ public class AutonomousGeneric extends LinearOpMode {
                 telemetry.update();
             }
         }
-        RobotCVProcessor.TEAM_PROP_POS team_prop_pos = robotCVProcessor.getRecognitionResult();
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, team_prop_pos, startingPose, aprilTagRecognition);
-        robotCVProcessor.close();
-        if (startPosMode.equals("BLUE_LEFT")) {
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_left);
-        } else if (startPosMode.equals("BLUE_RIGHT")) {
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_blue_right);
-        } else if (startPosMode.equals("RED_LEFT")) {
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_left);
-        } else if (startPosMode.equals("RED_RIGHT")) {
-            robotHardware.getLocalizer().setPoseEstimate(starting_pose_red_right);
-        } else {
-            // TODO: 11/14/23 ??
+        RobotCVProcessor.TEAM_PROP_POS teamPropPos = robotCVProcessor.getRecognitionResult();
+        if (teamPropPos==RobotCVProcessor.TEAM_PROP_POS.NONE) {
+            Logger.logFile("Team prop recognition NONE, default to CENTER");
+            teamPropPos = RobotCVProcessor.TEAM_PROP_POS.CENTER;
         }
+        robotCVProcessor.close();
+        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
+        aprilTagRecognition.initAprilTag();
+        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, teamPropPos, startingPose, aprilTagRecognition);
+
         robotHardware.resetDriveAndEncoders();
+        robotHardware.getLocalizer().setPoseEstimate(startingPose);
         taskList = builder.buildTaskList();
         TaskReporter.report(taskList);
         Logger.logFile("Task list items: " + taskList.size());
@@ -117,8 +110,6 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.clearBulkCache();
 
         //test:
-        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
-        aprilTagRecognition.initAprilTag();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size() > 0) {
