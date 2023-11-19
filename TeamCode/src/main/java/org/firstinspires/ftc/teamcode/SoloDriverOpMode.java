@@ -59,6 +59,8 @@ public class SoloDriverOpMode extends OpMode {
         setupCombos();
         //robotHardware.grabberOpen();
 
+        robotHardware.droneInitPosition();
+
         loopCnt = 0;
     }
 
@@ -201,17 +203,21 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     public void handleIntake() {
-        if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3) && !grabberRaised) {
-            RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();
-            if (currMode == RobotHardware.IntakeMode.OFF) {
-                robotHardware.startIntake();
-            }
-            else {
-                if (gamepad1.options) {
-                    robotHardware.reverseIntake();
-                }
-                else {
-                    robotHardware.stopIntake();
+        if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
+            if (grabberRaised) {
+                currentTask = new DropPixelTask(robotHardware);
+                currentTask.prepare();
+                grabberRaised = false;
+            } else {
+                RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();
+                if (currMode == RobotHardware.IntakeMode.OFF) {
+                    robotHardware.startIntake();
+                } else {
+                    if (gamepad1.options) {
+                        robotHardware.reverseIntake();
+                    } else {
+                        robotHardware.stopIntake();
+                    }
                 }
             }
         }
@@ -219,7 +225,7 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     public void handleLauncher() {
-        if (gamepad2.x && !launchPressed) {
+        if (gamepad1.a && !launchPressed) {
             if (launchStage == 0) {
                 robotHardware.droneShootPosition();
                 launchStage++;
@@ -232,7 +238,7 @@ public class SoloDriverOpMode extends OpMode {
                 launchStage++;
             }
         }
-        launchPressed = gamepad2.x;
+        launchPressed = gamepad1.a;
     }
 
     /**
