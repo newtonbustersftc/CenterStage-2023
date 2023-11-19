@@ -71,8 +71,8 @@ public class AutonomousGeneric extends LinearOpMode {
         RobotCVProcessor.TEAM_PROP_POS team_prop_pos = robotCVProcessor.getRecognitionResult();
         robotCVProcessor.close();
 
-        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
-        aprilTagRecognition.initAprilTag();
+//        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
+//        aprilTagRecognition.initAprilTag();
 
         Pose2d starting_pose_blue_left = robotProfile.getProfilePose("START_POSE_BLUE_LEFT");
         Pose2d starting_pose_blue_right = robotProfile.getProfilePose("START_POSE_BLUE_RIGHT");
@@ -127,6 +127,11 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.enableManualCaching(true);
         robotHardware.clearBulkCache();
 //        robotHardware.turnDownSignalBlocker();
+
+        //test:
+        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
+        aprilTagRecognition.initAprilTag();
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive() && taskList.size() > 0) {
             loopCount++;

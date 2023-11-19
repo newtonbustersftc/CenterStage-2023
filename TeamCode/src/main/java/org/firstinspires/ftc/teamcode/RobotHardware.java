@@ -639,11 +639,11 @@ public class RobotHardware {
         return this.aprilTagTrajectory;
     }
 
-    public Pose2d getLastLocation(){
-        return lastLocation;
-    }
-
-    public void setLastLocation(Pose2d lastLocation){
-        this.lastLocation = lastLocation;
-    }
+//    public Pose2d getLastLocation(){
+//        return lastLocation;
+//    }
+//
+//    public void setLastLocation(Pose2d lastLocation){
+//        this.lastLocation = lastLocation;
+//    }
 }
