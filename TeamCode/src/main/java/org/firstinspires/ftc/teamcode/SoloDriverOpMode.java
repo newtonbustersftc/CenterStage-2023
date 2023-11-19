@@ -107,6 +107,7 @@ public class SoloDriverOpMode extends OpMode {
         handleLift();
         handleIntake();
         handleLauncher();
+        handleHanger();
         telemetry.addData("Heading", Math.toDegrees(currHeading));
         telemetry.update();
     }
@@ -242,6 +243,16 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         launchPressed = gamepad1.a;
+    }
+
+    public void handleHanger() {
+        if (gamepad1.dpad_left) {
+            robotHardware.hang(-.5);
+        } else if (gamepad1.dpad_right) {
+            robotHardware.hang(.5);
+        } else {
+            robotHardware.hang(0);
+        }
     }
 
     /**
