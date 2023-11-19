@@ -340,48 +340,60 @@ public class AutonomousTaskBuilder {
         lastTrajectory = dropBoard_traj; //for all
 
         //parking:
-        Trajectory parkingTrajectory=null;
+        TrajectorySequence parkingTrajectory=null;
 
         int CORNER_LEFT=16, CORNER_CENTER=24, CORNER_RIGHT=32,
-            WALL_LEFT = 26, WALL_CENTER=18, WALL_RIGHT=10;
+            WALL_FAR = 26, WALL_CENTER=18, WALL_CLOSE=10;
         int forward=8;
-
-        if(parking.equals("CORNER")){
-            if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
-                parkingTrajectory = drive.trajectoryBuilder(lastTrajectory == null ? lastLocation : lastTrajectory.end())
-                        .strafeLeft(CORNER_LEFT)
-                        .forward(forward)
-                        .build();
-            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)){                              //must be "RED"
-                parkingTrajectory = drive.trajectoryBuilder(lastLocation)
-                        .strafeLeft(CORNER_CENTER)
-                        .forward(forward)
-                        .build();
-            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)){
-                parkingTrajectory = drive.trajectoryBuilder(lastLocation)
-                        .strafeLeft(CORNER_RIGHT)
-                        .forward(forward)
-                        .build();
-            }
-        }else{                                  //must be "WALL"
-            if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){  //"BLUE"
-                parkingTrajectory = drive.trajectoryBuilder(lastLocation)
-                        .strafeRight(WALL_LEFT)
-                        .forward(forward)
-                        .build();
-            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)){                              //must be "RED"
-                parkingTrajectory = drive.trajectoryBuilder(lastLocation)
-                        .strafeRight(WALL_CENTER)
-                        .forward(forward)
-                        .build();
-            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)){
-                parkingTrajectory = drive.trajectoryBuilder(lastLocation)
-                        .strafeRight(WALL_RIGHT)
-                        .forward(forward)
-                        .build();
-            }
+        if(startPosMode.equals("BLUE_RIGHT") || startPosMode.equals("RED_LEFT")){
+            parking = "WALL";
+        }else{
+            parking = "CORNER";
         }
-        taskList.add(new SplineMoveTask(drive, parkingTrajectory));
+
+        //everything except the "BLUE_RIGHT" -> LEFT and "RED_LEFT" -> RIGHT
+//        if(parking.equals("CORNER")){
+//            if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
+//                parkingTrajectory = drive.trajectorySequenceBuilder(lastTrajectory == null ? lastLocation : lastTrajectory.end())
+//                        .strafeLeft(CORNER_LEFT)
+//                        .forward(forward)
+//                        .build();
+//            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)){                              //must be "RED"
+//                parkingTrajectory = drive.trajectorySequenceBuilder(lastTrajectory.end())  //center has lastTrajectory all the time
+//                        .strafeLeft(CORNER_CENTER)
+//                        .forward(forward)
+//                        .build();
+//            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)){
+//                parkingTrajectory = drive.trajectorySequenceBuilder(lastTrajectory == null ? lastLocation : lastTrajectory.end())
+//                        .strafeLeft(CORNER_RIGHT)
+//                        .forward(forward)
+//                        .build();
+//            }
+//            taskList.add(new SplineMoveTask(drive, parkingTrajectory));
+//        }else{                                  //must be "WALL"
+//            if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT) && startPosMode.startsWith("RED")){  //"RED_LEFT" - LEFT
+//                parkingTrajectory = drive.trajectorySequenceBuilder(lastTrajectory == null ? lastLocation : lastTrajectory.end())
+//                        .strafeLeft(WALL_CLOSE)
+//                        .forward(forward)
+//                        .build();
+//            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER) && startPosMode.startsWith("RED")){                              //must be "RED"
+//                parkingTrajectory = drive.trajectorySequenceBuilder(lastTrajectory.end())
+//                        .strafeRight(WALL_CENTER)
+//                        .forward(forward)
+//                        .build();
+//            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT) && startPosMode.startsWith("BLUE")){
+//                parkingTrajectory = drive.trajectorySequenceBuilder(lastTrajectory == null ? lastLocation : lastTrajectory.end())
+//                        .strafeRight(WALL_CLOSE)
+//                        .forward(forward)
+//                        .build();
+//            }else if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER) && startPosMode.startsWith("BLUE")){
+//                parkingTrajectory = drive.trajectorySequenceBuilder(lastTrajectory == null ? lastLocation : lastTrajectory.end())
+//                        .strafeRight(WALL_CENTER)
+//                        .forward(forward)
+//                        .build();
+//            }
+//        }
+//        taskList.add(new SplineMoveTask(drive, parkingTrajectory));
         return taskList;
     }
 
@@ -399,15 +411,16 @@ public class AutonomousTaskBuilder {
             dropBoard_traj_c = drive.trajectorySequenceBuilder(dropBoard_traj_b.end())
                     .splineTo(pose_c.vec(),pose_c.getHeading())
                     .build();
+            taskList.add(new SplineMoveTask(drive, dropBoard_traj_c));
             taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,  team_prop_pos, drive, isRed ));
-            taskList.add(new SplineMoveTask(drive, robotHardware, isRed)); //which will call RobotHardware to get the desired TagID dynamically
+            taskList.add(new SplineMoveTask(drive, robotHardware, isRed));
         }else{
             dropBoard_traj_c = drive.trajectorySequenceBuilder(dropBoard_traj_b.end())
                     .lineTo(pose_c.vec())
                     .build();
             lastTrajectory = dropBoard_traj_c;
+            taskList.add(new SplineMoveTask(drive, dropBoard_traj_c));
         }
-        taskList.add(new SplineMoveTask(drive, dropBoard_traj_c));
 
         goToDropBoard();
     }

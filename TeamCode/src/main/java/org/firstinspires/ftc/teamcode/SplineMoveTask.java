@@ -19,12 +19,13 @@ public class SplineMoveTask implements RobotControl {
 
     NBMecanumDrive drive;
     Trajectory trajectory;
-    TrajectorySequence trajectorySequence, trajectoryTag;
+    TrajectorySequence trajectorySequence, trajectoryTag, trajectoryParking;
     Pose2d targetPose;
     TrajectoryVelocityConstraint velocityConstraint;
     RobotHardware robotHardware;
     AprilTagDetection desiredTag;
     boolean isRed;
+    int WALL_LEFT = 26, WALL_CENTER=18, WALL_RIGHT=10, forward=8;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
         this.drive = drive;
@@ -116,10 +117,23 @@ public class SplineMoveTask implements RobotControl {
             trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
                         .splineTo(targetPose.vec(), Math.toRadians(heading))
                         .build();
-            robotHardware.setAprilTagTrajectory(trajectoryTag);
-            robotHardware.setLastLocation(targetPose);
+//            robotHardware.setAprilTagTrajectory(trajectoryTag);
+//            robotHardware.setLastLocation(targetPose);
             drive.followTrajectorySequenceAsync(trajectoryTag);
 
+//            int WALL_LEFT = 26, WALL_RIGHT=10, forward=8;
+//            if(isRed) {
+//                        trajectoryParking = drive.trajectorySequenceBuilder(trajectoryTag.end())  //only RED_LEFT right side will be here
+//                                .strafeLeft(WALL_RIGHT)
+//                                .forward(forward)
+//                                .build();
+//            }else{
+//                        trajectoryParking = drive.trajectorySequenceBuilder(trajectoryTag.end())
+//                                .strafeRight(WALL_LEFT)
+//                                .forward(forward)
+//                                .build();
+//            }
+//            drive.followTrajectorySequenceAsync(trajectoryParking);
         }
 
     }

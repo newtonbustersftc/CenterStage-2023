@@ -74,13 +74,15 @@ public class AprilTagDetectionTask implements RobotControl {
                 //  Check to see if we want to track towards this tag.
                 if (detection.id == DESIRED_TAG_ID) {
                     Logger.logFile("am I here....3");
-                    // Yes, we want to use this tag.
+
                     targetFound = true;
                     desiredTag = detection;
                     Logger.logFile("In AprilTagDetectionTask, desiredTag is found id = "+ desiredTag.id);
                     Logger.flushToFile();
                     this.robotHardware.storeDesiredAprilTag(desiredTag);
                     break;  // don't look any further.
+                }else{      //if cannot , We need to run to dropboard and dump the pixel
+
                 }
             }
         }
