@@ -247,9 +247,9 @@ public class SoloDriverOpMode extends OpMode {
 
     public void handleHanger() {
         if (gamepad1.dpad_left) {
-            robotHardware.hang(-.5);
+            robotHardware.hang(-1);
         } else if (gamepad1.dpad_right) {
-            robotHardware.hang(.5);
+            robotHardware.hang(1);
         } else {
             robotHardware.hang(0);
         }

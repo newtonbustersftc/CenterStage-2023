@@ -111,6 +111,7 @@
     "droppingServoDown":0.7,
     "intakeDropSpikeStep": -5,
     "intakePower": -0.5,
+    "intakeReversePower": 1,
     "intakeServo1In": 0.0,
     "intakeServo1Out": 1.0,
     "intakeServo1Stop": 0.5,

@@ -195,7 +195,7 @@ public class RobotHardware {
     }
     public void reverseIntake() {
         intakeMode = IntakeMode.REVERSE;
-        intakeMotor.setPower(-profile.hardwareSpec.intakePower);
+        intakeMotor.setPower(profile.hardwareSpec.intakeReversePower);
         intakeServo1.setPosition(profile.hardwareSpec.intakeServo1Out);
         intakeServo2.setPosition(profile.hardwareSpec.intakeServo2Out);
     }
