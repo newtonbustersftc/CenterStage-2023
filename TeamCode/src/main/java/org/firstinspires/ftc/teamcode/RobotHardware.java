@@ -93,6 +93,7 @@ public class RobotHardware {
         intakeMotor = hardwareMap.get(DcMotorEx.class,"intakeMotor");
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         hangerMotor = hardwareMap.get(DcMotorEx.class,"hangerMotor");
+        hangerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         liftMotors = new DcMotorEx[2];
         liftMotors[0] = hardwareMap.get(DcMotorEx.class,"liftMotorLeft");
@@ -484,6 +485,10 @@ public class RobotHardware {
     }
     public void droneHook() {
         droneReleaseServo.setPosition(profile.hardwareSpec.droneHookClosePos);
+    }
+
+    public void hang(double power) {
+        hangerMotor.setPower(power);
     }
 
     public void initSetupNoAuto(OpMode opmod) {
