@@ -119,7 +119,7 @@
     "intakeServo2Out": 1.0,
     "intakeServo2Stop": 0.5,
     "liftMax": 1500,
-    "liftOutMin": 500,
+    "liftOutMin": 700,
     "liftIntakePos": 200,
     "liftIncrement": 250,
     "liftPowerUp": 0.4,
