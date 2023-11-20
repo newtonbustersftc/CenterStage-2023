@@ -160,30 +160,41 @@ public class RobotCVProcessor {
             List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
             Imgproc.findContours(maskMat, contours, hierarchey, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
             Iterator<MatOfPoint> each = contours.iterator();
+            Rect recLargest = null;
             while (each.hasNext()) {
                 MatOfPoint wrapper = each.next();
                 double area = Imgproc.contourArea(wrapper);
                 if (area > 1000) {
                     Logger.logFile("size of contours: " + contours.size());
                     Rect rec = Imgproc.boundingRect(wrapper);
-                    Imgproc.rectangle(frame, new Rect(offsetX + rec.x,
-                            offsetY + rec.y, rec.width, rec.height), DRAW_COLOR, 2);
                     if (area>lastArea && area<10000) {
                         lastCenter = offsetX + rec.x + rec.width/2;
                         lastArea = area;
+                        recLargest = rec;
                         Logger.logFile("last center: "+lastCenter);
                         Logger.logFile("last area: "+ lastArea);
-                        if(saveImage){
-                            saveImage(frame);
-                        }
+                        Logger.logFile("last center:"+ lastCenter);
+
                     }
                 }
             }
             if(contours.size()>0 && !isRecorded && lastCenter !=-1){
                 finalCenter = lastCenter;
-                Logger.logFile("so....finalCenter="+finalCenter);
+                Logger.logFile("so....finalCenter="+ (offsetX + recLargest.x + recLargest.width/2));
                 Logger.logFile("so....finalArea="+lastArea);
                 isRecorded = true;
+                if(saveImage){
+                    Imgproc.rectangle(frame, new Rect(offsetX + recLargest.x,
+                            offsetY + recLargest.y, recLargest.width, recLargest.height), DRAW_COLOR, 2);
+                    Logger.logFile("saved image box center="+(offsetX + recLargest.x + recLargest.width/2));
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    saveImage(frame);
+                }
                 visionPortal.stopStreaming();
             }
 
