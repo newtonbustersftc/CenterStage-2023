@@ -4,7 +4,7 @@ public class PixelUpTask implements RobotControl {
     RobotHardware robotHardware;
     long startTime, outTime;
     int liftPos;
-    enum Mode { DOWN, GRAB, UP, OUT}
+    enum Mode { DOWN, GRAB, UP, OUT, DONE}
     Mode mode;
     boolean isOne;
 
@@ -42,10 +42,14 @@ public class PixelUpTask implements RobotControl {
             robotHardware.setLiftPosition(liftPos);
         }
         if (mode==Mode.UP &&
-                robotHardware.getLiftPosition() > robotHardware.getRobotProfile().hardwareSpec.liftOutMin) {
+                robotHardware.getLiftPosition() > robotHardware.getRobotProfile().hardwareSpec.liftOutMin - 30) {
             robotHardware.grabberOut();
             mode = mode.OUT;
             outTime = System.currentTimeMillis();
+        }
+        if (mode==Mode.OUT && System.currentTimeMillis() - outTime > 200) {
+            robotHardware.grabberLeft();
+            mode = Mode.DONE;
         }
     }
     @Override
@@ -55,6 +59,6 @@ public class PixelUpTask implements RobotControl {
 
     @Override
     public boolean isDone() {
-        return mode==mode.OUT && (System.currentTimeMillis() - outTime > 200);
+        return mode==mode.DONE;
     }
 }

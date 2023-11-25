@@ -127,7 +127,14 @@
     "gripperInOutServoIn":0.2875,
     "gripperRotateServoUp":0.5385,
     "gripperRotateServoLeft":0.8275,
-    "gripperRotateServoRight":0.225
+    "gripperRotateServoRight":0.225,
+    "dropPixelDist": 4.1,
+    "leftOffsetDist": -0.6,
+    "autoDropMaxDist": 12,
+    "afterDropDist": 5.0,
+    "autoDropMinPower": 0.05,
+    "autoDropMaxPower": 0.2,
+    "autoDropP": 1.0
   },
   "poses": {
     "START_POSE_BLUE_LEFT":{

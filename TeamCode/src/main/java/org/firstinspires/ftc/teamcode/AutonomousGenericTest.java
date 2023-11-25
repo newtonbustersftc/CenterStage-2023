@@ -123,8 +123,8 @@ public class AutonomousGenericTest extends LinearOpMode {
             loopCount++;
             robotHardware.clearBulkCache();
             robotHardware.getLocalizer().update();
-            Logger.logFile("Pose:" + robotHardware.getLocalizer().getPoseEstimate());
-            Logger.logFile("Velocity:" + robotHardware.getLocalizer().getPoseVelocity());
+            //Logger.logFile("Pose:" + robotHardware.getLocalizer().getPoseEstimate());
+            //Logger.logFile("Velocity:" + robotHardware.getLocalizer().getPoseVelocity());
             try {
                 Logger.flushToFile();
             }
@@ -185,7 +185,9 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     void setupTaskList2() {
         taskList.add(new RobotSleep((1000)));
-        taskList.add(new DropSpikeMarkTask(robotHardware));
+        taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
+        //taskList.add(new RobotSleep((500)));
+        taskList.add(new DropPixelTask(robotHardware));
     }
 
     void setupTaskList3() {
