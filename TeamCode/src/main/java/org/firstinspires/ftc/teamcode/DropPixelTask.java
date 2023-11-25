@@ -2,35 +2,81 @@ package org.firstinspires.ftc.teamcode;
 
 public class DropPixelTask implements RobotControl {
     RobotHardware robotHardware;
-    long dropTime;
-    enum Mode { OPEN, IN, LIFT}
+    RobotProfile profile;
+    long dropTime, inTime;
+    enum Mode { APPROACH, OPEN, DEPART, IN, DONE}
     Mode mode;
 
     public DropPixelTask(RobotHardware hardware) {
         this.robotHardware = hardware;
+        this.profile = hardware.getRobotProfile();
     }
 
     public String toString() {
-        return "DropUpTask";
+        return "DropPixelTask";
     }
 
     @Override
     public void prepare() {
-        robotHardware.grabberOpen();
-        mode = Mode.OPEN;
-        dropTime = System.currentTimeMillis();
+        mode = Mode.APPROACH;
     }
 
     @Override
     public void execute() {
-        if (mode==Mode.OPEN && (System.currentTimeMillis() - dropTime) > 200) {
-            robotHardware.grabberUp();
-            robotHardware.grabberIn();
-            mode = Mode.IN;
+        if (mode==Mode.APPROACH) {
+            // use distance sensor and P(id) to reach desired distance
+            double dLeft = robotHardware.getDistanceSensorLeft();
+            double dRight = robotHardware.getDistanceSensorRight();
+            // when it's too far, this drop will not happen
+            if (dLeft > profile.hardwareSpec.autoDropMaxDist + profile.hardwareSpec.leftOffsetDist ||
+                dRight > profile.hardwareSpec.autoDropMaxDist) {
+                mode = Mode.DONE;
+                Logger.logFile("DropPixel too far, Left: " + dLeft + " Right: " + dRight);
+            }
+            else {
+                if (dLeft < profile.hardwareSpec.dropPixelDist + profile.hardwareSpec.leftOffsetDist &&
+                        dRight < profile.hardwareSpec.dropPixelDist) {
+                    mode = Mode.OPEN;   // testing
+                    robotHardware.setMotorPower(0, 0, 0, 0);
+                    robotHardware.grabberOpen();
+                    dropTime = System.currentTimeMillis();
+                    Logger.logFile("DropPixel Close enough, Left: " + dLeft + " Right: " + dRight);
+                } else {
+                    boolean isStop = powerMotorByDist(dLeft, profile.hardwareSpec.dropPixelDist + profile.hardwareSpec.leftOffsetDist, dRight, profile.hardwareSpec.dropPixelDist);
+                    if (isStop) {
+                        mode = Mode.OPEN;  // testing
+                        robotHardware.grabberOpen();
+                        dropTime = System.currentTimeMillis();
+                        Logger.logFile("DropPixel Power Min, Left: " + dLeft + " Right: " + dRight);
+                    }
+                }
+            }
         }
-        else if (mode==Mode.IN && (System.currentTimeMillis() - dropTime) > 400) {
+        if (mode==Mode.OPEN && (System.currentTimeMillis() - dropTime) > 200) {
+            mode = Mode.DEPART;
+        }
+        if (mode==Mode.DEPART) {
+            boolean isStop = false;
+            double dLeft = robotHardware.getDistanceSensorLeft();
+            double dRight = robotHardware.getDistanceSensorRight();
+            if (dLeft > profile.hardwareSpec.afterDropDist+profile.hardwareSpec.leftOffsetDist ||
+                dRight > profile.hardwareSpec.afterDropDist) {
+                robotHardware.setMotorPower(0,0,0,0);
+                isStop = true;
+            }
+            else {
+                isStop = powerMotorByDist(dLeft, profile.hardwareSpec.afterDropDist + profile.hardwareSpec.leftOffsetDist, dRight, profile.hardwareSpec.afterDropDist);
+            }
+            if (isStop) {
+                robotHardware.grabberUp();
+                robotHardware.grabberIn();
+                mode = Mode.IN;
+                inTime = System.currentTimeMillis();
+            }
+        }
+        else if (mode==Mode.IN && (System.currentTimeMillis() - inTime) > 200) {
             robotHardware.setLiftPosition(0);
-            mode = Mode.LIFT;
+            mode = Mode.DONE;
         }
     }
     @Override
@@ -39,6 +85,25 @@ public class DropPixelTask implements RobotControl {
 
     @Override
     public boolean isDone() {
-        return System.currentTimeMillis() - dropTime > 800;
+        return mode==Mode.DONE;
+    }
+
+    // Stop when close enough that power to motor become small
+    boolean powerMotorByDist(double dLeft, double leftTarget, double dRight, double rightTarget) {
+        double leftPower = (dLeft - leftTarget) * profile.hardwareSpec.autoDropP;
+        double rightPower = (dRight - rightTarget) * profile.hardwareSpec.autoDropP;
+        double maxAbsPower = Math.max(Math.abs(leftPower), Math.abs(rightPower));
+        boolean stop = false;
+        if (maxAbsPower > profile.hardwareSpec.autoDropMaxPower) {
+            leftPower = leftPower / maxAbsPower * profile.hardwareSpec.autoDropMaxPower;
+            rightPower = rightPower / maxAbsPower * profile.hardwareSpec.autoDropMaxPower;
+        }
+        else if (maxAbsPower < profile.hardwareSpec.autoDropMinPower) {
+            leftPower = rightPower = 0;
+            stop = true;
+        }
+        //Logger.logFile("dleft:" + dLeft + " dRight:" + dRight + " pwrL:" + leftPower + " pwrR:" + rightPower);
+        robotHardware.setMotorPower(leftPower, rightPower, leftPower, rightPower);
+        return stop;
     }
 }

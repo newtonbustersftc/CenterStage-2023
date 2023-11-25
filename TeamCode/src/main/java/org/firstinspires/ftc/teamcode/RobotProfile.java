@@ -107,6 +107,8 @@ public class RobotProfile {
         public double intakeServo2In, intakeServo2Out, intakeServo2Stop;
         public double gripperInOutServoOut, gripperInOutServoIn;
         public double gripperRotateServoUp, gripperRotateServoLeft, gripperRotateServoRight;
+        public double dropPixelDist, leftOffsetDist, autoDropMaxDist, afterDropDist;
+        public double autoDropMinPower, autoDropMaxPower, autoDropP;
 
     }
     public class RoadRunnerParam {

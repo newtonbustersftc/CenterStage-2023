@@ -101,8 +101,10 @@ public class SoloDriverOpMode extends OpMode {
                 currentTask.prepare();
             }
         }
-
-        handleMovement();
+        if (currentTask==null || !(currentTask instanceof DropPixelTask)){
+            // when doing dropPixelTask, no manual movement
+            handleMovement();
+        }
         handleGripper();
         handleLift();
         handleIntake();
@@ -184,19 +186,35 @@ public class SoloDriverOpMode extends OpMode {
 
     public void handleGripper() {
         if (currentTask==null && gamepad1.x) {
-            currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin);
-            currentTask.prepare();
-            grabberRaised = true;
+            if (!grabberRaised) {
+                currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin);
+                currentTask.prepare();
+                grabberRaised = true;
+            }
+            else {
+                currentTask = new RetractGrabberTask(robotHardware);
+                currentTask.prepare();
+                grabberRaised = false;
+            }
         }
         else if (currentTask==null && gamepad1.y) {
-            currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin, false);
-            currentTask.prepare();
-            grabberRaised = true;
+            if (!grabberRaised) {
+                currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin, false);
+                currentTask.prepare();
+                grabberRaised = true;
+            }
+            else {
+                currentTask = new RetractGrabberTask(robotHardware);
+                currentTask.prepare();
+                grabberRaised = false;
+            }
         }
         else if (currentTask==null && gamepad1.b) {
-            currentTask = new DropPixelTask(robotHardware);
-            currentTask.prepare();
-            grabberRaised = false;
+            if (grabberRaised) {
+                currentTask = new DropPixelTask(robotHardware);
+                currentTask.prepare();
+                grabberRaised = false;
+            }
         }
         if (currentTask==null && gamepad1.left_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin-100) {
             robotHardware.grabberLeft();
