@@ -283,12 +283,12 @@
     },
     "DROPBOARD_APRILTAG_BLUE_LEFT": {
       "x": 49,
-      "y": 44,
+      "y": 41,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_CENTER": {
       "x": 49,
-      "y": 37,
+      "y": 35,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_RIGHT": {
@@ -303,12 +303,12 @@
     },
     "DROPBOARD_APRILTAG_RED_CENTER": {
       "x": 49,
-      "y": -37,
+      "y": -35,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_RIGHT": {
       "x": 49,
-      "y": -44,
+      "y": -41,
       "heading": 0.0
     },
     "PARKING_BLUE_LEFT": {
