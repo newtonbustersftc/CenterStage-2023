@@ -6,6 +6,7 @@ import android.util.Size;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -32,9 +33,8 @@ public class RobotCVProcessor {
     VisionPortal visionPortal;
     FrameProcessor frameProcessor;
     boolean isRed;
-    boolean isRecorded = false;
     double finalCenter;
-
+    Rect recLargest = null;
     public enum TEAM_PROP_POS { LEFT, CENTER, RIGHT, NONE };
 
     public RobotCVProcessor(RobotHardware robotHardware, RobotProfile robotProfile, boolean isRed) {
@@ -56,6 +56,18 @@ public class RobotCVProcessor {
         visionPortal = builder.build();
         Logger.logFile("after cv init");
     }
+
+//    public VisionPortal initWebCam(CameraName switchableCamera, boolean withPreview){
+//        frameProcessor = new FrameProcessor(robotProfile, isRed);
+//        VisionPortal visionPortal = new VisionPortal.Builder()
+//                .setCamera(switchableCamera)
+//                .addProcessor(frameProcessor)
+//                .setCameraResolution(new Size(640, 360))
+//                .enableLiveView(withPreview)    // Enable LiveView (RC preview).
+//                .setAutoStopLiveView(true)    // Automatically stop LiveView (RC
+//                .build();
+//        return visionPortal;
+//    }
 
     public float getFrameRate() {
         return visionPortal.getFps();
@@ -160,7 +172,7 @@ public class RobotCVProcessor {
             List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
             Imgproc.findContours(maskMat, contours, hierarchey, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
             Iterator<MatOfPoint> each = contours.iterator();
-            Rect recLargest = null;
+
             while (each.hasNext()) {
                 MatOfPoint wrapper = each.next();
                 double area = Imgproc.contourArea(wrapper);
@@ -172,17 +184,14 @@ public class RobotCVProcessor {
                         lastArea = area;
                         recLargest = rec;
                         Logger.logFile("last center: "+lastCenter);
-                        Logger.logFile("last area: "+ lastArea);
-                        Logger.logFile("last center:"+ lastCenter);
-
+                        Logger.logFile("last recLargest:"+ recLargest);
                     }
                 }
             }
-            if(contours.size()>0 && !isRecorded && lastCenter !=-1){
-                finalCenter = lastCenter;
+            if(contours.size()>0 &&  lastCenter !=-1){
                 Logger.logFile("so....finalCenter="+ (offsetX + recLargest.x + recLargest.width/2));
-                Logger.logFile("so....finalArea="+lastArea);
-                isRecorded = true;
+                finalCenter = offsetX + recLargest.x + recLargest.width/2;
+
                 if(saveImage){
                     Imgproc.rectangle(frame, new Rect(offsetX + recLargest.x,
                             offsetY + recLargest.y, recLargest.width, recLargest.height), DRAW_COLOR, 2);
@@ -192,12 +201,9 @@ public class RobotCVProcessor {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-
                     saveImage(frame);
                 }
-                visionPortal.stopStreaming();
             }
-
             return frame;
         }
 
@@ -212,7 +218,9 @@ public class RobotCVProcessor {
         }
 
         public TEAM_PROP_POS getRecognitionResult() {
-            if (finalCenter == -1) {
+            Logger.logFile("LEFT => finalCenter < 180, RIGHT=> finalCenter > 480" );
+            Logger.logFile("final center = " + finalCenter);
+            if (finalCenter == 0) {
                 return TEAM_PROP_POS.NONE;
             }
             else if (finalCenter < 720/4) {
@@ -221,6 +229,7 @@ public class RobotCVProcessor {
             else if (finalCenter > 720*2/3) {
                 return TEAM_PROP_POS.RIGHT;
             }
+
             return TEAM_PROP_POS.CENTER;
         }
 

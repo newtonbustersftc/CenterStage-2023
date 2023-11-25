@@ -89,7 +89,6 @@
   "hardwareSpec": {
     "revHubVertical": true,
     "useControlHubImu": true,
-    "autoTurretReset": false,
     "trackWidth": 14,
     "encoderOffset": 0,
     "wheelBase": 12,

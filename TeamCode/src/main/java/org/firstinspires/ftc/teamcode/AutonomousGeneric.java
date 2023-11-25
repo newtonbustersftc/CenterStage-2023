@@ -66,6 +66,7 @@ public class AutonomousGeneric extends LinearOpMode {
 
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
         robotCVProcessor.initWebCam("Webcam 2", true);
+        Logger.logFile("1) Webcam2 status:"+robotCVProcessor.visionPortal.getCameraState());
         robotCVProcessor.frameProcessor.setSaveImage(true);
         Thread.sleep(1000); //take time to process
 
@@ -75,6 +76,7 @@ public class AutonomousGeneric extends LinearOpMode {
         while (!isStopRequested() && !isStarted()) {
             robotHardware.getLocalizer().update();
             Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
+            robotCVProcessor.visionPortal.resumeStreaming();
             loopCnt++;
             if (loopCnt % 100 == 0) {
                 telemetry.addData("Start Position", startPosMode);
@@ -83,6 +85,7 @@ public class AutonomousGeneric extends LinearOpMode {
                 telemetry.addData("Parking = ", parking);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("Team prop pos = ", robotCVProcessor.getRecognitionResult());
+                telemetry.addData("2) Webcam2 status = ", robotCVProcessor.visionPortal.getCameraState());
                 telemetry.update();
             }
         }
@@ -92,8 +95,10 @@ public class AutonomousGeneric extends LinearOpMode {
             teamPropPos = RobotCVProcessor.TEAM_PROP_POS.CENTER;
         }
         robotCVProcessor.close();
+        Logger.logFile("3) Webcam2 status = "+ robotCVProcessor.visionPortal.getCameraState());
         aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
         aprilTagRecognition.initAprilTag();
+        Logger.logFile("Webcam 1 status = "+ aprilTagRecognition.visionPortal.getCameraState());
         AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, teamPropPos, startingPose, aprilTagRecognition);
 
         robotHardware.resetDriveAndEncoders();

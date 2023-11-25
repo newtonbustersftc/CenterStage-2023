@@ -117,25 +117,9 @@ public class SplineMoveTask implements RobotControl {
             trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
                         .splineTo(targetPose.vec(), Math.toRadians(heading))
                         .build();
-//            robotHardware.setAprilTagTrajectory(trajectoryTag);
-//            robotHardware.setLastLocation(targetPose);
             drive.followTrajectorySequenceAsync(trajectoryTag);
-
-//            int WALL_LEFT = 26, WALL_RIGHT=10, forward=8;
-//            if(isRed) {
-//                        trajectoryParking = drive.trajectorySequenceBuilder(trajectoryTag.end())  //only RED_LEFT right side will be here
-//                                .strafeLeft(WALL_RIGHT)
-//                                .forward(forward)
-//                                .build();
-//            }else{
-//                        trajectoryParking = drive.trajectorySequenceBuilder(trajectoryTag.end())
-//                                .strafeRight(WALL_LEFT)
-//                                .forward(forward)
-//                                .build();
-//            }
-//            drive.followTrajectorySequenceAsync(trajectoryParking);
+            drive.getLocalizer().setPoseEstimate(targetPose);
         }
-
     }
 
     public void execute() {
