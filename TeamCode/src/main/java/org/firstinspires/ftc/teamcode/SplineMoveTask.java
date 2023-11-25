@@ -118,7 +118,7 @@ public class SplineMoveTask implements RobotControl {
                         .splineTo(targetPose.vec(), Math.toRadians(heading))
                         .build();
             drive.followTrajectorySequenceAsync(trajectoryTag);
-            drive.getLocalizer().setPoseEstimate(targetPose);
+//            drive.getLocalizer().setPoseEstimate(targetPose);
         }
     }
 
