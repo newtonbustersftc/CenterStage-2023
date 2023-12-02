@@ -229,7 +229,7 @@ public class SoloDriverOpMode extends OpMode {
         if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
             if (grabberRaised) {
                 // If the grabber is raised, lower the grabber rather than starting the intake.
-                currentTask = new DropPixelTask(robotHardware);
+                currentTask = new RetractGrabberTask(robotHardware);
                 currentTask.prepare();
                 grabberRaised = false;
             } else {
