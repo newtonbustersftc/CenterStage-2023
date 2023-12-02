@@ -4,7 +4,7 @@ public class DropPixelTask implements RobotControl {
     RobotHardware robotHardware;
     RobotProfile profile;
     long dropTime, inTime;
-    enum Mode { APPROACH, OPEN, DEPART, IN, DONE}
+    enum Mode { APPROACH, OPEN, DEPART, IN, DONE, NON_ACTION}
     Mode mode;
 
     public DropPixelTask(RobotHardware hardware) {
@@ -30,7 +30,7 @@ public class DropPixelTask implements RobotControl {
             // when both side too far, this drop will not happen
             if (dLeft > profile.hardwareSpec.autoDropMaxDist + profile.hardwareSpec.leftOffsetDist &&
                 dRight > profile.hardwareSpec.autoDropMaxDist) {
-                mode = Mode.DONE;
+                mode = Mode.NON_ACTION;
                 Logger.logFile("DropPixel too far, Left: " + dLeft + " Right: " + dRight);
             }
             else if (dLeft > profile.hardwareSpec.autoDropMaxDist + profile.hardwareSpec.leftOffsetDist &&
@@ -57,6 +57,7 @@ public class DropPixelTask implements RobotControl {
             if (mode==Mode.OPEN) {
                 robotHardware.setMotorPower(0, 0, 0, 0);
                 robotHardware.grabberOpen();
+                robotHardware.grabberPreDrop();
                 dropTime = System.currentTimeMillis();
             }
         }
@@ -93,7 +94,11 @@ public class DropPixelTask implements RobotControl {
 
     @Override
     public boolean isDone() {
-        return mode==Mode.DONE;
+        return mode==Mode.DONE || mode== Mode.NON_ACTION;
+    }
+
+    public Mode getMode() {
+        return mode;
     }
 
     // Stop when close enough that power to motor become small

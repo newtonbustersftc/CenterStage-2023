@@ -212,9 +212,12 @@ public class SoloDriverOpMode extends OpMode {
         }
         else if (currentTask==null && gamepad1.b) {
             if (grabberRaised) {
-                currentTask = new DropPixelTask(robotHardware);
+                DropPixelTask dpt = new DropPixelTask(robotHardware);
+                currentTask = dpt;
                 currentTask.prepare();
-                grabberRaised = false;
+                if (!(dpt.getMode()==DropPixelTask.Mode.NON_ACTION)) {  // if too far from target, no action
+                    grabberRaised = false;
+                }
             }
         }
         if (currentTask==null && gamepad1.left_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin-100) {

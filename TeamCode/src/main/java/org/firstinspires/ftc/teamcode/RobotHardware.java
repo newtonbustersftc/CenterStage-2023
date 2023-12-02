@@ -468,6 +468,10 @@ public class RobotHardware {
         gripperInOutServo.setPosition(profile.hardwareSpec.gripperInOutServoOut);
     }
 
+    public void grabberPreDrop() {
+        gripperInOutServo.setPosition(profile.hardwareSpec.gripperInOutServoDrop);
+    }
+
     public void droneShootPosition() {
         dronePivotServo.setPosition(profile.hardwareSpec.droneServoShootPos);
     }

@@ -16,6 +16,7 @@ public class RetractGrabberTask implements RobotControl {
 
     @Override
     public void prepare() {
+        robotHardware.grabberPreDrop();
         robotHardware.grabberUp();
         robotHardware.grabberOpen();
         mode = RetractGrabberTask.Mode.OPEN;
