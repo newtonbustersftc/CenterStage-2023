@@ -453,6 +453,10 @@ public class RobotHardware {
         gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateServoUp);
     }
 
+    public boolean isGrabberUp() {
+        return getLiftPosition() > profile.hardwareSpec.liftOutMin-100;
+    }
+
     public void grabberLeft() {
         gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateServoLeft);
     }
