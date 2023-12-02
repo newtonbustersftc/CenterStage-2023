@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.robot.Robot;
 
 import java.io.File;
 
@@ -227,17 +228,33 @@ public class SoloDriverOpMode extends OpMode {
     public void handleIntake() {
         if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
             if (grabberRaised) {
+                // If the grabber is raised, lower the grabber rather than starting the intake.
                 currentTask = new DropPixelTask(robotHardware);
                 currentTask.prepare();
                 grabberRaised = false;
             } else {
+                // Regular intake functions
                 RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();
-                if (currMode == RobotHardware.IntakeMode.OFF) {
-                    robotHardware.startIntake();
-                } else {
-                    if (gamepad1.options) {
-                        robotHardware.reverseIntake();
+                if (gamepad1.options) {
+                    // If the option button is pressed...
+                    if (currMode == RobotHardware.IntakeMode.REVERSE) {
+                        // ...and the intake is already reversed...
+                        // ...stop the intake.
+                        robotHardware.stopIntake();
                     } else {
+                        // ...and the intake isn't reversed...
+                        // ...start the intake in reverse.
+                        robotHardware.reverseIntake();
+                    }
+                } else {
+                    // If the option button isn't pressed...
+                    if (currMode == RobotHardware.IntakeMode.OFF) {
+                        // ...and the intake is off...
+                        // ...start the intake.
+                        robotHardware.startIntake();
+                    } else {
+                        // ...and the intake isn't off...
+                        // ...stop the intake.
                         robotHardware.stopIntake();
                     }
                 }
