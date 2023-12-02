@@ -26,7 +26,7 @@ public class SoloDriverOpMode extends OpMode {
     boolean liftPressed;
     boolean launchPressed;
     int launchStage = 0;
-    boolean grabberRaised = false;
+
 
     @Override
     public void init() {
@@ -187,37 +187,29 @@ public class SoloDriverOpMode extends OpMode {
 
     public void handleGripper() {
         if (currentTask==null && gamepad1.x) {
-            if (!grabberRaised) {
+            if (!robotHardware.isGrabberUp()) {
                 currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin);
                 currentTask.prepare();
-                grabberRaised = true;
             }
             else {
                 currentTask = new RetractGrabberTask(robotHardware);
                 currentTask.prepare();
-                grabberRaised = false;
             }
         }
         else if (currentTask==null && gamepad1.y) {
-            if (!grabberRaised) {
+            if (!robotHardware.isGrabberUp()) {
                 currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin, false);
                 currentTask.prepare();
-                grabberRaised = true;
             }
             else {
                 currentTask = new RetractGrabberTask(robotHardware);
                 currentTask.prepare();
-                grabberRaised = false;
             }
         }
         else if (currentTask==null && gamepad1.b) {
-            if (grabberRaised) {
-                DropPixelTask dpt = new DropPixelTask(robotHardware);
-                currentTask = dpt;
+            if (robotHardware.isGrabberUp()) {
+                currentTask = new DropPixelTask(robotHardware);;
                 currentTask.prepare();
-                if (!(dpt.getMode()==DropPixelTask.Mode.NON_ACTION)) {  // if too far from target, no action
-                    grabberRaised = false;
-                }
             }
         }
         if (currentTask==null && gamepad1.left_bumper && robotHardware.getLiftPosition()>robotProfile.hardwareSpec.liftOutMin-100) {
@@ -230,11 +222,10 @@ public class SoloDriverOpMode extends OpMode {
 
     public void handleIntake() {
         if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
-            if (grabberRaised) {
+            if (robotHardware.isGrabberUp()) {
                 // If the grabber is raised, lower the grabber rather than starting the intake.
                 currentTask = new RetractGrabberTask(robotHardware);
                 currentTask.prepare();
-                grabberRaised = false;
             } else {
                 // Regular intake functions
                 RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();

@@ -27,6 +27,7 @@ public class PixelUpTask implements RobotControl {
     @Override
     public void prepare() {
         startTime = System.currentTimeMillis();
+        robotHardware.stopIntake();
         robotHardware.setLiftPosition(-100);
         mode = Mode.DOWN;
     }
