@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -104,7 +105,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         taskList = new ArrayList<RobotControl>();
 
         //setupTaskList1();
-        setupTaskList2();
+        setupTaskList3();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
@@ -136,7 +137,8 @@ public class AutonomousGenericTest extends LinearOpMode {
             if (taskList.size() > 0) {
                 taskList.get(0).execute();
                 if (taskList.get(0).isDone()) {
-                    Logger.logFile("MainTaskComplete: " + taskList.get(0) + " Pose:" + robotHardware.getLocalizer().getPoseEstimate());
+                    Logger.logFile("MainTaskComplete: " + taskList.get(0) + " Pose:" + robotHardware.getLocalizer().getPoseEstimate()
+                            + " gyro:" + robotHardware.getGyroHeading());
                     taskList.get(0).cleanUp();
                     taskList.remove(0);
                     countTasks++;
@@ -191,6 +193,9 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList3() {
+        TrajectorySequenceBuilder tb1 = robotHardware.mecanumDrive.trajectorySequenceBuilder(p0);
+        tb1.turn(Math.PI/2);
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, tb1.build()));
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

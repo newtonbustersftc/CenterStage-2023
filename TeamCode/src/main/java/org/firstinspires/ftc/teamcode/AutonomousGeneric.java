@@ -127,7 +127,8 @@ public class AutonomousGeneric extends LinearOpMode {
                 taskList.get(0).execute();
 
                 if (taskList.get(0).isDone()) {
-                    String status = "MainTaskComplete: " + taskList.get(0) + " Pose:" + robotHardware.getLocalizer().getPoseEstimate();
+                    String status = "MainTaskComplete: " + taskList.get(0) + " Pose:" + robotHardware.getLocalizer().getPoseEstimate()
+                            + " gyro:" + robotHardware.getGyroHeading();
                     RobotLog.ii("RobotTask", status);
                     Logger.logFile(status);
                     Logger.flushToFile();

@@ -25,6 +25,7 @@ public class SplineMoveTask implements RobotControl {
     RobotHardware robotHardware;
     AprilTagDetection desiredTag;
     boolean isRed;
+    boolean isLineTo = false;
     int WALL_LEFT = 26, WALL_CENTER=18, WALL_RIGHT=10, forward=8;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
@@ -36,6 +37,12 @@ public class SplineMoveTask implements RobotControl {
     public SplineMoveTask(NBMecanumDrive drive, Pose2d targetPose) {
         this.drive = drive;
         this.targetPose = targetPose;
+    }
+
+    public SplineMoveTask(NBMecanumDrive drive, Pose2d targetPose, boolean isLineTo) {
+        this.drive = drive;
+        this.targetPose = targetPose;
+        this.isLineTo = isLineTo;
     }
 
     public SplineMoveTask(NBMecanumDrive drive, TrajectorySequence trajectorySequence) {
@@ -63,7 +70,7 @@ public class SplineMoveTask implements RobotControl {
         } else if (robotHardware != null){
             return "SplineMove - going to create new trajectory based on AprilTag." ;
         }else{
-            return "the robot should not come to here.... trajectory, trajectorySequence, or trajectoryTag should be not null..";
+            return "SplineMove curr -> " + targetPose;
         }
     }
 
@@ -72,23 +79,23 @@ public class SplineMoveTask implements RobotControl {
     }
 
     public void prepare(){
-        Logger.logFile("SplineMoveTask....1");
         if (targetPose!=null) {
-            Logger.logFile("SplineMoveTask....2");
             Pose2d currPose = drive.getPoseEstimate();
-            double ang = Math.atan2(targetPose.getX() - currPose.getX(), targetPose.getY() - currPose.getY());
-            boolean forward = Math.abs(currPose.getHeading() - ang) < Math.PI / 2;
-            trajectory = drive.trajectoryBuilder(currPose, !forward)
+            if (isLineTo) {
+                trajectory = drive.trajectoryBuilder(currPose).lineTo(targetPose.vec()).build();
+            }
+            else {
+                double ang = Math.atan2(targetPose.getX() - currPose.getX(), targetPose.getY() - currPose.getY());
+                boolean forward = Math.abs(currPose.getHeading() - ang) < Math.PI / 2;
+                trajectory = drive.trajectoryBuilder(currPose, !forward)
                         .splineToSplineHeading(targetPose, targetPose.getHeading()).build();
+            }
             drive.followTrajectoryAsync(trajectory);
         }else if(trajectorySequence!=null) {
-            Logger.logFile("SplineMoveTask....3");
             drive.followTrajectorySequenceAsync(trajectorySequence);
         }else if(trajectory !=null) {
-            Logger.logFile("SplineMoveTask....4");
             drive.followTrajectoryAsync(trajectory);
         }else if(robotHardware != null ){ //this must be the detected AprilTag
-            Logger.logFile("SplineMoveTask....5");
             Pose2d currentPose = drive.getPoseEstimate();
             Logger.logFile("currentPose x:"+currentPose.getX() + " y:"+currentPose.getY());
             desiredTag = robotHardware.getDesiredAprilTag();

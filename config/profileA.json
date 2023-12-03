@@ -12,7 +12,7 @@
     "f": 0.0
   },
   "rrHeadingPID": {
-    "p": 2,
+    "p": 10,
     "i": 0.05,
     "d": 0.0,
     "f": 0.0
@@ -338,6 +338,46 @@
       "x": 49,
       "y": -62,
       "heading": 0.0
+    },
+    "HZ_OUT_BLUE_RIGHT": {
+      "x": -36,
+      "y": 58,
+      "heading": 90
+    },
+    "HZ_ROT1_CENTER_BLUE_RIGHT": {
+      "x": -36,
+      "y": 50,
+      "heading": 180
+    },
+    "HZ_SPIKE1_CENTER_BLUE_RIGHT": {
+      "x": -36,
+      "y": 26,
+      "heading": 180
+    },
+    "HZ_SPIKE_CENTER_BLUE_RIGHT": {
+      "x": -44,
+      "y": 26,
+      "heading": 180
+    },
+    "HZ_WP1_CENTER_BLUE_RIGHT": {
+      "x": -48,
+      "y": 26,
+      "heading": 180
+    },
+    "HZ_WP2_CENTER_BLUE_RIGHT": {
+      "x": -48,
+      "y": 9,
+      "heading": 0
+    },
+    "HZ_PRE_APRIL_BLUE_RIGHT": {
+      "x": 36,
+      "y": 9,
+      "heading": 0
+    },
+    "HZ_APRIL_BLUE_RIGHT": {
+      "x": 36,
+      "y": 36,
+      "heading": 0
     }
   },
   "autonParam": {

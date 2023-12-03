@@ -9,13 +9,17 @@ public class RobotSleep implements RobotControl {
     long timeSleep;
     long timeStart;
     long timeNow;
-
+    String memo = null;
     public RobotSleep(int timeSleep) {
         this.timeSleep = timeSleep;
     }
 
+    public RobotSleep(int timeSleep, String memo) {
+        this.memo = memo;
+    }
+
     public String toString() {
-        return "Sleep for " + timeSleep;
+        return "Sleep for " + timeSleep + (memo!=null?" " + memo:"");
     }
 
     @Override
