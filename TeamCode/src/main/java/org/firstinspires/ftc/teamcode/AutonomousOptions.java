@@ -40,7 +40,7 @@ public class AutonomousOptions extends OpMode {
         prefMap.put(START_DELAY_PREF, START_DELAY);
         prefMap.put(START_POS_MODES_PREF, START_POS_MODES);
         prefMap.put(PASS_PREF, PASS_THROUGH);
-        prefMap.put(PASS_PREF, PARKING);
+        prefMap.put(PARKING_PREF, PARKING);
     }
 
     public boolean isUpPressed;

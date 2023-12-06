@@ -19,14 +19,15 @@ public class SplineMoveTask implements RobotControl {
 
     NBMecanumDrive drive;
     Trajectory trajectory;
-    TrajectorySequence trajectorySequence, trajectoryTag, trajectoryParking;
+    TrajectorySequence trajectorySequence, trajectoryTag;
     Pose2d targetPose;
     TrajectoryVelocityConstraint velocityConstraint;
     RobotHardware robotHardware;
     AprilTagDetection desiredTag;
     boolean isRed;
+    int parkingDistance;
     boolean isLineTo = false;
-    int WALL_LEFT = 26, WALL_CENTER=18, WALL_RIGHT=10, forward=8;
+    Pose2d parkingPose;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
         this.drive = drive;
@@ -39,12 +40,6 @@ public class SplineMoveTask implements RobotControl {
         this.targetPose = targetPose;
     }
 
-    public SplineMoveTask(NBMecanumDrive drive, Pose2d targetPose, boolean isLineTo) {
-        this.drive = drive;
-        this.targetPose = targetPose;
-        this.isLineTo = isLineTo;
-    }
-
     public SplineMoveTask(NBMecanumDrive drive, TrajectorySequence trajectorySequence) {
         this.drive = drive;
         this.trajectorySequence = trajectorySequence;
@@ -52,12 +47,10 @@ public class SplineMoveTask implements RobotControl {
     }
 
     //AprilTag
-    public SplineMoveTask(NBMecanumDrive drive, RobotHardware robotHardware, boolean isRed){
+    public SplineMoveTask(NBMecanumDrive drive, RobotHardware robotHardware, Pose2d parkingPose){
         this.drive = drive;
         this.robotHardware = robotHardware;
-        this.targetPose = null;
-        this.isRed = isRed;
-        Logger.logFile("SplineMoveTask constructor");
+        this.parkingPose = parkingPose;
     }
 
     public String toString() {
@@ -70,7 +63,7 @@ public class SplineMoveTask implements RobotControl {
         } else if (robotHardware != null){
             return "SplineMove - going to create new trajectory based on AprilTag." ;
         }else{
-            return "SplineMove curr -> " + targetPose;
+            return "the robot should not come to here.... trajectory, trajectorySequence, or trajectoryTag should be not null..";
         }
     }
 
@@ -98,34 +91,13 @@ public class SplineMoveTask implements RobotControl {
         }else if(robotHardware != null ){ //this must be the detected AprilTag
             Pose2d currentPose = drive.getPoseEstimate();
             Logger.logFile("currentPose x:"+currentPose.getX() + " y:"+currentPose.getY());
-            desiredTag = robotHardware.getDesiredAprilTag();
-            double heading=desiredTag.ftcPose.yaw, x=desiredTag.ftcPose.x, y=desiredTag.ftcPose.y;
-            double reCalculatedX, reCalculatedY;
+            Logger.logFile("parkingDistance="+parkingDistance);
 
-            //adjust Y because of the camera location,
-            if(x < 0){
-                reCalculatedY = currentPose.getY() + Math.abs(x);
-            }else{
-                reCalculatedY = currentPose.getY() - x;
-            }
-
-            //adjust X to back up a bit to have enough space for lift
-            reCalculatedX = currentPose.getX()  + desiredTag.ftcPose.range * Math.cos(Math.toRadians(desiredTag.ftcPose.bearing));
-            Logger.logFile("reCalculatedX="+reCalculatedX);
-            Logger.logFile("reCalculatedY="+reCalculatedY);
-            Logger.logFile("heading="+heading);
-            Logger.flushToFile();
-
-            if(isRed){
-                targetPose = new Pose2d(reCalculatedX - 1.5, reCalculatedY , heading);
-            }else {
-                targetPose = new Pose2d(reCalculatedX - 1.5, reCalculatedY + 6, heading);
-            }
             trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
-                        .splineTo(targetPose.vec(), Math.toRadians(heading))
+                        .back(2)
+                        .lineTo(parkingPose.vec())
                         .build();
             drive.followTrajectorySequenceAsync(trajectoryTag);
-//            drive.getLocalizer().setPoseEstimate(targetPose);
         }
     }
 

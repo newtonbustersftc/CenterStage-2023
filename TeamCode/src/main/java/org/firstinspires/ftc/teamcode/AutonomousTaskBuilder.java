@@ -53,7 +53,8 @@ public class AutonomousTaskBuilder {
             isSkipWeightPoint = teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT) && startPosMode.equals("BLUE_LEFT") ||
                                 teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT) && startPosMode.equals("RED_RIGHT");
             isStraightToSpikeMark = teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT) && startPosMode.equals("BLUE_RIGHT") ||
-                                    teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT) && startPosMode.equals("RED_LEFT");
+                                    teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT) && startPosMode.equals("RED_LEFT") ||
+                                    teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER) && isFar;
 
         } catch (Exception e) {
             RobotLog.e("SharedPref exception " + e);
@@ -162,13 +163,16 @@ public class AutonomousTaskBuilder {
     }
     private void buildCenterTrajectory(){
         TrajectorySequenceBuilder wpBuilder = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
-                .splineToLinearHeading(wp1,Math.toRadians(wp1.getHeading()));
-        if(passThrough.equals("MIDDLE")) {
-            wpBuilder.splineToLinearHeading(wp2, Math.toRadians(wp2.getHeading()));
-        }else{
-            wpBuilder.lineTo(wp2.vec());
-        }
-        wpBuilder.lineTo(wp3.vec());
+                .lineTo(wp1.vec())
+                .lineTo(wp2.vec())
+                .splineToLinearHeading(wp3,Math.toRadians(wp3.getHeading()));
+//                .splineToLinearHeading(wp1,Math.toRadians(wp1.getHeading()));
+//        if(passThrough.equals("MIDDLE")) {
+//            wpBuilder.splineToLinearHeading(wp2, Math.toRadians(wp2.getHeading()));
+//        }else{
+//            wpBuilder.lineTo(wp2.vec());
+//        }
+//        wpBuilder.lineTo(wp3.vec());
 
         TrajectorySequence wpTraj1= wpBuilder.build();
         taskList.add(new SplineMoveTask(drive, wpTraj1));
