@@ -22,7 +22,7 @@ public class DropSpikeMarkTask implements RobotControl {
     @Override
     public void execute() {
         if (System.currentTimeMillis() - startTime > step * 100) {
-            robotHardware.intakeDropSpike(step);
+            robotHardware.intakeDropSpike(step - Math.max(0, step - 17) * 2);
             step++;
         }
     }
@@ -33,6 +33,6 @@ public class DropSpikeMarkTask implements RobotControl {
 
     @Override
     public boolean isDone() {
-        return step==18;
+        return step==30;
     }
 }
