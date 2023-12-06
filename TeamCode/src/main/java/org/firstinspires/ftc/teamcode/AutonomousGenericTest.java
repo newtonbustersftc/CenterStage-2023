@@ -22,6 +22,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +46,10 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     private TrajectoryVelocityConstraint velConstraint;
     private TrajectoryAccelerationConstraint accelConstraint;
+    private AprilTagRecognition aprilTagRecognition;
+    private RobotCVProcessor.TEAM_PROP_POS team_prop_pos = RobotCVProcessor.TEAM_PROP_POS.RIGHT;
+    String startPosMode;
+    boolean isRed;
 
     public void initRobot() {
         try{
@@ -65,19 +70,22 @@ public class AutonomousGenericTest extends LinearOpMode {
         try {
             robotHardware.setMotorStopBrake(false); // so we can adjust the robot
             robotHardware.enableManualCaching(false);
-            //robotHardware.initSetup(this);
-            //robotHardware.initSetupNoAuto(this);
-            robotHardware.setMotorStopBrake(false); // so we can adjust the robot
+//            robotHardware.initSetup(this);
+//            robotHardware.initSetupNoAuto(this);
+            robotHardware.resetLiftPos();
+            Logger.logFile("init lift, set position to 0 =>" + robotHardware.getLiftPosition() );
         }
         catch (Exception ex) {
             ex.printStackTrace();
         }
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
-        String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
-        boolean isRed = startPosMode.startsWith("RED");
+        startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
+        isRed = startPosMode.startsWith("RED");
         long loopStart = System.currentTimeMillis();
-        //AprilTagSignalRecognition aprilTagSignalRecognition = new AprilTagSignalRecognition(robotVision);
-        //aprilTagSignalRecognition.startRecognition();
+        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
+        aprilTagRecognition.initAprilTag();
+        Logger.logFile("Webcam 1 status = "+ aprilTagRecognition.visionPortal.getCameraState());
+
         //RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile, true);
         //cvp.initWebCam("Webcam 1", true);
 
@@ -101,7 +109,8 @@ public class AutonomousGenericTest extends LinearOpMode {
         //aprilTagSignalRecognition.stopRecognition();
         robotHardware.resetDriveAndEncoders();
         p0 = robotProfile.getProfilePose( isRed ? "START_POSE_RED_LEFT" : "START_POSE_BLUE_LEFT");
-        robotHardware.getLocalizer().setPoseEstimate(p0);
+//        robotHardware.getLocalizer().setPoseEstimate(p0);
+        robotHardware.getLocalizer().setPoseEstimate(new Pose2d());
         taskList = new ArrayList<RobotControl>();
 
         //setupTaskList1();
@@ -111,12 +120,15 @@ public class AutonomousGenericTest extends LinearOpMode {
         TaskReporter.report(taskList);
         Logger.logFile("Task list items: " + taskList.size());
         Logger.flushToFile();
+        TaskReporter.report(taskList);
 
 
         if (taskList.size()>0) {
             Logger.logFile("Task Prepare " + taskList.get(0));
             taskList.get(0).prepare();
         }
+        robotHardware.setMotorStopBrake(true);
+        robotHardware.enableManualCaching(true);
 
         Logger.logFile("Main Task Loop started");
 
@@ -124,8 +136,8 @@ public class AutonomousGenericTest extends LinearOpMode {
             loopCount++;
             robotHardware.clearBulkCache();
             robotHardware.getLocalizer().update();
-            //Logger.logFile("Pose:" + robotHardware.getLocalizer().getPoseEstimate());
-            //Logger.logFile("Velocity:" + robotHardware.getLocalizer().getPoseVelocity());
+            Logger.logFile("Pose:" + robotHardware.getLocalizer().getPoseEstimate());
+            Logger.logFile("Velocity:" + robotHardware.getLocalizer().getPoseVelocity());
             try {
                 Logger.flushToFile();
             }
@@ -180,16 +192,38 @@ public class AutonomousGenericTest extends LinearOpMode {
         taskList.add(moveTask2);
         taskList.add(new RobotSleep(1000));
         taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-        taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
+        if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT))
+            taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutMin));
+        else
+            taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutMin));
         taskList.add(new RobotSleep(1000));
         taskList.add(new DropPixelTask(robotHardware));
     }
 
     void setupTaskList2() {
-        taskList.add(new RobotSleep((1000)));
-        taskList.add(new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin));
-        //taskList.add(new RobotSleep((500)));
+//        taskList.add(new RobotSleep((1000)));
+//        taskList.add(new DropSpikeMarkTask(robotHardware));
+//        taskList.add(new EqualDistanceTask(robotHardware,robotHardware.mecanumDrive, robotProfile));
+        Pose2d parkingPose = robotProfile.getProfilePose("PARKING_" + startPosMode);
+        Logger.logFile("parking pose:"+parkingPose.getX() +", "+parkingPose.getY()+", "+parkingPose.getHeading());
+
+        taskList.add(new AprilTagDetectionTask(robotHardware, aprilTagRecognition,
+                    robotProfile, team_prop_pos, robotHardware.mecanumDrive, isRed));
+        taskList.add(new RobotSleep(1000));
+        taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
+        if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)){
+            taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutMin));
+        }else{
+            taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutMin));
+        }
+
+        taskList.add(new RobotSleep(1000));
         taskList.add(new DropPixelTask(robotHardware));
+//        TrajectorySequence trajParking = robotHardware.mecanumDrive.trajectorySequenceBuilder(
+//                                        robotHardware.mecanumDrive.getPoseEstimate())
+//                                        .lineTo(parkingPose.vec())
+//                                        .build();
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, robotHardware, parkingPose));
     }
 
     void setupTaskList3() {

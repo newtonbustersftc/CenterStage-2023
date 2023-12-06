@@ -219,9 +219,9 @@
       "heading": 135.0
     },
     "TEAM_PROP_POS_RIGHT_BLUE_RIGHT": {
-      "x": -41,
-      "y": 38,
-      "heading":45
+      "x": -48,
+      "y": 45,
+      "heading":90
     },
     "TEAM_PROP_POS_LEFT_RED_LEFT": {
       "x": -41,
@@ -359,31 +359,21 @@
       "heading": 0.0
     },
     "MIDDLE_WAY_POINT1_LEFT_BLUE_RIGHT": {
-      "x": -46,
-      "y": 50,
+      "x": -43,
+      "y": 8,
       "heading": 90.0
     },
     "MIDDLE_WAY_POINT2_LEFT_BLUE_RIGHT": {
-        "x": -46,
+        "x": -41,
         "y": 8,
-        "heading":-10.0
+        "heading":-5.0
     },
     "MIDDLE_WAY_POINT3_LEFT_BLUE_RIGHT": {
-      "x": -35,
+      "x": 0,
       "y": 8,
       "heading": -5.0
     },
     "MIDDLE_WAY_POINT4_LEFT_BLUE_RIGHT": {
-      "x": 0,
-      "y": 10,
-      "heading": 0.0
-    },
-    "MIDDLE_WAY_POINT5_LEFT_BLUE_RIGHT": {
-      "x": 15,
-      "y": 12,
-      "heading": 0.0
-    },
-    "MIDDLE_WAY_POINT6_LEFT_BLUE_RIGHT": {
       "x": 38,
       "y": 25,
       "heading": 0.0
@@ -406,7 +396,7 @@
     "WALL_WAY_POINT4_LEFT_BLUE_RIGHT": {
       "x": 0,
       "y": 59,
-      "heading": -5.0
+      "heading": -10.0
     },
     "WALL_WAY_POINT5_LEFT_BLUE_RIGHT": {
       "x": 38,
@@ -439,78 +429,73 @@
       "heading": 0.0
     },
     "WALL_WAY_POINT1_CENTER_BLUE_RIGHT": {
-      "x": -48,
-      "y": 61,
-      "heading": 5.0
+      "x": -46,
+      "y": 58,
+      "heading": 8.0
     },
     "WALL_WAY_POINT2_CENTER_BLUE_RIGHT": {
       "x": -25,
       "y": 61,
-      "heading": 5.0
+      "heading": 8.0
     },
     "WALL_WAY_POINT3_CENTER_BLUE_RIGHT": {
       "x": 0,
       "y": 61,
-      "heading": 5.0
+      "heading": 8.0
     },
     "WALL_WAY_POINT4_CENTER_BLUE_RIGHT": {
       "x": 38,
       "y": 45,
       "heading": 0.0
     },
-    "MIDDLE_WAY_POINT1_RIGHT_RED_LEFT": {
-      "x": -46,
-      "y": -50,
+    "MIDDLE_WAY_POINT1_RIGHT_BLUE_RIGHT": {
+      "x": -36,
+      "y": 48,
       "heading": 90.0
     },
-    "MIDDLE_WAY_POINT2_LEFT_BLUE_RIGHT": {
-      "x": -46,
+    "MIDDLE_WAY_POINT2_RIGHT_BLUE_RIGHT": {
+      "x": -36,
       "y": 8,
-      "heading":-10.0
+      "heading":90.0
     },
-    "MIDDLE_WAY_POINT3_LEFT_BLUE_RIGHT": {
+    "MIDDLE_WAY_POINT3_RIGHT_BLUE_RIGHT": {
       "x": -35,
       "y": 8,
       "heading": -5.0
     },
-    "MIDDLE_WAY_POINT4_LEFT_BLUE_RIGHT": {
+    "MIDDLE_WAY_POINT4_RIGHT_BLUE_RIGHT": {
       "x": 0,
-      "y": 10,
+      "y": 8,
       "heading": 0.0
     },
-    "MIDDLE_WAY_POINT5_LEFT_BLUE_RIGHT": {
+    "MIDDLE_WAY_POINT5_RIGHT_BLUE_RIGHT": {
       "x": 15,
+      "y": 8,
+      "heading": 0.0
+    },
+    "MIDDLE_WAY_POINT6_RIGHT_BLUE_RIGHT": {
+      "x": 38,
       "y": 12,
       "heading": 0.0
     },
-    "MIDDLE_WAY_POINT6_LEFT_BLUE_RIGHT": {
-      "x": 38,
-      "y": 25,
-      "heading": 0.0
-    },
-    "WALL_WAY_POINT1_LEFT_BLUE_RIGHT": {
-      "x": -46,
+    "WALL_WAY_POINT1_RIGHT_BLUE_RIGHT": {
+      "x": -36,
       "y": 50,
       "heading": 90.0
     },
-    "WALL_WAY_POINT2_LEFT_BLUE_RIGHT": {
-      "x": -42,
-      "y": 59,
-      "heading": -10.0
+    "WALL_WAY_POINT2_RIGHT_BLUE_RIGHT": {
+      "x": -28,
+      "y": 58,
+      "heading": 5.0
     },
-    "WALL_WAY_POINT3_LEFT_BLUE_RIGHT": {
-      "x": -36,
-      "y": 59,
-      "heading": -10.0
-    },
-    "WALL_WAY_POINT4_LEFT_BLUE_RIGHT": {
+    "WALL_WAY_POINT3_RIGHT_BLUE_RIGHT": {
       "x": 0,
-      "y": 59,
-      "heading": -5.0
+      "y": 58,
+      "heading": 5.0
     },
-    "WALL_WAY_POINT5_LEFT_BLUE_RIGHT": {
+    "WALL_WAY_POINT4_RIGHT_BLUE_RIGHT": {
       "x": 38,
-      "y": 50,
+      "y": 58,
       "heading": 0.0
     }
   },

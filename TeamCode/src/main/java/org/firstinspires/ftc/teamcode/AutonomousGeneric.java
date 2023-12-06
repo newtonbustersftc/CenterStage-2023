@@ -27,8 +27,6 @@ public class AutonomousGeneric extends LinearOpMode {
     int countTasks = 0;
     private int delay;
     boolean isRedAlliance = false;
-
-    Pose2d startPos = new Pose2d();
     AprilTagRecognition aprilTagRecognition;
 
     public void initRobot() {
@@ -45,6 +43,9 @@ public class AutonomousGeneric extends LinearOpMode {
         RobotFactory.reset();
 
         robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        Logger.logFile("test, init, lift position="+robotHardware.getLiftPosition());
+        robotHardware.resetLiftPos();
+        Logger.logFile("init lift, set position to 0 =>" + robotHardware.getLiftPosition() );
         Logger.logFile("Init completed");
     }
 
@@ -55,19 +56,18 @@ public class AutonomousGeneric extends LinearOpMode {
         robotHardware.enableManualCaching(false);
         robotHardware.clearBulkCache();
 //        robotHardware.initSetup(this);
-        robotHardware.setMotorStopBrake(false); // so we can adjust the robot
         long loopStart = System.currentTimeMillis();
         long loopCnt = 0;
         SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
         String startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
         if (startPosMode.startsWith("RED"))
             isRedAlliance = true;
-        String parking = prefs.getString(AutonomousOptions.PARKING_PREF, AutonomousOptions.PARKING_LOCATION[0]);
+        String passThrough = prefs.getString(AutonomousOptions.PASS_PREF, AutonomousOptions.PASS_THROUGH[0]);
 
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
         robotCVProcessor.initWebCam("Webcam 2", true);
         Logger.logFile("1) Webcam2 status:"+robotCVProcessor.visionPortal.getCameraState());
-        robotCVProcessor.frameProcessor.setSaveImage(true);
+        robotCVProcessor.frameProcessor.setSaveImage(false);
         Thread.sleep(1000); //take time to process
 
         Pose2d startingPose = robotProfile.getProfilePose("START_POSE_" + startPosMode);
@@ -82,7 +82,7 @@ public class AutonomousGeneric extends LinearOpMode {
                 telemetry.addData("Start Position", startPosMode);
                 telemetry.addData("Start Pose2d", startingPose);
                 telemetry.addData("CurrPose", currPose);
-                telemetry.addData("Parking = ", parking);
+                telemetry.addData("Pass through = ", passThrough);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("Team prop pos = ", robotCVProcessor.getRecognitionResult());
                 telemetry.addData("2) Webcam2 status = ", robotCVProcessor.visionPortal.getCameraState());
@@ -93,6 +93,8 @@ public class AutonomousGeneric extends LinearOpMode {
         if (teamPropPos==RobotCVProcessor.TEAM_PROP_POS.NONE) {
             Logger.logFile("Team prop recognition NONE, default to CENTER");
             teamPropPos = RobotCVProcessor.TEAM_PROP_POS.CENTER;
+        }else{
+            Logger.logFile("teamPropPos = "+teamPropPos);
         }
         robotCVProcessor.close();
         Logger.logFile("3) Webcam2 status = "+ robotCVProcessor.visionPortal.getCameraState());

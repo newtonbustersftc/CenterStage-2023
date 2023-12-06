@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -42,15 +43,15 @@ public class AprilTagRecognition {
     public void initAprilTag(){
         // Create the AprilTag processor.
         aprilTag = new AprilTagProcessor.Builder()
+                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                .setDrawTagID(true)
+                .setDrawTagOutline(true)
+                .setDrawAxes(true)
+                .setDrawCubeProjection(true)
 
                 // The following default settings are available to un-comment and edit as needed.
-//                .setDrawAxes(true)
-//                .setDrawCubeProjection(true)
-                //.setDrawTagOutline(true)
-                //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
                 //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-
                 // == CAMERA CALIBRATION ==
                 // If you do not manually specify calibration parameters, the SDK will attempt
                 // to load a predefined calibration for your camera.
@@ -97,6 +98,16 @@ public class AprilTagRecognition {
         Logger.logFile("visionPortal fps="+visionPortal.getFps());
     }   // end method initAprilTag()
 
+    public VisionProcessor initMyAprilTag(){
+        aprilTag = new AprilTagProcessor.Builder()
+                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                .setDrawTagID(true)
+                .setDrawTagOutline(true)
+                .setDrawAxes(true)
+                .setDrawCubeProjection(true)
+                .build();
+        return aprilTag;
+    }
     public void stopStream(){
         visionPortal.stopStreaming();
     }
@@ -107,7 +118,7 @@ public class AprilTagRecognition {
     public List getAprilTagResult(){
 
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        Logger.logFile("# AprilTags Detected"+currentDetections.size());
+        Logger.logFile("# AprilTags Detected "+currentDetections.size());
         return currentDetections;
     }
 

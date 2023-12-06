@@ -20,13 +20,16 @@ public class AutonomousOptions extends OpMode {
     // ADD preference names here
     public static final String START_POS_MODES_PREF = "starting position";
     public static final String START_DELAY_PREF = "start_delay";
-    public static final String PARKING_PREF = "parking loc";
+    public static final String PASS_PREF = "pass through";
+    public static final String PARKING_PREF = "parking location";
+
     public static final String[] START_POS_MODES = {"RED_LEFT", "RED_RIGHT","BLUE_LEFT", "BLUE_RIGHT"};
     public static final String[] START_DELAY = {"0 sec", "1 sec", "2 sec", "3 sec", "4 sec", "5 sec"};
-    public static final String[] PARKING_LOCATION = {"CORNER", "WALL"};
+    public static final String[] PASS_THROUGH = {"MIDDLE", "WALL"};
+    public static final String[] PARKING = {"CORNER", "MIDDLE"};
 
     public static Map<String, String[]> prefMap = new HashMap<>();
-    private static String[] prefKeys = {START_POS_MODES_PREF, START_DELAY_PREF, PARKING_PREF};
+    private static String[] prefKeys = {START_POS_MODES_PREF, START_DELAY_PREF, PASS_PREF, PARKING_PREF};
     private static String NONE = "";
     private static int keyIdx = 0;
 
@@ -36,7 +39,8 @@ public class AutonomousOptions extends OpMode {
         // ADD entries to preference map here
         prefMap.put(START_DELAY_PREF, START_DELAY);
         prefMap.put(START_POS_MODES_PREF, START_POS_MODES);
-        prefMap.put(PARKING_PREF, PARKING_LOCATION);
+        prefMap.put(PASS_PREF, PASS_THROUGH);
+        prefMap.put(PASS_PREF, PARKING);
     }
 
     public boolean isUpPressed;
