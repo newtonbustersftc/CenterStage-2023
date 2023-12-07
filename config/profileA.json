@@ -119,6 +119,7 @@
     "intakeServo2Stop": 0.5,
     "liftMax": 1500,
     "liftOutMin": 700,
+    "liftOutAuto": 650,
     "liftIntakePos": 200,
     "liftIncrement": 250,
     "liftPowerUp": 0.4,
@@ -225,14 +226,14 @@
       "heading":90
     },
     "TEAM_PROP_POS_LEFT_RED_LEFT": {
-      "x": -41,
-      "y":-35 ,
-      "heading": -45.0
+      "x": -47,
+      "y":-45 ,
+      "heading": -90.0
     },
     "TEAM_PROP_POS_CENTER_RED_LEFT": {
-      "x": -46,
-      "y": -33,
-      "heading": -135.0
+      "x": -40,
+      "y": -36,
+      "heading": -90.0
     },
     "TEAM_PROP_POS_RIGHT_RED_LEFT": {
       "x": -35,
@@ -301,7 +302,7 @@
     },
     "WAY_POINT_RED_APRILTAG_A": {
       "x": 38,
-      "y": -36,
+      "y": -45,
       "heading":0
     },
     "WAY_POINT_RED_RIGHT_B": {
@@ -316,7 +317,7 @@
     },
     "DROPBOARD_APRILTAG_BLUE_CENTER": {
       "x": 49,
-      "y": 35,
+      "y": 31,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_RIGHT": {
@@ -339,24 +340,24 @@
       "y": -41,
       "heading": 0.0
     },
-    "PARKING_BLUE_LEFT": {
+    "PARKING_BLUE_CORNER": {
       "x": 49,
-      "y": 60,
+      "y": 58,
       "heading": 0.0
     },
-    "PARKING_BLUE_RIGHT": {
+    "PARKING_BLUE_MIDDLE": {
       "x": 49,
       "y": 12,
       "heading": 0.0
     },
-    "PARKING_RED_LEFT": {
-      "x": 49,
-      "y": -12,
+    "PARKING_RED_MIDDLE": {
+      "x": 46,
+      "y": -10,
       "heading": 0.0
     },
-    "PARKING_RED_RIGHT": {
+    "PARKING_RED_CORNER": {
       "x": 49,
-      "y": -60,
+      "y": -58,
       "heading": 0.0
     },
     "MIDDLE_WAY_POINT1_LEFT_BLUE_RIGHT": {
@@ -420,7 +421,7 @@
       "heading": -5.0
     },
     "MIDDLE_WAY_POINT4_CENTER_BLUE_RIGHT": {
-      "x": -44,
+      "x": 0,
       "y": 12,
       "heading": -5.0
     },
@@ -431,7 +432,7 @@
     },
     "MIDDLE_WAY_POINT6_CENTER_BLUE_RIGHT": {
       "x": 38,
-      "y": 20,
+      "y": 12,
       "heading": 0.0
     },
     "WALL_WAY_POINT1_CENTER_BLUE_RIGHT": {
@@ -455,7 +456,7 @@
       "heading": 0.0
     },
     "MIDDLE_WAY_POINT1_RIGHT_BLUE_RIGHT": {
-      "x": -36,
+      "x": -35,
       "y": 48,
       "heading": 90.0
     },
@@ -471,12 +472,12 @@
     },
     "MIDDLE_WAY_POINT4_RIGHT_BLUE_RIGHT": {
       "x": 0,
-      "y": 8,
-      "heading": 0.0
+      "y":12,
+      "heading": -5.0
     },
     "MIDDLE_WAY_POINT5_RIGHT_BLUE_RIGHT": {
       "x": 15,
-      "y": 8,
+      "y": 12,
       "heading": 0.0
     },
     "MIDDLE_WAY_POINT6_RIGHT_BLUE_RIGHT": {
@@ -502,6 +503,161 @@
     "WALL_WAY_POINT4_RIGHT_BLUE_RIGHT": {
       "x": 38,
       "y": 58,
+      "heading": 0.0
+    },
+    "MIDDLE_WAY_POINT1_RIGHT_RED_LEFT": {
+      "x": -43,
+      "y": -8,
+      "heading": -90.0
+    },
+    "MIDDLE_WAY_POINT2_RIGHT_RED_LEFT": {
+      "x": -41,
+      "y": -8,
+      "heading":-5.0
+    },
+    "MIDDLE_WAY_POINT3_RIGHT_RED_LEFT": {
+      "x": 0,
+      "y": -8,
+      "heading": -5.0
+    },
+    "MIDDLE_WAY_POINT4_RIGHT_RED_LEFT": {
+      "x": 28,
+      "y": -12,
+      "heading": -5.0
+    },
+    "MIDDLE_WAY_POINT5_RIGHT_RED_LEFT": {
+      "x": 38,
+      "y": -20,
+      "heading": -5.0
+    },
+    "WALL_WAY_POINT1_RIGHT_RED_LEFT": {
+      "x": -46,
+      "y": -50,
+      "heading": -90.0
+    },
+    "WALL_WAY_POINT2_RIGHT_RED_LEFT": {
+      "x": -42,
+      "y": -59,
+      "heading": -10.0
+    },
+    "WALL_WAY_POINT3_RIGHT_RED_LEFT": {
+      "x": -36,
+      "y": -59,
+      "heading": -10.0
+    },
+    "WALL_WAY_POINT4_RIGHT_RED_LEFT": {
+      "x": 0,
+      "y": -59,
+      "heading": -10.0
+    },
+    "WALL_WAY_POINT5_RIGHT_RED_LEFT": {
+      "x": 38,
+      "y": -50,
+      "heading": 0.0
+    },
+    "MIDDLE_WAY_POINT1_CENTER_RED_LEFT": {
+      "x": -40,
+      "y": -42,
+      "heading": -90.0
+    },
+    "MIDDLE_WAY_POINT2_CENTER_RED_LEFT": {
+      "x": -46,
+      "y": -42,
+      "heading":-90.0
+    },
+    "MIDDLE_WAY_POINT3_CENTER_RED_LEFT": {
+      "x": -46,
+      "y": -12,
+      "heading": -90.0
+    },
+    "MIDDLE_WAY_POINT4_CENTER_RED_LEFT": {
+      "x": -45,
+      "y": -12,
+      "heading": -5.0
+    },
+    "MIDDLE_WAY_POINT5_CENTER_RED_LEFT": {
+      "x": -20,
+      "y": -12,
+      "heading": -5.0
+    },
+    "MIDDLE_WAY_POINT6_CENTER_RED_LEFT": {
+      "x": 10,
+      "y": -12,
+      "heading": 5.0
+    },
+    "MIDDLE_WAY_POINT7_CENTER_RED_LEFT": {
+      "x": 38,
+      "y": -36,
+      "heading": 5.0
+    },
+    "WALL_WAY_POINT1_CENTER_RED_LEFT": {
+      "x": -46,
+      "y": -58,
+      "heading": 2.0
+    },
+    "WALL_WAY_POINT2_CENTER_RED_LEFT": {
+      "x": -25,
+      "y": -61,
+      "heading": 2.0
+    },
+    "WALL_WAY_POINT3_CENTER_RED_LEFT": {
+      "x": 0,
+      "y": -61,
+      "heading": 2.0
+    },
+    "WALL_WAY_POINT4_CENTER_RED_LEFT": {
+      "x": 38,
+      "y": -50,
+      "heading": 0.0
+    },
+    "MIDDLE_WAY_POINT1_LEFT_RED_LEFT": {
+      "x": -36,
+      "y": -48,
+      "heading": -90.0
+    },
+    "MIDDLE_WAY_POINT2_LEFT_RED_LEFT": {
+      "x": -36,
+      "y": -12,
+      "heading":-90.0
+    },
+    "MIDDLE_WAY_POINT3_LEFT_RED_LEFT": {
+      "x": -35,
+      "y": -12,
+      "heading": -5.0
+    },
+    "MIDDLE_WAY_POINT4_LEFT_RED_LEFT": {
+      "x": 0,
+      "y": -12,
+      "heading": -5.0
+    },
+    "MIDDLE_WAY_POINT5_LEFT_RED_LEFT": {
+      "x": 28,
+      "y": -15,
+      "heading": 5.0
+    },
+    "MIDDLE_WAY_POINT6_LEFT_RED_LEFT": {
+      "x": 38,
+      "y": -36,
+      "heading": -5.0
+    },
+    "WALL_WAY_POINT1_LEFT_RED_LEFT": {
+      "x": -39,
+      "y": -50,
+      "heading": -90.0
+    },
+    "WALL_WAY_POINT2_LEFT_RED_LEFT": {
+      "x": -28,
+      "y": -60,
+      "heading": 0.0
+    },
+    "WALL_WAY_POINT3_LEFT_RED_LEFT": {
+      "x": 0,
+      "y": -60,
+      "heading": 0.0
+    },
+    "WALL_WAY_POINT4_LEFT_RED_LEFT": {
+      "x": 38,
+      "y": -60,
       "heading": 0.0
     }
   },

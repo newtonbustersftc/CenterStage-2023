@@ -46,6 +46,7 @@ public class AutonomousGeneric extends LinearOpMode {
         Logger.logFile("test, init, lift position="+robotHardware.getLiftPosition());
         robotHardware.resetLiftPos();
         Logger.logFile("init lift, set position to 0 =>" + robotHardware.getLiftPosition() );
+        robotHardware.droneInitPosition();
         Logger.logFile("Init completed");
     }
 
@@ -63,6 +64,7 @@ public class AutonomousGeneric extends LinearOpMode {
         if (startPosMode.startsWith("RED"))
             isRedAlliance = true;
         String passThrough = prefs.getString(AutonomousOptions.PASS_PREF, AutonomousOptions.PASS_THROUGH[0]);
+        String parkingLocation = prefs.getString(AutonomousOptions.PARKING_PREF, AutonomousOptions.PARKING[0]);
 
         RobotCVProcessor robotCVProcessor = new RobotCVProcessor(robotHardware, robotProfile, isRedAlliance);
         robotCVProcessor.initWebCam("Webcam 2", true);
@@ -83,6 +85,7 @@ public class AutonomousGeneric extends LinearOpMode {
                 telemetry.addData("Start Pose2d", startingPose);
                 telemetry.addData("CurrPose", currPose);
                 telemetry.addData("Pass through = ", passThrough);
+                telemetry.addData("Parking location = ", parkingLocation);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 telemetry.addData("Team prop pos = ", robotCVProcessor.getRecognitionResult());
                 telemetry.addData("2) Webcam2 status = ", robotCVProcessor.visionPortal.getCameraState());
@@ -101,7 +104,7 @@ public class AutonomousGeneric extends LinearOpMode {
         aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
         aprilTagRecognition.initAprilTag();
         Logger.logFile("Webcam 1 status = "+ aprilTagRecognition.visionPortal.getCameraState());
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, teamPropPos, startingPose, aprilTagRecognition);
+        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, teamPropPos, startingPose, aprilTagRecognition, parkingLocation);
 
         robotHardware.resetDriveAndEncoders();
         robotHardware.getLocalizer().setPoseEstimate(startingPose);

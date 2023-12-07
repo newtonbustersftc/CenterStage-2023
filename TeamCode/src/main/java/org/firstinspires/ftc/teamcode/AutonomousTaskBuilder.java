@@ -23,21 +23,23 @@ public class AutonomousTaskBuilder {
     RobotProfile robotProfile;    RobotHardware robotHardware;
     ArrayList<RobotControl> taskList = new ArrayList<>();
     NBMecanumDrive drive;
-    String delayString, startPosMode, passThrough, wayPoint = "_WAY_POINT";
-    Pose2d startingPose, wp1, wp2, wp3, wp4, wp5, wp6, aprilTagPt;
+    String delayString, startPosMode, passThrough, parking, wayPoint = "_WAY_POINT";
+    Pose2d startingPose, wp1, wp2, wp3, wp4, wp5, wp6, wp7,aprilTagPt;
     RobotCVProcessor.TEAM_PROP_POS teamPropPos = RobotCVProcessor.TEAM_PROP_POS.CENTER; //default in case
     AprilTagRecognition aprilTagRecognition;
     TrajectorySequence  team_prop_pos_traj=null,dropBoard_traj=null;
     boolean isRed, isFar, isSkipWeightPoint, isStraightToSpikeMark;
 
     public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile,
-                                 RobotCVProcessor.TEAM_PROP_POS teamPropPos, Pose2d startingPose, AprilTagRecognition aprilTagRecognition) {
+                                 RobotCVProcessor.TEAM_PROP_POS teamPropPos, Pose2d startingPose,
+                                 AprilTagRecognition aprilTagRecognition, String parking) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         this.teamPropPos = teamPropPos;
         this.startingPose = startingPose;
         this.aprilTagRecognition = aprilTagRecognition;
+        this.parking = parking;
     }
 
     public ArrayList<RobotControl> buildTaskList() {
@@ -80,7 +82,15 @@ public class AutonomousTaskBuilder {
                 dropPose = robotProfile.getProfilePose("WAY_POINT_" + (isRed ? "RED_RIGHT_B" : "BLUE_LEFT_B"));
             }
         }
-        Pose2d parkingPose = robotProfile.getProfilePose("PARKING_" + startPosMode);
+        Pose2d parkingPose1 = null, parkingPose2 = null;
+        if(parking.equals("CORNER")){
+            parkingPose1 = isRed ? robotProfile.getProfilePose("PARKING_RED_CORNER") :
+                                    robotProfile.getProfilePose("PARKING_BLUE_CORNER");
+        }else{
+            parkingPose1 = isRed ? robotProfile.getProfilePose("PARKING_RED_MIDDLE") :
+                    robotProfile.getProfilePose("PARKING_BLUE_MIDDLE");
+        }
+        parkingPose2 = new Pose2d(parkingPose1.getX()+5, parkingPose1.getY(), parkingPose1.getHeading());
 
         TrajectorySequenceBuilder builder = drive.trajectorySequenceBuilder(startingPose);
                     builder.setReversed(true);
@@ -107,24 +117,36 @@ public class AutonomousTaskBuilder {
             wp4 = robotProfile.getProfilePose(passThrough + wayPoint + "4_" + teamPropPos + "_" +startPosMode);
             wp5 = robotProfile.getProfilePose(passThrough + wayPoint + "5_" + teamPropPos + "_" +startPosMode);
             wp6 = robotProfile.getProfilePose(passThrough + wayPoint + "6_" + teamPropPos + "_" +startPosMode);
+            wp7 = robotProfile.getProfilePose(passThrough + wayPoint + "7_" + teamPropPos + "_" +startPosMode);
+
             String color = isRed ? "RED":"BLUE";
             if(!passThrough.equals("WALL")) {
-                aprilTagPt = new Pose2d(38, 30, 0);
+                aprilTagPt = isRed ? new Pose2d(38, -42, 0) : new Pose2d(38, 38, 0);
             }else {
                 aprilTagPt = robotProfile.getProfilePose("WAY_POINT_" + color + "_APRILTAG_A");
             }
             if (teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)) {
-                    buildLeftTrajectory();
+                    if(isRed) {
+                        buildRightTrajectory();
+                    }else{
+                        buildLeftTrajectory();
+                    }
             } else if (teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER)) {
                     buildCenterTrajectory();
             } else {
-                    buildRightTrajectory();
+                    if(isRed){
+                        buildLeftTrajectory();
+                    }else{
+                        buildRightTrajectory();
+                    }
+
             }
         }
         taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,
                                                     robotProfile, teamPropPos, drive, isRed ));
         goToDropBoard();
-        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, robotHardware, parkingPose));
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose1, true));
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose2, true));
         return taskList;
     }
     TrajectorySequence firstTraj1=null, firstTraj2=null, firstTraj3=null;
@@ -162,41 +184,44 @@ public class AutonomousTaskBuilder {
         taskList.add(new SplineMoveTask(drive, wpTraj3));
     }
     private void buildCenterTrajectory(){
-        TrajectorySequenceBuilder wpBuilder = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
-                .lineTo(wp1.vec())
-                .lineTo(wp2.vec())
-                .splineToLinearHeading(wp3,Math.toRadians(wp3.getHeading()));
-//                .splineToLinearHeading(wp1,Math.toRadians(wp1.getHeading()));
-//        if(passThrough.equals("MIDDLE")) {
-//            wpBuilder.splineToLinearHeading(wp2, Math.toRadians(wp2.getHeading()));
-//        }else{
-//            wpBuilder.lineTo(wp2.vec());
-//        }
-//        wpBuilder.lineTo(wp3.vec());
-
+        TrajectorySequenceBuilder wpBuilder = drive.trajectorySequenceBuilder(team_prop_pos_traj.end());
+        if(passThrough.equals("WALL") && isRed) {
+            wpBuilder.splineToLinearHeading(wp1, Math.toRadians(wp1.getHeading()))
+                    .lineTo(wp2.vec())
+                    .lineTo(wp3.vec());
+        }else{
+            wpBuilder.lineTo(wp1.vec())
+                    .lineTo(wp2.vec())
+                    .splineToLinearHeading(wp3, Math.toRadians(wp3.getHeading()));
+        }
         TrajectorySequence wpTraj1= wpBuilder.build();
         taskList.add(new SplineMoveTask(drive, wpTraj1));
 
-        TrajectorySequenceBuilder wpBuilder2 = drive.trajectorySequenceBuilder(wpTraj1.end())
-                                             .lineTo(wp4.vec());
+        TrajectorySequenceBuilder wpBuilder2 = drive.trajectorySequenceBuilder(wpTraj1.end());
+        if(isRed && passThrough.equals("MIDDLE")){
+            wpBuilder2.splineToLinearHeading(wp4,Math.toRadians(wp4.getHeading()));
+        }else {
+            wpBuilder2.lineTo(wp4.vec());
+        }
         if(wp5 != null) {
             wpBuilder2.lineTo(wp5.vec());
         }
         if(wp6 != null) {
             wpBuilder2.lineTo(wp6.vec());
         }
+        if(wp7 != null) {
+            wpBuilder2.lineTo(wp7.vec());
+        }
         wpBuilder2.lineTo(aprilTagPt.vec());
-        TrajectorySequence wpTraj3 = wpBuilder2.build();
-        taskList.add(new SplineMoveTask(drive, wpTraj3));
+        TrajectorySequence wpTraj2 = wpBuilder2.build();
+        taskList.add(new SplineMoveTask(drive, wpTraj2));
     }
     private void buildRightTrajectory(){
         TrajectorySequenceBuilder wpBuilder = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
-//                .splineToLinearHeading(wp1,Math.toRadians(wp1.getHeading()));
                 .lineTo(wp1.vec());
         if(passThrough.equals("MIDDLE")) {
-//            wpBuilder.splineToLinearHeading(wp2, Math.toRadians(wp2.getHeading()));
             wpBuilder.lineTo(wp2.vec());
-            wpBuilder.splineToLinearHeading(wp3, Math.toRadians(wp2.getHeading()));
+            wpBuilder.splineToLinearHeading(wp3, Math.toRadians(wp3.getHeading()));
         }else{
             wpBuilder.splineToLinearHeading(wp2, Math.toRadians(wp2.getHeading()));
             wpBuilder.lineTo(wp3.vec());
@@ -205,7 +230,6 @@ public class AutonomousTaskBuilder {
         taskList.add(new SplineMoveTask(drive, wpTraj1));
 
         TrajectorySequenceBuilder wpBuilder2 = drive.trajectorySequenceBuilder(wpTraj1.end());
-//        wpBuilder2.splineToLinearHeading(wp4, Math.toRadians(wp2.getHeading()));
         wpBuilder2.lineTo(wp4.vec());
         if(wp5 != null) {
             wpBuilder2.lineTo(wp5.vec());
@@ -219,14 +243,12 @@ public class AutonomousTaskBuilder {
     }
 
     void goToDropBoard(){
-//        ParallelComboTask dropPixelCombo = new ParallelComboTask();
-//        dropPixelCombo.addTask(new EqualDistanceTask(robotHardware, drive, robotProfile) );
         taskList.add(new RobotSleep(1000));
         taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
         if(teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)) {
-            taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutMin));
+            taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutAuto));
         }else{
-            taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutMin));
+            taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutAuto));
         }
         taskList.add(new RobotSleep(1000));
         taskList.add(new DropPixelTask(robotHardware));

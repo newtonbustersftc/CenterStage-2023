@@ -19,15 +19,16 @@ public class SplineMoveTask implements RobotControl {
 
     NBMecanumDrive drive;
     Trajectory trajectory;
-    TrajectorySequence trajectorySequence, trajectoryTag;
+    TrajectorySequence trajectorySequence, trajectoryTag, parkingTrajectoryTag1, parkingTrajectoryTag2;
     Pose2d targetPose;
     TrajectoryVelocityConstraint velocityConstraint;
-    RobotHardware robotHardware;
     AprilTagDetection desiredTag;
     boolean isRed;
     int parkingDistance;
     boolean isLineTo = false;
     Pose2d parkingPose;
+
+    int constructionNum;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
         this.drive = drive;
@@ -47,10 +48,10 @@ public class SplineMoveTask implements RobotControl {
     }
 
     //AprilTag
-    public SplineMoveTask(NBMecanumDrive drive, RobotHardware robotHardware, Pose2d parkingPose){
+    public SplineMoveTask(NBMecanumDrive drive, Pose2d targetPose, boolean isLineTo){
         this.drive = drive;
-        this.robotHardware = robotHardware;
-        this.parkingPose = parkingPose;
+        this.targetPose = targetPose;
+        this.isLineTo = isLineTo;
     }
 
     public String toString() {
@@ -58,10 +59,9 @@ public class SplineMoveTask implements RobotControl {
             return "SplineMove " + trajectory.start() + " -> " + trajectory.end();
         } else if (trajectorySequence != null) {
             return "SplineMove " + trajectorySequence.start() + " -> " + trajectorySequence.end();
-        } else if (trajectoryTag != null) {
-            return "SplineMove " + trajectoryTag.start() + " -> " + trajectoryTag.end();
-        } else if (robotHardware != null){
-            return "SplineMove - going to create new trajectory based on AprilTag." ;
+        } else if (targetPose != null) {
+            return "SplineMove targetPose x:" + targetPose.getX()+ ", y: " + targetPose.getY() +", heading:" +
+                    targetPose.getHeading();
         }else{
             return "the robot should not come to here.... trajectory, trajectorySequence, or trajectoryTag should be not null..";
         }
@@ -88,16 +88,6 @@ public class SplineMoveTask implements RobotControl {
             drive.followTrajectorySequenceAsync(trajectorySequence);
         }else if(trajectory !=null) {
             drive.followTrajectoryAsync(trajectory);
-        }else if(robotHardware != null ){ //this must be the detected AprilTag
-            Pose2d currentPose = drive.getPoseEstimate();
-            Logger.logFile("currentPose x:"+currentPose.getX() + " y:"+currentPose.getY());
-            Logger.logFile("parkingDistance="+parkingDistance);
-
-            trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
-                        .back(2)
-                        .lineTo(parkingPose.vec())
-                        .build();
-            drive.followTrajectorySequenceAsync(trajectoryTag);
         }
     }
 

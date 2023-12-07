@@ -91,6 +91,7 @@ public class RobotProfile {
         public boolean horizontalEncoderReverse;
         public int liftMax;
         public int liftOutMin;
+        public int liftOutAuto;
         public int liftIntakePos;
         public int liftIncrement;
         public double liftPowerUp, liftPowerDown;

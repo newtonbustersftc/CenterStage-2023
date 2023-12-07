@@ -31,7 +31,7 @@ public class AprilTagDetectionTask implements RobotControl {
     @Override
     public void prepare()  {
         startTime = System.currentTimeMillis();
-        Logger.logFile("in AprilTagTask prepare()");
+//        Logger.logFile("in AprilTagTask prepare()");
        if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
            DESIRED_TAG_ID = isRed ? 4 : 1;
        }else if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER )){
@@ -80,6 +80,7 @@ public class AprilTagDetectionTask implements RobotControl {
         Pose2d updatedPose = new Pose2d(totalX/sizeOfDetectionIDList, totalY/sizeOfDetectionIDList,
                                             totalHeading/sizeOfDetectionIDList);
         drive.getLocalizer().setPoseEstimate(updatedPose);
+        robotHardware.resetDriveAndEncoders();
         Logger.logFile("averagedPoseX:"+updatedPose.getX());
         Logger.logFile("averagedPoseY:"+updatedPose.getY());
         Logger.logFile("averagedPoseHeading:"+updatedPose.getHeading());
@@ -101,6 +102,8 @@ public class AprilTagDetectionTask implements RobotControl {
         Logger.logFile("Y="+thisY +", calculatedY="+detection.ftcPose.range * Math.cos(Math.toRadians(detection.ftcPose.bearing)));
         Logger.logFile("range=" + detection.ftcPose.range);
         Logger.logFile("current robot heading = " + currentPose.getHeading());
+        Logger.logFile("desiredAprilTagX="+desiredAprilTagX);
+        Logger.logFile("desiredAprilTagY="+desiredAprilTagY);
 
         thisY = idYCoordinations[detection.id-1] + thisX - centerOFRobotY;
         thisX = dropBoardX - centerOfRobotX - detection.ftcPose.y;
@@ -111,16 +114,13 @@ public class AprilTagDetectionTask implements RobotControl {
     private void goToDesiredTag(){
         Logger.logFile("*********in go to desired tag *********");
         Pose2d currentPose = drive.getPoseEstimate();
-        Logger.logFile("the currentPose.x="+currentPose.getX());
-        Logger.logFile("the currentPose.y="+currentPose.getY());
-        Logger.logFile("the currentPose.heading="+currentPose.getHeading());
+
         Logger.logFile("desiredAprilTagX="+desiredAprilTagX);
         Logger.logFile("desiredAprilTagY="+desiredAprilTagY);
         Pose2d targetPose = new Pose2d(desiredAprilTagX, desiredAprilTagY, 0);
 
         TrajectorySequence trajectoryTag = drive.trajectorySequenceBuilder(currentPose)
-//                .splineTo(targetPose.vec(), targetPose.getHeading())
-                .lineTo(targetPose.vec())
+                .lineToLinearHeading(targetPose)
                 .build();
         drive.followTrajectorySequence(trajectoryTag);
         Logger.logFile("done with trajectoryTag");
