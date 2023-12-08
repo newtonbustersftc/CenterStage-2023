@@ -188,7 +188,7 @@ public class SoloDriverOpMode extends OpMode {
     public void handleGripper() {
         if (currentTask==null && gamepad1.x) {
             if (!robotHardware.isGrabberUp()) {
-                currentTask = new PixelUpTask(robotHardware, false,robotProfile.hardwareSpec.liftOutMin);
+                currentTask = new PixelUpTask(robotHardware, robotProfile.hardwareSpec.liftOutMin, true);
                 currentTask.prepare();
             }
             else {
