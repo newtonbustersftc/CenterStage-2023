@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class LiftResetTask implements RobotControl {
     enum Mode { UP, WAIT, DOWN, REST, DONE };
     Mode mode;
+    int cnt = 0;
     RobotHardware robotHardware;
     long startTime, waitStart, restStart;
     RobotProfile profile;
@@ -23,14 +24,18 @@ public class LiftResetTask implements RobotControl {
         Logger.logFile("Resetting Lift Position");
         startTime = System.currentTimeMillis();
         robotHardware.resetLiftPos();
-        robotHardware.setLiftPosition(300, 0.3);
+        robotHardware.setLiftPosition(100, 0.3);
         mode = Mode.UP;
     }
 
     @Override
     public void execute() {
+        cnt++;
+        if (cnt%100==0) {
+            Logger.logFile("Mode:" + mode + " Velo: " + robotHardware.getLiftVelocity() + " waitStart " + waitStart);
+        }
         if (mode==Mode.UP && (System.currentTimeMillis() - startTime > 100)) {
-            if (robotHardware.getLiftPosition()>300 ||
+            if (robotHardware.getLiftPosition()>80 ||
                 !robotHardware.isLiftMoving()) {
                 Logger.logFile("ResetLift WAIT mode");
                 robotHardware.setLiftPower(0);
@@ -44,7 +49,7 @@ public class LiftResetTask implements RobotControl {
         if (mode==Mode.WAIT && (System.currentTimeMillis() - waitStart > 200)) {
             Logger.logFile("ResetLift DOWN mode");
             mode = Mode.DOWN;
-            robotHardware.setLiftPosition(-5000, 0.1);
+            robotHardware.setLiftPosition(-1000, 0.1);
         }
         if (mode==Mode.DOWN && (System.currentTimeMillis() - waitStart> 500)) {
             if (!robotHardware.isLiftMoving() || (System.currentTimeMillis() - waitStart>6000)) {
