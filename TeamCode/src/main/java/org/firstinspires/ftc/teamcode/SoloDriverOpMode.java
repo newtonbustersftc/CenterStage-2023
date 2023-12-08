@@ -167,7 +167,7 @@ public class SoloDriverOpMode extends OpMode {
 
     public void handleLift() {
         if (!liftPressed && gamepad1.dpad_up) {
-            if (robotHardware.getLiftTargetPosition()>=robotProfile.hardwareSpec.liftOutMin) {
+            if (robotHardware.getLiftTargetPosition()>=robotProfile.hardwareSpec.liftOutMin-30) {
                 int newLiftPos = Math.min(robotProfile.hardwareSpec.liftMax, robotHardware.getLiftTargetPosition()+
                         robotProfile.hardwareSpec.liftIncrement);
                 Logger.logFile("New lift pos: " + newLiftPos);
@@ -175,7 +175,7 @@ public class SoloDriverOpMode extends OpMode {
             }
         }
         if (!liftPressed && gamepad1.dpad_down) {
-            if (robotHardware.getLiftTargetPosition()>=robotProfile.hardwareSpec.liftOutMin) {
+            if (robotHardware.getLiftTargetPosition()>=robotProfile.hardwareSpec.liftOutMin-30) {
                 int newLiftPos = Math.max(robotProfile.hardwareSpec.liftOutMin, robotHardware.getLiftTargetPosition()-
                         robotProfile.hardwareSpec.liftIncrement);
                 Logger.logFile("New lift pos: " + newLiftPos);

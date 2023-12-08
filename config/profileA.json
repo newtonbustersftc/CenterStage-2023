@@ -105,7 +105,7 @@
     "droneServoLoadPos": 0.55,
     "droneServoShootPos": 0.4,
     "droneHookClosePos": 0.525,
-    "droneHookOpenPos": 0.4,
+    "droneHookOpenPos": 0.8,
     "droppingServoUp":1.0,
     "droppingServoDown":0.7,
     "intakeDropSpikeStep": -5,
