@@ -223,7 +223,7 @@ public class AutonomousGenericTest extends LinearOpMode {
 //                                        robotHardware.mecanumDrive.getPoseEstimate())
 //                                        .lineTo(parkingPose.vec())
 //                                        .build();
-        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, robotHardware, parkingPose));
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose, false));
     }
 
     void setupTaskList3() {

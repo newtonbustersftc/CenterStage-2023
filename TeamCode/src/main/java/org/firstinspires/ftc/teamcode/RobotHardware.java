@@ -236,7 +236,7 @@ public class RobotHardware {
     }
 
     public void setLiftPosition(int newLiftPos) {
-        int currPos = liftMotors[0].getCurrentPosition();
+        int currPos = liftMotors[1].getCurrentPosition();
         setLiftPosition(newLiftPos, (currPos<newLiftPos)?profile.hardwareSpec.liftPowerUp:
                 profile.hardwareSpec.liftPowerDown);
     }
@@ -538,8 +538,9 @@ public class RobotHardware {
             rrMax = Math.max(rrMax, rrMotor.getCurrentPosition());
             rlMin = Math.min(rlMin, rlMotor.getCurrentPosition());
             rlMax = Math.max(rlMax, rlMotor.getCurrentPosition());
-            done = (frMax - frMin > MIN_MAX) && (flMax - flMin > MIN_MAX) &&
-                    (rlMax - rlMin > MIN_MAX) && (rrMax - rrMin > MIN_MAX)  || opmode.gamepad1.dpad_right;
+//            done = (frMax - frMin > MIN_MAX) && (flMax - flMin > MIN_MAX) &&
+//                    (rlMax - rlMin > MIN_MAX) && (rrMax - rrMin > MIN_MAX)  || opmode.gamepad1.dpad_right;
+            done = true;
             opmode.telemetry.update();
         }
         String text;
@@ -554,9 +555,9 @@ public class RobotHardware {
         if (opmode.isStopRequested()) return;
         // Lift position reset
         long startTime = System.currentTimeMillis();
-        resetLiftPos();
+//        resetLiftPos();
         // 1. move up
-        setLiftPosition(profile.hardwareSpec.liftOutMin+100, 0.3);
+//        setLiftPosition(profile.hardwareSpec.liftOutMin+100, 0.3);
         while (getLiftPosition() < profile.hardwareSpec.liftOutMin && (System.currentTimeMillis() - startTime)<3000) {
             opmode.sleep(10);
         }
@@ -641,22 +642,4 @@ public class RobotHardware {
     public AprilTagDetection getDesiredAprilTag(){
         return this.aprilTag;
     }
-
-    public void setAprilTagTrajectory(TrajectorySequence aprilTagTraj){
-        this.aprilTagTrajectory =aprilTagTraj;
-    }
-
-    public TrajectorySequence getAprilTagTrajectory(){
-        Logger.logFile("robothardware aprilTagTrajectory is "+ this.aprilTagTrajectory);
-
-        return this.aprilTagTrajectory;
-    }
-
-//    public Pose2d getLastLocation(){
-//        return lastLocation;
-//    }
-//
-//    public void setLastLocation(Pose2d lastLocation){
-//        this.lastLocation = lastLocation;
-//    }
 }

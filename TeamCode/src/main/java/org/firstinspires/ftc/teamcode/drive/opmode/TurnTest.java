@@ -33,6 +33,7 @@ public class TurnTest extends LinearOpMode {
 
         Logger.init();
         RobotHardware robotHardware = RobotFactory.getRobotHardware(hardwareMap, robotProfile);
+        robotHardware.resetDriveAndEncoders();
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         robotHardware.getLocalizer().setPoseEstimate(new Pose2d(0,0,0));
 
