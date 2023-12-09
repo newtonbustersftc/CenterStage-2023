@@ -57,7 +57,6 @@ public class AutonomousTaskBuilder {
             isStraightToSpikeMark = teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT) && startPosMode.equals("BLUE_RIGHT") ||
                                     teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT) && startPosMode.equals("RED_LEFT") ||
                                     teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER) && isFar;
-
         } catch (Exception e) {
             RobotLog.e("SharedPref exception " + e);
             this.delayString = "0";
@@ -110,6 +109,8 @@ public class AutonomousTaskBuilder {
                     .splineTo(dropPose.vec(), dropPose.getHeading())
                     .build();
             taskList.add(new SplineMoveTask(drive, dropBoard_traj));
+
+
         }else { // far sides
             wp1 = robotProfile.getProfilePose(passThrough + wayPoint + "1_" + teamPropPos + "_" +startPosMode);
             wp2 = robotProfile.getProfilePose(passThrough + wayPoint + "2_" + teamPropPos + "_" +startPosMode);
@@ -123,7 +124,8 @@ public class AutonomousTaskBuilder {
             if(!passThrough.equals("WALL")) {
                 aprilTagPt = isRed ? new Pose2d(38, -42, 0) : new Pose2d(38, 38, 0);
             }else {
-                aprilTagPt = robotProfile.getProfilePose("WAY_POINT_" + color + "_APRILTAG_A");
+                aprilTagPt = isRed ? robotProfile.getProfilePose("WAY_POINT_" + color + "_APRILTAG_A") :
+                            new Pose2d(38,35, 0);
             }
             if (teamPropPos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)) {
                     if(isRed) {
@@ -139,7 +141,6 @@ public class AutonomousTaskBuilder {
                     }else{
                         buildRightTrajectory();
                     }
-
             }
         }
         taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,
@@ -185,10 +186,14 @@ public class AutonomousTaskBuilder {
     }
     private void buildCenterTrajectory(){
         TrajectorySequenceBuilder wpBuilder = drive.trajectorySequenceBuilder(team_prop_pos_traj.end());
-        if(passThrough.equals("WALL") && isRed) {
-            wpBuilder.splineToLinearHeading(wp1, Math.toRadians(wp1.getHeading()))
-                    .lineTo(wp2.vec())
-                    .lineTo(wp3.vec());
+        if(passThrough.equals("WALL") ) {
+            wpBuilder.splineToLinearHeading(wp1, Math.toRadians(wp1.getHeading()));
+            if(isRed) {
+                wpBuilder.splineToLinearHeading(wp2, Math.toRadians(wp2.getHeading()));
+            }else{
+                wpBuilder.lineTo(wp2.vec());
+            }
+            wpBuilder.lineTo(wp3.vec());
         }else{
             wpBuilder.lineTo(wp1.vec())
                     .lineTo(wp2.vec())
