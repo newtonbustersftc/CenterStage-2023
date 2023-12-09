@@ -221,35 +221,37 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     public void handleIntake() {
-        if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
-            if (robotHardware.isGrabberUp()) {
-                // If the grabber is raised, lower the grabber rather than starting the intake.
-                currentTask = new RetractGrabberTask(robotHardware);
-                currentTask.prepare();
-            } else {
-                // Regular intake functions
-                RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();
-                if (gamepad1.options) {
-                    // If the option button is pressed...
-                    if (currMode == RobotHardware.IntakeMode.REVERSE) {
-                        // ...and the intake is already reversed...
-                        // ...stop the intake.
-                        robotHardware.stopIntake();
-                    } else {
-                        // ...and the intake isn't reversed...
-                        // ...start the intake in reverse.
-                        robotHardware.reverseIntake();
-                    }
+        if (currentTask==null) {
+            if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
+                if (robotHardware.isGrabberUp()) {
+                    // If the grabber is raised, lower the grabber rather than starting the intake.
+                    currentTask = new RetractGrabberTask(robotHardware);
+                    currentTask.prepare();
                 } else {
-                    // If the option button isn't pressed...
-                    if (currMode == RobotHardware.IntakeMode.OFF) {
-                        // ...and the intake is off...
-                        // ...start the intake.
-                        robotHardware.startIntake();
+                    // Regular intake functions
+                    RobotHardware.IntakeMode currMode = robotHardware.getIntakeMode();
+                    if (gamepad1.options) {
+                        // If the option button is pressed...
+                        if (currMode == RobotHardware.IntakeMode.REVERSE) {
+                            // ...and the intake is already reversed...
+                            // ...stop the intake.
+                            robotHardware.stopIntake();
+                        } else {
+                            // ...and the intake isn't reversed...
+                            // ...start the intake in reverse.
+                            robotHardware.reverseIntake();
+                        }
                     } else {
-                        // ...and the intake isn't off...
-                        // ...stop the intake.
-                        robotHardware.stopIntake();
+                        // If the option button isn't pressed...
+                        if (currMode == RobotHardware.IntakeMode.OFF) {
+                            // ...and the intake is off...
+                            // ...start the intake.
+                            robotHardware.startIntake();
+                        } else {
+                            // ...and the intake isn't off...
+                            // ...stop the intake.
+                            robotHardware.stopIntake();
+                        }
                     }
                 }
             }
