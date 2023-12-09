@@ -260,7 +260,7 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     public void handleLauncher() {
-        if (gamepad1.a && !launchPressed) {
+        if (gamepad1.dpad_right && !launchPressed) {
             if (launchStage == 0) {
                 robotHardware.droneShootPosition();
                 launchStage++;
@@ -273,13 +273,13 @@ public class SoloDriverOpMode extends OpMode {
                 launchStage++;
             }
         }
-        launchPressed = gamepad1.a;
+        launchPressed = gamepad1.dpad_right || gamepad1.options;
     }
 
     public void handleHanger() {
-        if (gamepad1.dpad_left) {
+        if (gamepad1.a) {
             robotHardware.hang(-1);
-        } else if (gamepad1.dpad_right) {
+        } else if (gamepad1.dpad_left) {
             robotHardware.hang(1);
         } else {
             robotHardware.hang(0);
