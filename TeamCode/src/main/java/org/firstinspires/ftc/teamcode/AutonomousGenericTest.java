@@ -109,8 +109,8 @@ public class AutonomousGenericTest extends LinearOpMode {
         //aprilTagSignalRecognition.stopRecognition();
         robotHardware.resetDriveAndEncoders();
         p0 = robotProfile.getProfilePose( isRed ? "START_POSE_RED_LEFT" : "START_POSE_BLUE_LEFT");
-//        robotHardware.getLocalizer().setPoseEstimate(p0);
-        robotHardware.getLocalizer().setPoseEstimate(new Pose2d());
+        p0 = new Pose2d(0,0,0);
+        robotHardware.getLocalizer().setPoseEstimate(p0);
         taskList = new ArrayList<RobotControl>();
 
         //setupTaskList1();
@@ -136,8 +136,6 @@ public class AutonomousGenericTest extends LinearOpMode {
             loopCount++;
             robotHardware.clearBulkCache();
             robotHardware.getLocalizer().update();
-            Logger.logFile("Pose:" + robotHardware.getLocalizer().getPoseEstimate());
-            Logger.logFile("Velocity:" + robotHardware.getLocalizer().getPoseVelocity());
             try {
                 Logger.flushToFile();
             }

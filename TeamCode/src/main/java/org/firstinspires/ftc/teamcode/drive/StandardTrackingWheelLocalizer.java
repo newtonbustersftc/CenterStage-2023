@@ -44,7 +44,7 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         super(Arrays.asList(
                 new Pose2d(profile.hardwareSpec.encoderOffset, profile.hardwareSpec.trackWidth / 2, 0), // left
                 new Pose2d(profile.hardwareSpec.encoderOffset, -profile.hardwareSpec.trackWidth / 2, 0), // right
-                new Pose2d(profile.hardwareSpec.forwardOffset, profile.hardwareSpec.encoderOffset, Math.toRadians(90)) // front
+                new Pose2d(profile.hardwareSpec.forwardOffset, profile.hardwareSpec.centerOffset, Math.toRadians(90)) // front
         ));
         this.profile = profile;
 

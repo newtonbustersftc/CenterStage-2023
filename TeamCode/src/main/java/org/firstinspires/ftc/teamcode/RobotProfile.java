@@ -85,6 +85,7 @@ public class RobotProfile {
         public double encoderOffset;
         public double wheelRadius;
         public double forwardOffset;
+        public double centerOffset;
         public double wheelBase;
         public boolean leftEncoderReverse;
         public boolean rightEncoderReverse;
