@@ -82,9 +82,7 @@ public class StraightTest extends LinearOpMode {
         TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(10, 10, TRACK_WIDTH);
         TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(10);
         TrajectorySequence trajectory = drive.trajectorySequenceBuilder(new Pose2d())
-//                .lineTo(new Vector2d(-DISTANCE, 0))
-                .lineTo(new Vector2d(-DISTANCE, 0))
-//                .forward(DISTANCE, velConstraint, accelConstraint)
+                .forward(DISTANCE, velConstraint, accelConstraint)
                 .build();
 
         if (isStopRequested()) return;

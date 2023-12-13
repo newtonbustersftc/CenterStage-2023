@@ -89,10 +89,10 @@
   "hardwareSpec": {
     "revHubVertical": true,
     "useControlHubImu": true,
-    "trackWidth": 14,
-    "encoderOffset": 1.8,
+    "trackWidth": 13.45,
+    "encoderOffset": 1.1,
     "wheelBase": 12,
-    "wheelRadius": 0.950,
+    "wheelRadius": 0.935,
     "ticksPerRev": 2000,
     "forwardOffset": 0.9,
     "centerOffset": -0.5,

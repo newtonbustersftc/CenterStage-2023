@@ -75,6 +75,7 @@ public class TrackWidthTuner extends LinearOpMode {
             // it is important to handle heading wraparounds
             double headingAccumulator = 0;
             double lastHeading = 0;
+            robotHardware.resetImu();
 
             drive.turnAsync(Math.toRadians(ANGLE));
 
@@ -87,7 +88,9 @@ public class TrackWidthTuner extends LinearOpMode {
                 drive.update();
             }
 
-            double trackWidth = DriveConstants.TRACK_WIDTH * Math.toRadians(ANGLE) / headingAccumulator;
+            Logger.logFile("headingAccumulator:" + headingAccumulator);
+            Logger.logFile("GyroHeading:" + robotHardware.getGyroHeading());
+            double trackWidth = robotProfile.hardwareSpec.trackWidth * Math.toRadians(ANGLE) / headingAccumulator;
             trackWidthStats.add(trackWidth);
 
             sleep(DELAY);
