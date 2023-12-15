@@ -41,8 +41,97 @@ public class AutonomousTaskBuilder {
         this.aprilTagRecognition = aprilTagRecognition;
         this.parking = parking;
     }
-
     public ArrayList<RobotControl> buildTaskList() {
+        try {
+            delayString = "0";
+            startPosMode = "BLUE_RIGHT";
+            Logger.logFile(AutonomousOptions.START_POS_MODES_PREF + " - " + startPosMode);
+            Logger.logFile(AutonomousOptions.START_DELAY_PREF + " - " + delayString);
+            if(startPosMode.startsWith("RED")){
+                isRed = true;
+            }
+            isFar = (startPosMode.equals("BLUE_RIGHT") || startPosMode.equals("RED_LEFT"));
+        } catch (Exception e) {
+            RobotLog.e("SharedPref exception " + e);
+            this.delayString = "0";
+        }
+        Logger.logFile("Done with init in autonomous - team prop " + teamPropPos);
+
+        RobotProfile.AutonParam param = robotProfile.autonParam;
+        TrajectoryVelocityConstraint velFast = getVelocityConstraint(param.normVelocity, Math.toRadians(param.normAngVelo), robotProfile.hardwareSpec.trackWidth);
+        TrajectoryAccelerationConstraint accelFast = getAccelerationConstraint(param.fastAcceleration);
+        TrajectoryVelocityConstraint velConstraint = getVelocityConstraint(param.normVelocity, Math.toRadians(param.normAngVelo), 3);
+        TrajectoryAccelerationConstraint accelConstraint = getAccelerationConstraint(param.normAcceleration);
+
+        if (!delayString.equals("0")) {
+            taskList.add(new RobotSleep(Integer.parseInt(delayString) * 1000));
+        }
+        Pose2d propPose = robotProfile.getProfilePose("TEAM_PROP_POS_" + teamPropPos + "_" +startPosMode);
+        Pose2d dropPose = robotProfile.getProfilePose("DROPBOARD_APRILTAG_" + (isRed?"RED":"BLUE") + "_" + teamPropPos);
+        Pose2d parkingPose = robotProfile.getProfilePose("PARKING_" + startPosMode);
+
+        if (!isFar) {
+            team_prop_pos_traj = drive.trajectorySequenceBuilder(startingPose)
+                    .setReversed(true)
+                    .splineTo(propPose.vec(), propPose.getHeading() + Math.PI)
+                    .build();
+
+            taskList.add(new SplineMoveTask(drive, team_prop_pos_traj));
+            taskList.add(new RobotSleep(2000, "DropSpike"));
+            dropBoard_traj = drive.trajectorySequenceBuilder(team_prop_pos_traj.end())
+                    .splineTo(dropPose.vec(), dropPose.getHeading())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, dropBoard_traj));
+        }
+        else {
+            Pose2d outPose = getProfilePose("HZ_OUT" );
+            Pose2d rot1Pose = getProfilePose("HZ_ROT1");
+            Pose2d spkPose = getProfilePose("HZ_SPIKE");
+            Pose2d aftSpkPose = getProfilePose("HZ_AFT_SPIKE");
+            TrajectorySequence outTrj = drive.trajectorySequenceBuilder(startingPose)
+                    .lineToConstantHeading(outPose.vec())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, outTrj));
+            TrajectorySequence rot1Trj = drive.trajectorySequenceBuilder(outPose)
+                    .turn(rot1Pose.getHeading() - outPose.getHeading())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, rot1Trj));
+            TrajectorySequence spikeTrj = drive.trajectorySequenceBuilder(rot1Pose)
+                    .lineTo(spkPose.vec())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, spikeTrj));
+            taskList.add(new RobotSleep(1000, "DROP SPIKE"));
+            TrajectorySequence aftSpikeTrj = drive.trajectorySequenceBuilder(spkPose)
+                    .lineTo(aftSpkPose.vec())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, aftSpikeTrj));
+            Pose2d rot2Pose = getProfilePose("HZ_ROT2");
+            TrajectorySequence rot2Trj = drive.trajectorySequenceBuilder(aftSpkPose)
+                    .turn(rot2Pose.getHeading() - aftSpkPose.getHeading())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, rot2Trj));
+            Pose2d prePickPose = getProfilePose("HZ_PRE_PICK");
+            Pose2d pickPose = getProfilePose("HZ_PICK");
+            TrajectorySequence pickTrj = drive.trajectorySequenceBuilder(rot2Pose)
+                    .setReversed(true)
+                    .splineTo(prePickPose.vec(), prePickPose.getHeading()-Math.PI)
+                    .lineTo(pickPose.vec())
+                    .build();
+            taskList.add(new SplineMoveTask(drive, pickTrj));
+            taskList.add(new RobotSleep(2000, "PICKING"));
+
+            Pose2d preAprilPose = getProfilePose("HZ_PRE_APRIL");
+            Pose2d aprilPose = getProfilePose("HZ_APRIL");
+            TrajectorySequence toAprilTag = drive.trajectorySequenceBuilder(pickPose)
+                    .lineTo(preAprilPose.vec())
+                    .lineToLinearHeading(aprilPose)
+                    .build();
+            taskList.add(new SplineMoveTask(drive, toAprilTag));
+        }
+        return taskList;
+    }
+
+    public ArrayList<RobotControl> buildTaskListOrig() {
         try {
             SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
             delayString = prefs.getString(AutonomousOptions.START_DELAY_PREF, "0").replace(" sec", "");
@@ -260,7 +349,10 @@ public class AutonomousTaskBuilder {
     }
 
     Pose2d getProfilePose(String name) {
-        RobotProfile.AutoPose ap = robotProfile.poses.get(name);
+        RobotProfile.AutoPose ap = robotProfile.poses.get(name + "_" + startPosMode);
+        if (ap==null) {
+            ap = robotProfile.poses.get(name + "_" + teamPropPos + "_" + startPosMode);
+        }
         return new Pose2d(ap.x, ap.y, Math.toRadians(ap.heading));
     }
 

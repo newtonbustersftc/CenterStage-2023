@@ -47,7 +47,7 @@ public class RobotHardware {
     private DcMotorEx[] liftMotors;        // make it private so we can prevent mistakes by lift down while arm is retracted in
     //private
     Servo dronePivotServo, droneReleaseServo, intakeServo1, intakeServo2,
-            gripperServo, gripperInOutServo, gripperRotateServo, droppingServo;
+            gripperServo, gripperInOutServo, gripperRotateServo, intakePosServo;
 
     TouchSensor magneticSensor, liftTouch;
     NormalizedColorSensor coneSensor;
@@ -81,7 +81,7 @@ public class RobotHardware {
         flMotor = hardwareMap.get(DcMotorEx.class, "FLMotor");
         dronePivotServo = hardwareMap.servo.get("dronePivotServo");
         droneReleaseServo = hardwareMap.servo.get("droneReleaseServo");
-        droppingServo = hardwareMap.servo.get("droppingServo");
+        intakePosServo = hardwareMap.servo.get("intakePosServo");
 
         expansionHub2 = hardwareMap.get(LynxModule.class, "Expansion Hub 2");
         intakeServo1 = hardwareMap.servo.get("intakeServo1");
@@ -611,16 +611,12 @@ public class RobotHardware {
         return liftMotors;
     }
 
-    public void initDroppingStick(){
-        this.droppingServo.setPosition(0);
+    public void intakePosUp(){
+        intakePosServo.setPosition(profile.hardwareSpec.intakePosUp);
     }
 
-    public void releaseDroppingStick(){
-        this.droppingServo.setPosition(0.65);
-    }
-
-    public double getDroppingServoNumber(){
-        return this.droppingServo.getPosition();
+    public void intakePosDown(){
+        intakePosServo.setPosition(profile.hardwareSpec.intakePosDown);
     }
 
     public void storeDesiredAprilTag(AprilTagDetection desiredTag){

@@ -17,7 +17,6 @@ public class PixelUpTask implements RobotControl {
         this.liftStartPos = this.robotHardware.getLiftPosition();
         Logger.logFile("PixelUpTask liftPos:"+ this.liftPos);
         Logger.logFile("PixelUpTask liftstartPos:"+ this.liftStartPos);
-        Logger.logFile("resut of liftStartPos+liftPos="+(liftStartPos+liftPos));
     }
 
     public PixelUpTask(RobotHardware hardware, int liftPos, boolean isOne) {

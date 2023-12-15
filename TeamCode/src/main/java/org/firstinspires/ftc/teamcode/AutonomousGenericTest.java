@@ -225,9 +225,19 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList3() {
+        taskList.add(new IntakePositionTask(robotHardware, false));
         TrajectorySequenceBuilder tb1 = robotHardware.mecanumDrive.trajectorySequenceBuilder(p0);
+        tb1.back(20);
         tb1.turn(Math.PI/2);
-        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, tb1.build()));
+        tb1.back(5);
+        TrajectorySequence ts1 = tb1.build();
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, ts1));
+        taskList.add(new IntakePositionTask(robotHardware, true));
+        TrajectorySequenceBuilder tb2 = robotHardware.mecanumDrive.trajectorySequenceBuilder(ts1.end());
+        tb2.forward(5);
+        tb2.turn(-Math.PI/2);
+        tb2.forward(20);
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, tb2.build()));
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

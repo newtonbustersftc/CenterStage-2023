@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -20,9 +21,10 @@ public class HardwareOpModeTest extends OpMode {
     RobotProfile robotProfile;
 
     Pose2d currPose;
-    double grabberPos = 0.5;
+    double servoPos = 0.5;
 
-    boolean grabberChange =  false;
+    boolean servoChange =  false;
+    Servo servo;
     boolean blocking = false;
     boolean liftChange = false;
     RobotControl currentTask = null;
@@ -48,6 +50,7 @@ public class HardwareOpModeTest extends OpMode {
         robotHardware.resetImu();
         robotHardware.enableManualCaching(true);
         robotHardware.resetDriveAndEncoders();
+        servo = robotHardware.intakePosServo;
 
         try {
             Thread.sleep(100);
@@ -66,7 +69,7 @@ public class HardwareOpModeTest extends OpMode {
         testHardware();
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
-        telemetry.addData("Grabber", grabberPos);
+        telemetry.addData("Servo", servoPos);
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
                 .addData("RL - right ", robotHardware.rlMotor.getCurrentPosition())
                 .addData("RR -  left ", robotHardware.rrMotor.getCurrentPosition())
@@ -104,11 +107,11 @@ public class HardwareOpModeTest extends OpMode {
         }
         liftChange = gamepad1.dpad_up || gamepad2.dpad_down;
 
-        if(gamepad1.dpad_up){
-              robotHardware.initDroppingStick();
+        if(gamepad1.a){
+              robotHardware.intakePosUp();
         }
-        if(gamepad1.dpad_down){
-            robotHardware.releaseDroppingStick();
+        if(gamepad1.b){
+            robotHardware.intakePosDown();
         }
 
 /*        if(gamepad1.dpad_left){
@@ -120,17 +123,17 @@ public class HardwareOpModeTest extends OpMode {
         }
  */
 
-        if (!grabberChange) {
+        if (!servoChange) {
             if (gamepad1.right_bumper) {
-                grabberPos += 0.01;
-                robotHardware.gripperServo.setPosition(grabberPos);
+                servoPos += 0.01;
+                servo.setPosition(servoPos);
             }
             if (gamepad1.left_bumper) {
-                grabberPos -= 0.01;
-                robotHardware.gripperServo.setPosition(grabberPos);
+                servoPos -= 0.01;
+                servo.setPosition(servoPos);
             }
         }
-        grabberChange = (gamepad1.left_bumper || gamepad1.right_bumper);
+        servoChange = (gamepad1.left_bumper || gamepad1.right_bumper);
 
 //        robotHardware.turnOnLight(gamepad1.left_trigger>0.3);
 

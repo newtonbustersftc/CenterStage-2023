@@ -107,8 +107,8 @@
     "droneServoShootPos": 0.4,
     "droneHookClosePos": 0.41,
     "droneHookOpenPos": 1.0,
-    "droppingServoUp":1.0,
-    "droppingServoDown":0.7,
+    "intakePosUp":0.43,
+    "intakePosDown":0.6,
     "intakeDropSpikeStep": -5,
     "intakePower": -0.5,
     "intakeReversePower": 1,
@@ -670,6 +670,51 @@
       "x": 38,
       "y": -60,
       "heading": 0.0
+    },
+    "HZ_OUT_BLUE_RIGHT": {
+      "x": -36,
+      "y": 32,
+      "heading": 90
+    },
+    "HZ_ROT1_LEFT_BLUE_RIGHT": {
+      "x": -36,
+      "y": 32,
+      "heading": 180
+    },
+    "HZ_SPIKE_LEFT_BLUE_RIGHT": {
+      "x": -33,
+      "y": 32,
+      "heading": 180
+    },
+    "HZ_AFT_SPIKE_LEFT_BLUE_RIGHT": {
+      "x": -36,
+      "y": 32,
+      "heading": 180
+    },
+    "HZ_ROT2_LEFT_BLUE_RIGHT": {
+      "x": -36,
+      "y": 32,
+      "heading": 0
+    },
+    "HZ_PRE_PICK_BLUE_RIGHT": {
+      "x": -48,
+      "y": 12,
+      "heading": 0
+    },
+    "HZ_PICK_BLUE_RIGHT": {
+      "x": -62,
+      "y": 12,
+      "heading": 0
+    },
+    "HZ_PRE_APRIL_BLUE_RIGHT": {
+      "x": 36,
+      "y": 12,
+      "heading": 0
+    },
+    "HZ_APRIL_BLUE_RIGHT": {
+      "x": 36,
+      "y": 30,
+      "heading": 0
     }
   },
   "autonParam": {
