@@ -225,19 +225,30 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList3() {
-        taskList.add(new IntakePositionTask(robotHardware, false));
+        taskList.add(new IntakePositionTask(robotHardware, true));
+        taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.SLOW));
         TrajectorySequenceBuilder tb1 = robotHardware.mecanumDrive.trajectorySequenceBuilder(p0);
-        tb1.back(20);
-        tb1.turn(Math.PI/2);
-        tb1.back(5);
+        tb1.back(6);
         TrajectorySequence ts1 = tb1.build();
         taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, ts1));
-        taskList.add(new IntakePositionTask(robotHardware, true));
+        taskList.add(new RobotSleep(500, "Take from top"));
         TrajectorySequenceBuilder tb2 = robotHardware.mecanumDrive.trajectorySequenceBuilder(ts1.end());
-        tb2.forward(5);
-        tb2.turn(-Math.PI/2);
-        tb2.forward(20);
-        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, tb2.build()));
+        tb2.setAccelConstraint(getAccelerationConstraint(5));
+        tb2.setVelConstraint(getVelocityConstraint(5, Math.toRadians(5), 14.0));
+        tb2.forward(2);
+        TrajectorySequence ts2 = tb2.build();
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, ts2));
+        taskList.add(new IntakePositionTask(robotHardware, false));
+        taskList.add(new RobotSleep(500, "Intake"));
+        TrajectorySequenceBuilder tb3 = robotHardware.mecanumDrive.trajectorySequenceBuilder(ts2.end());
+        tb2.setAccelConstraint(getAccelerationConstraint(5));
+        tb2.setVelConstraint(getVelocityConstraint(5, Math.toRadians(5), 14.0));
+        tb3.forward(4);
+        TrajectorySequence ts3 = tb3.build();
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, ts3));
+        taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.ON));
+        taskList.add(new RobotSleep(3000, "Into next tray"));
+        taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.OFF));
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

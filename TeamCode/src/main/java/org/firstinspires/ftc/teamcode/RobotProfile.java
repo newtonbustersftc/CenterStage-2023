@@ -105,7 +105,7 @@ public class RobotProfile {
         public double droneHookOpenPos;
         public double intakePosUp, intakePosDown;
         public int intakeDropSpikeStep;
-        public double intakePower, intakeReversePower;
+        public double intakePower, intakeReversePower, intakePowerSlow;
         public double intakeServo1In, intakeServo1Out, intakeServo1Stop;
         public double intakeServo2In, intakeServo2Out, intakeServo2Stop;
         public double gripperInOutServoOut, gripperInOutServoIn, gripperInOutServoDrop;

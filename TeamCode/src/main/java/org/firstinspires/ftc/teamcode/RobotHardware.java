@@ -64,7 +64,7 @@ public class RobotHardware {
 
     DecimalFormat nf2 = new DecimalFormat("#.##");
     RobotProfile profile;
-    enum IntakeMode { ON, REVERSE, OFF }
+    public enum IntakeMode { ON, REVERSE, OFF, SLOW }
     IntakeMode intakeMode;
     AprilTagDetection aprilTag;
     TrajectorySequence aprilTagTrajectory;
@@ -193,6 +193,18 @@ public class RobotHardware {
         intakeServo1.setPosition(profile.hardwareSpec.intakeServo1In);
         intakeServo2.setPosition(profile.hardwareSpec.intakeServo2In);
     }
+
+    // When try to pull pixel from the top, do not start upper intake to avoid take in 2 pieces
+    public void startIntakeSlow() {
+        intakeMode = IntakeMode.ON;
+        setLiftPosition(profile.hardwareSpec.liftIntakePos);
+        grabberOpen();
+        grabberIn();
+        intakeMotor.setPower(profile.hardwareSpec.intakePowerSlow);
+        intakeServo1.setPosition(profile.hardwareSpec.intakeServo1Stop);
+        intakeServo2.setPosition(profile.hardwareSpec.intakeServo1Stop);
+    }
+
     public void reverseIntake() {
         intakeMode = IntakeMode.REVERSE;
         intakeMotor.setPower(profile.hardwareSpec.intakeReversePower);

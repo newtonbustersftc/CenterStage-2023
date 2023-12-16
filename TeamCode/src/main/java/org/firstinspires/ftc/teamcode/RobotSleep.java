@@ -15,6 +15,7 @@ public class RobotSleep implements RobotControl {
     }
 
     public RobotSleep(int timeSleep, String memo) {
+        this.timeSleep = timeSleep;
         this.memo = memo;
     }
 
