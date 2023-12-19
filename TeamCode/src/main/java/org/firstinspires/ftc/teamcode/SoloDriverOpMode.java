@@ -246,7 +246,9 @@ public class SoloDriverOpMode extends OpMode {
                         if (currMode == RobotHardware.IntakeMode.OFF) {
                             // ...and the intake is off...
                             // ...start the intake.
-                            robotHardware.startIntake();
+                            //robotHardware.startIntake();
+                            currentTask = new SmartIntakeActionTask(robotHardware, 30000);
+                            currentTask.prepare();
                         } else {
                             // ...and the intake isn't off...
                             // ...stop the intake.

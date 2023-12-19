@@ -70,6 +70,10 @@ public class HardwareOpModeTest extends OpMode {
 
         telemetry.addData("Heading", Math.toDegrees(robotHardware.getGyroHeading()));
         telemetry.addData("Servo", servoPos);
+        telemetry.addData("Touch 0", robotHardware.px0.getValue())
+                .addData("1", robotHardware.px1.getValue())
+                .addData("2", robotHardware.px2.getValue())
+                .addData("3", robotHardware.px3.getValue());
         telemetry.addLine().addData("FL", robotHardware.flMotor.getCurrentPosition())
                 .addData("RL - right ", robotHardware.rlMotor.getCurrentPosition())
                 .addData("RR -  left ", robotHardware.rrMotor.getCurrentPosition())

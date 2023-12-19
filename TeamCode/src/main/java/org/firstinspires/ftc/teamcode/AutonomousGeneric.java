@@ -104,8 +104,8 @@ public class AutonomousGeneric extends LinearOpMode {
         aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
         aprilTagRecognition.initAprilTag();
         Logger.logFile("Webcam 1 status = "+ aprilTagRecognition.visionPortal.getCameraState());
-        AutonomousTaskBuilder builder = new AutonomousTaskBuilder(robotHardware, robotProfile, teamPropPos, startingPose, aprilTagRecognition, parkingLocation);
-
+        AutonomousTaskBuilderSimple builder = new AutonomousTaskBuilderSimple(robotHardware, robotProfile,
+                aprilTagRecognition, "" + teamPropPos, startingPose);
         robotHardware.resetDriveAndEncoders();
         robotHardware.getLocalizer().setPoseEstimate(startingPose);
         taskList = builder.buildTaskList();

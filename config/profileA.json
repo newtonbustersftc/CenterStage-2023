@@ -116,7 +116,7 @@
     "intakeServo1In": 0.0,
     "intakeServo1Out": 1.0,
     "intakeServo1Stop": 0.5,
-    "intakeServo2In": 0.45,
+    "intakeServo2In": 0.3,
     "intakeServo2Out": 1.0,
     "intakeServo2Stop": 0.5,
     "liftMax": 1500,
@@ -674,36 +674,96 @@
     },
     "HZ_OUT_BLUE_RIGHT": {
       "x": -36,
-      "y": 32,
+      "y": 34,
       "heading": 90
     },
     "HZ_ROT1_LEFT_BLUE_RIGHT": {
       "x": -36,
-      "y": 32,
+      "y": 34,
       "heading": 180
     },
     "HZ_SPIKE_LEFT_BLUE_RIGHT": {
-      "x": -33,
-      "y": 32,
+      "x": -32,
+      "y": 34,
       "heading": 180
     },
     "HZ_AFT_SPIKE_LEFT_BLUE_RIGHT": {
-      "x": -36,
-      "y": 32,
+      "x": -38,
+      "y": 34,
       "heading": 180
     },
     "HZ_ROT2_LEFT_BLUE_RIGHT": {
-      "x": -36,
-      "y": 32,
+      "x": -38,
+      "y": 34,
       "heading": 0
     },
-    "HZ_PRE_PICK_BLUE_RIGHT": {
+    "HZ_PRE_PICK_LEFT_BLUE_RIGHT": {
+      "x": -38,
+      "y": 12,
+      "heading": 0
+    },
+    "HZ_ROT1_RIGHT_BLUE_RIGHT": {
+      "x": -36,
+      "y": 34,
+      "heading": 0
+    },
+    "HZ_SPIKE_RIGHT_BLUE_RIGHT": {
+      "x": -40,
+      "y": 34,
+      "heading": 0
+    },
+    "HZ_AFT_SPIKE_RIGHT_BLUE_RIGHT": {
+      "x": -34,
+      "y": 34,
+      "heading": 0
+    },
+    "HZ_ROT2_RIGHT_BLUE_RIGHT": {
+      "x": -34,
+      "y": 34,
+      "heading": 0
+    },
+    "HZ_PRE_PICK_RIGHT_BLUE_RIGHT": {
+      "x": -34,
+      "y": 12,
+      "heading": 0
+    },
+    "HZ_OUT_CENTER_BLUE_RIGHT": {
+      "x": -36,
+      "y": 24,
+      "heading": 90
+    },
+    "HZ_ROT1_CENTER_BLUE_RIGHT": {
+      "x": -36,
+      "y": 24,
+      "heading": 180
+    },
+    "HZ_SPIKE_CENTER_BLUE_RIGHT": {
+      "x": -44,
+      "y": 24,
+      "heading": 180
+    },
+    "HZ_AFT_SPIKE_CENTER_BLUE_RIGHT": {
+      "x": -48,
+      "y": 24,
+      "heading": 180
+    },
+    "HZ_ROT2_CENTER_BLUE_RIGHT": {
+      "x": -48,
+      "y": 24,
+      "heading": 0
+    },
+    "HZ_PRE_PICK_CENTER_BLUE_RIGHT": {
       "x": -48,
       "y": 12,
       "heading": 0
     },
     "HZ_PICK_BLUE_RIGHT": {
-      "x": -62,
+      "x": -58,
+      "y": 12,
+      "heading": 0
+    },
+    "HZ_AFT_PICK_BLUE_RIGHT": {
+      "x": -53,
       "y": 12,
       "heading": 0
     },
@@ -716,6 +776,66 @@
       "x": 36,
       "y": 30,
       "heading": 0
+    },
+    "HZ_OUT_BLUE_LEFT":{
+      "x":12,
+      "y":34,
+      "heading":90
+    },
+    "HZ_ROT1_BLUE_LEFT": {
+      "x": 12,
+      "y": 34,
+      "heading": 0
+    },
+    "HZ_SPIKE_LEFT_BLUE_LEFT":{
+      "x":33,
+      "y":34,
+      "heading":0
+    },
+    "HZ_SPIKE_RIGHT_BLUE_LEFT":{
+      "x":9,
+      "y":34,
+      "heading":0
+    },
+    "HZ_AFT_SPIKE_BLUE_LEFT":{
+      "x":45,
+      "y":34,
+      "heading":0
+    },
+    "HZ_OUT_CENTER_BLUE_LEFT":{
+      "x":12,
+      "y":24,
+      "heading":90
+    },
+    "HZ_ROT1_CENTER_BLUE_LEFT": {
+      "x": 12,
+      "y": 24,
+      "heading": 0
+    },
+    "HZ_SPIKE_CENTER_BLUE_LEFT":{
+      "x":18,
+      "y":24,
+      "heading":0
+    },
+    "HZ_AFT_SPIKE_CENTER_BLUE_LEFT":{
+      "x":45,
+      "y":24,
+      "heading":0
+    },
+    "HZ_PIXEL_LEFT_BLUE_LEFT": {
+      "x": 45,
+      "y": 42,
+      "heading":0
+    },
+    "HZ_PIXEL_CENTER_BLUE_LEFT": {
+      "x": 45,
+      "y": 36,
+      "heading":0
+    },
+    "HZ_PIXEL_RIGHT_BLUE_LEFT": {
+      "x": 45,
+      "y": 30,
+      "heading":0
     }
   },
   "autonParam": {

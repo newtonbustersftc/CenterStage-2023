@@ -25,13 +25,13 @@ public class AutonomousTaskBuilder {
     NBMecanumDrive drive;
     String delayString, startPosMode, passThrough, parking, wayPoint = "_WAY_POINT";
     Pose2d startingPose, wp1, wp2, wp3, wp4, wp5, wp6, wp7,aprilTagPt;
-    RobotCVProcessor.TEAM_PROP_POS teamPropPos = RobotCVProcessor.TEAM_PROP_POS.CENTER; //default in case
+    String teamPropPos; //default in case
     AprilTagRecognition aprilTagRecognition;
     TrajectorySequence  team_prop_pos_traj=null,dropBoard_traj=null;
     boolean isRed, isFar, isSkipWeightPoint, isStraightToSpikeMark;
 
     public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile,
-                                 RobotCVProcessor.TEAM_PROP_POS teamPropPos, Pose2d startingPose,
+                                 String teamPropPos, Pose2d startingPose,
                                  AprilTagRecognition aprilTagRecognition, String parking) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
@@ -43,8 +43,9 @@ public class AutonomousTaskBuilder {
     }
     public ArrayList<RobotControl> buildTaskList() {
         try {
+            SharedPreferences prefs = AutonomousOptions.getSharedPrefs(robotHardware.getHardwareMap());
             delayString = "0";
-            startPosMode = "BLUE_RIGHT";
+            startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);;
             Logger.logFile(AutonomousOptions.START_POS_MODES_PREF + " - " + startPosMode);
             Logger.logFile(AutonomousOptions.START_DELAY_PREF + " - " + delayString);
             if(startPosMode.startsWith("RED")){

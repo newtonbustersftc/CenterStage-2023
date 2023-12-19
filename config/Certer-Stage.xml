@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <Webcam name="Webcam 1" serialNumber="F2D88CD0" />
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Expansion Hub 2" port="2">
+            <goBILDA5202SeriesMotor name="intakeMotor" port="0" />
+            <goBILDA5202SeriesMotor name="hangerMotor" port="1" />
+            <goBILDA5202SeriesMotor name="liftMotorLeft" port="2" />
+            <goBILDA5202SeriesMotor name="liftMotorRight" port="3" />
+            <Servo name="intakeServo1" port="0" />
+            <Servo name="intakeServo2" port="2" />
+            <Servo name="gripperInOutServo" port="3" />
+            <Servo name="gripperRotateServo" port="4" />
+            <Servo name="gripperServo" port="5" />
+            <REV_VL53L0X_RANGE_SENSOR name="rightDistanceSensor" port="0" bus="0" />
+        </LynxModule>
+        <LynxModule name="Control Hub" port="173">
+            <goBILDA5202SeriesMotor name="RRMotor" port="0" />
+            <goBILDA5202SeriesMotor name="RLMotor" port="1" />
+            <goBILDA5202SeriesMotor name="FLMotor" port="2" />
+            <goBILDA5202SeriesMotor name="FRMotor" port="3" />
+            <Servo name="dronePivotServo" port="0" />
+            <Servo name="droneReleaseServo" port="1" />
+            <Servo name="intakePosServo" port="2" />
+            <RevTouchSensor name="PX0" port="0" />
+            <RevTouchSensor name="PX1" port="1" />
+            <RevTouchSensor name="PX2" port="2" />
+            <RevTouchSensor name="PX3" port="3" />
+            <REV_VL53L0X_RANGE_SENSOR name="leftDistanceSensor" port="0" bus="0" />
+            <LynxEmbeddedIMU name="imu" port="1" bus="0" />
+        </LynxModule>
+    </LynxUsbDevice>
+    <Webcam name="Webcam 2" serialNumber="98D9ACD0" />
+</Robot>

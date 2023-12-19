@@ -47,7 +47,7 @@ public class AutonomousGenericTest extends LinearOpMode {
     private TrajectoryVelocityConstraint velConstraint;
     private TrajectoryAccelerationConstraint accelConstraint;
     private AprilTagRecognition aprilTagRecognition;
-    private RobotCVProcessor.TEAM_PROP_POS team_prop_pos = RobotCVProcessor.TEAM_PROP_POS.RIGHT;
+    private String teamPropPos;
     String startPosMode;
     boolean isRed;
 
@@ -190,7 +190,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         taskList.add(moveTask2);
         taskList.add(new RobotSleep(1000));
         taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-        if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT))
+        if(teamPropPos.equals("RIGHT"))
             taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutMin));
         else
             taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutMin));
@@ -206,10 +206,10 @@ public class AutonomousGenericTest extends LinearOpMode {
         Logger.logFile("parking pose:"+parkingPose.getX() +", "+parkingPose.getY()+", "+parkingPose.getHeading());
 
         taskList.add(new AprilTagDetectionTask(robotHardware, aprilTagRecognition,
-                    robotProfile, team_prop_pos, robotHardware.mecanumDrive, isRed));
+                    robotProfile, teamPropPos, robotHardware.mecanumDrive, isRed));
         taskList.add(new RobotSleep(1000));
         taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-        if(team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)){
+        if(teamPropPos.equals("RIGHT")){
             taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutMin));
         }else{
             taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutMin));

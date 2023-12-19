@@ -49,7 +49,7 @@ public class RobotHardware {
     Servo dronePivotServo, droneReleaseServo, intakeServo1, intakeServo2,
             gripperServo, gripperInOutServo, gripperRotateServo, intakePosServo;
 
-    TouchSensor magneticSensor, liftTouch;
+    TouchSensor px0, px1, px2, px3;
     NormalizedColorSensor coneSensor;
 
     LynxModule expansionHub1;
@@ -105,6 +105,12 @@ public class RobotHardware {
         //two distance sensors
         distanceSensorLeft = hardwareMap.get(DistanceSensor.class, "leftDistanceSensor");
         distanceSensorRight = hardwareMap.get(DistanceSensor.class, "rightDistanceSensor");
+
+        // Intake tray touch sensors
+        px0 = hardwareMap.get(TouchSensor.class, "PX0");
+        px1 = hardwareMap.get(TouchSensor.class, "PX1");
+        px2 = hardwareMap.get(TouchSensor.class, "PX2");
+        px3 = hardwareMap.get(TouchSensor.class, "PX3");
 
         // Use manual cache mode for most efficiency, but each program
         // needs to call clearBulkCache() in the while loop
@@ -203,6 +209,12 @@ public class RobotHardware {
         intakeMotor.setPower(profile.hardwareSpec.intakePowerSlow);
         intakeServo1.setPosition(profile.hardwareSpec.intakeServo1Stop);
         intakeServo2.setPosition(profile.hardwareSpec.intakeServo1Stop);
+    }
+
+    public void intakeRollupOnly() {
+        intakeMotor.setPower(0);
+        intakeServo1.setPosition(profile.hardwareSpec.intakeServo1In);
+        intakeServo2.setPosition(profile.hardwareSpec.intakeServo2In);
     }
 
     public void reverseIntake() {
@@ -450,7 +462,13 @@ public class RobotHardware {
     }
 
     public void grabberClose() {
-        grabberClose(true);
+        if (px3.getValue()==1) {
+            grabberClose(false);
+        }
+    }
+
+    public int countTrayPixel() {
+        return (int)(px0.getValue() + px2.getValue() + px3.getValue());
     }
     public void grabberClose(boolean isOne) {
         gripOpen = false;
@@ -505,6 +523,10 @@ public class RobotHardware {
     }
     public void droneHook() {
         droneReleaseServo.setPosition(profile.hardwareSpec.droneHookClosePos);
+    }
+
+    public boolean isIntakeTouched() {
+        return px1.getValue() == 1;
     }
 
     public void hang(double power) {

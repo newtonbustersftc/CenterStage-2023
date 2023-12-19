@@ -11,32 +11,32 @@ public class AprilTagDetectionTask implements RobotControl {
     boolean targetFound=false;
     RobotHardware robotHardware;
     AprilTagRecognition aprilTagRecognition;
-    RobotCVProcessor.TEAM_PROP_POS team_prop_pos;
+    String teamPropPos;
     NBMecanumDrive drive;
     boolean isRed;
     double desiredAprilTagX, desiredAprilTagY, totalX, totalY, totalHeading, sizeOfDetectionIDList, startTime;
 
     public AprilTagDetectionTask(RobotHardware robotHardware, AprilTagRecognition aprilTagRecognition, RobotProfile profile,
-                                 RobotCVProcessor.TEAM_PROP_POS team_prop_pos, NBMecanumDrive drive, boolean isRed){
+                                 String teamPropPos, NBMecanumDrive drive, boolean isRed){
         this.robotHardware = robotHardware;
         this.aprilTagRecognition = aprilTagRecognition;
-        this.team_prop_pos = team_prop_pos;
+        this.teamPropPos = teamPropPos;
         this.drive = drive;
         this.isRed = isRed;
         String color = isRed ? "RED" : "BLUE";
-        desiredAprilTagX = profile.getProfilePose("DROPBOARD_APRILTAG_"+color+"_"+team_prop_pos.toString()).getX();
-        desiredAprilTagY = profile.getProfilePose("DROPBOARD_APRILTAG_"+color+"_"+team_prop_pos.toString()).getY();
+        desiredAprilTagX = profile.getProfilePose("DROPBOARD_APRILTAG_"+color+"_"+ teamPropPos).getX();
+        desiredAprilTagY = profile.getProfilePose("DROPBOARD_APRILTAG_"+color+"_"+ teamPropPos).getY();
     }
 
     @Override
     public void prepare()  {
         startTime = System.currentTimeMillis();
 //        Logger.logFile("in AprilTagTask prepare()");
-       if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.LEFT)){
+       if(this.teamPropPos.equals("LEFT")){
            DESIRED_TAG_ID = isRed ? 4 : 1;
-       }else if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.CENTER )){
+       }else if(this.teamPropPos.equals("CENTER")){
            DESIRED_TAG_ID = isRed ? 5 : 2;
-       }else if(this.team_prop_pos.equals(RobotCVProcessor.TEAM_PROP_POS.RIGHT)){
+       }else if(this.teamPropPos.equals("RIGHT")){
            DESIRED_TAG_ID = isRed ? 6 : 3;
        }
 
@@ -46,22 +46,24 @@ public class AprilTagDetectionTask implements RobotControl {
 
     @Override
     public void execute() {
-        Logger.logFile("aprilTagRecognition.aprilTag.getDetections.size:"+this.aprilTagRecognition.aprilTag.getDetections().size());
-        Logger.logFile("aprilTagRecognition size:" + this.aprilTagRecognition.getAprilTagResult().size());
-        Logger.logFile("aprilTagRecognition camera state:" + this.aprilTagRecognition.visionPortal.getCameraState().toString());
-
         // Step through the list of detected tags and look for a matching tag
         List<AprilTagDetection> currentDetections = this.aprilTagRecognition.aprilTag.getDetections();
-        sizeOfDetectionIDList = currentDetections.size();
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection.metadata != null ){
-                checkID(detection);
-            }
+        if (currentDetections==null) {
+            Logger.logFile("AprilTag detections is null");
         }
-        if(totalX>0) {
-            targetFound = true;
-            setUpdatePose();
-            goToDesiredTag();
+        else {
+            sizeOfDetectionIDList = currentDetections.size();
+            Logger.logFile("AprilTag detected count: " + sizeOfDetectionIDList);
+            for (AprilTagDetection detection : currentDetections) {
+                if (detection.metadata != null) {
+                    checkID(detection);
+                }
+            }
+            if (totalX > 0) {
+                targetFound = true;
+                setUpdatePose();
+                goToDesiredTag();
+            }
         }
     }
 
