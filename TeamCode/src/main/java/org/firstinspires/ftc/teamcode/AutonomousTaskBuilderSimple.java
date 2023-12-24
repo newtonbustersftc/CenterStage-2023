@@ -26,11 +26,11 @@ public class AutonomousTaskBuilderSimple {
     String delayString, startPosMode, passThrough, parking;
     Pose2d startingPose, aprilTagPt;
     String teamPropPos; //default in case
-    AprilTagRecognition aprilTagRecognition;
+    PixelBoardVision aprilTagRecognition;
     boolean isRed, isFar;
 
     public AutonomousTaskBuilderSimple(RobotHardware robotHardware, RobotProfile robotProfile,
-                                       AprilTagRecognition aprilTagRecognition, String teamPropPos, Pose2d startingPose) {
+                                       PixelBoardVision aprilTagRecognition, String teamPropPos, Pose2d startingPose) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         drive = (NBMecanumDrive) robotHardware.getMecanumDrive();

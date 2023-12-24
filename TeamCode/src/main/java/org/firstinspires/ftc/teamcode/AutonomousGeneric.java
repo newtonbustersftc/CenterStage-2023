@@ -27,7 +27,7 @@ public class AutonomousGeneric extends LinearOpMode {
     int countTasks = 0;
     private int delay;
     boolean isRedAlliance = false;
-    AprilTagRecognition aprilTagRecognition;
+    PixelBoardVision pixelBoardVision;
 
     public void initRobot() {
         try {
@@ -101,11 +101,11 @@ public class AutonomousGeneric extends LinearOpMode {
         }
         robotCVProcessor.close();
         Logger.logFile("3) Webcam2 status = "+ robotCVProcessor.visionPortal.getCameraState());
-        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
-        aprilTagRecognition.initAprilTag();
-        Logger.logFile("Webcam 1 status = "+ aprilTagRecognition.visionPortal.getCameraState());
+        pixelBoardVision = new PixelBoardVision(robotHardware, robotProfile, "Webcam 1");
+        pixelBoardVision.init();
+        Logger.logFile("Webcam 1 status = "+ pixelBoardVision.visionPortal.getCameraState());
         AutonomousTaskBuilderSimple builder = new AutonomousTaskBuilderSimple(robotHardware, robotProfile,
-                aprilTagRecognition, "" + teamPropPos, startingPose);
+                pixelBoardVision, "" + teamPropPos, startingPose);
         robotHardware.resetDriveAndEncoders();
         robotHardware.getLocalizer().setPoseEstimate(startingPose);
         taskList = builder.buildTaskList();
@@ -160,6 +160,6 @@ public class AutonomousGeneric extends LinearOpMode {
         }
         robotHardware.stopAll();
         robotHardware.setMotorStopBrake(false);
-        aprilTagRecognition.visionPortal.close();
+        pixelBoardVision.visionPortal.close();
     }
 }

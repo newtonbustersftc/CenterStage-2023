@@ -7,16 +7,16 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import java.util.List;
 
 public class AprilTagDetectionTask implements RobotControl {
-    private  int  DESIRED_TAG_ID = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
+    private  int desiredTagId = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
     boolean targetFound=false;
     RobotHardware robotHardware;
-    AprilTagRecognition aprilTagRecognition;
+    PixelBoardVision aprilTagRecognition;
     String teamPropPos;
     NBMecanumDrive drive;
     boolean isRed;
     double desiredAprilTagX, desiredAprilTagY, totalX, totalY, totalHeading, sizeOfDetectionIDList, startTime;
 
-    public AprilTagDetectionTask(RobotHardware robotHardware, AprilTagRecognition aprilTagRecognition, RobotProfile profile,
+    public AprilTagDetectionTask(RobotHardware robotHardware, PixelBoardVision aprilTagRecognition, RobotProfile profile,
                                  String teamPropPos, NBMecanumDrive drive, boolean isRed){
         this.robotHardware = robotHardware;
         this.aprilTagRecognition = aprilTagRecognition;
@@ -31,17 +31,16 @@ public class AprilTagDetectionTask implements RobotControl {
     @Override
     public void prepare()  {
         startTime = System.currentTimeMillis();
-//        Logger.logFile("in AprilTagTask prepare()");
-       if(this.teamPropPos.equals("LEFT")){
-           DESIRED_TAG_ID = isRed ? 4 : 1;
-       }else if(this.teamPropPos.equals("CENTER")){
-           DESIRED_TAG_ID = isRed ? 5 : 2;
-       }else if(this.teamPropPos.equals("RIGHT")){
-           DESIRED_TAG_ID = isRed ? 6 : 3;
-       }
-
-       Logger.logFile("In AprilTagDetectionTask -> desired_tag_id="+DESIRED_TAG_ID);
-       Logger.flushToFile();
+        if(this.teamPropPos.equals("LEFT")){
+           desiredTagId = isRed ? 4 : 1;
+        } else if(this.teamPropPos.equals("CENTER")){
+           desiredTagId = isRed ? 5 : 2;
+        } else if(this.teamPropPos.equals("RIGHT")){
+           desiredTagId = isRed ? 6 : 3;
+        }
+        robotHardware.desiredAprilTagId = desiredTagId;   // need by PixelBoardVision
+        Logger.logFile("In AprilTagDetectionTask -> desired_tag_id="+ desiredTagId);
+        Logger.flushToFile();
     }
 
     @Override
@@ -95,7 +94,7 @@ public class AprilTagDetectionTask implements RobotControl {
         double thisX=detection.ftcPose.x, thisY=detection.ftcPose.y, heading = detection.ftcPose.yaw;
         Pose2d updatedPose=null, currentPose = drive.getPoseEstimate();
 
-        Logger.logFile("desired ID = "+DESIRED_TAG_ID);
+        Logger.logFile("desired ID = "+ desiredTagId);
         Logger.logFile("detected ID = "+detection.id);
         Logger.logFile("ftcPose.x="+detection.ftcPose.x);
         Logger.logFile("ftcPose.y="+detection.ftcPose.y);
