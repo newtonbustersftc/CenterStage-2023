@@ -67,8 +67,7 @@ public class RobotHardware {
     public enum IntakeMode { ON, REVERSE, OFF, SLOW }
     IntakeMode intakeMode;
     AprilTagDetection aprilTag;
-    TrajectorySequence aprilTagTrajectory;
-    Pose2d lastLocation;
+    int desiredAprilTagId;
 
     public void init(HardwareMap hardwareMap, RobotProfile profile) {
         Logger.logFile("RobotHardware init()");

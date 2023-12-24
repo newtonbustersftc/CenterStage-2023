@@ -137,16 +137,16 @@ public class AutonomousTaskBuilderSimple {
                     .build();
             taskList.add(new SplineMoveTask(drive, pickMoveBackTrj));
             taskList.add(new IntakePositionTask(robotHardware, false));
-            taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.ON));
-            taskList.add(new RobotSleep(3000, "Full Power Pick up"));
-            taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.OFF));
+            taskList.add(new SmartIntakeActionTask(robotHardware, 3000));
+            taskList.add(new IntakePositionTask(robotHardware, true));
             // Move to read AprilTag
             TrajectorySequence toAprilTrj = drive.trajectorySequenceBuilder(aftPickPose)
                     .lineTo(preAprilPose.vec())
                     .lineTo(aprilPose.vec())
                     .build();
             taskList.add(new SplineMoveTask(drive, toAprilTrj));
-            taskList.add(new RobotSleep(500)); // let april tag does recognition
+            taskList.add(new IntakePositionTask(robotHardware, false));
+            taskList.add(new RobotSleep(300)); // let april tag does recognition
             taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,
                     robotProfile, teamPropPos, drive, isRed ));
             goToDropBoard();

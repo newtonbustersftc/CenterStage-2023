@@ -151,6 +151,7 @@ public class RobotProfile {
         int cropLeftPercent;
         int cropRightPercent;
         int minArea;
+        int maxBlackValue;
     }
 
     class AutonParam {

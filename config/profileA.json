@@ -84,7 +84,8 @@
     "cropBottomPercent": 15,
     "cropLeftPercent": 0,
     "cropRightPercent": 0,
-    "minArea": 100
+    "minArea": 100,
+    "maxBlackValue": 150
   },
   "hardwareSpec": {
     "revHubVertical": true,

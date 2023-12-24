@@ -23,10 +23,13 @@ import org.firstinspires.ftc.teamcode.drive.NBMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.opencv.core.Scalar;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -82,14 +85,18 @@ public class AutonomousGenericTest extends LinearOpMode {
         startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
         isRed = startPosMode.startsWith("RED");
         long loopStart = System.currentTimeMillis();
-        aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
-        aprilTagRecognition.initAprilTag();
-        Logger.logFile("Webcam 1 status = "+ aprilTagRecognition.visionPortal.getCameraState());
+        PixelBoardVision pbVision = new PixelBoardVision(robotHardware, robotProfile, "Webcam 1");
+        //aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
+        //aprilTagRecognition.initAprilTag();
+        pbVision.init();
+        Logger.logFile("Webcam 1 status = "+ pbVision.visionPortal.getCameraState());
 
         //RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile, true);
         //cvp.initWebCam("Webcam 1", true);
 
         int loopCnt = 0;
+        robotHardware.desiredAprilTagId = 1;
+        boolean saveImage = true;
         while (!isStopRequested() && !isStarted()) {
             //RobotVision.AutonomousGoal goal = robotHardware.getRobotVision().getAutonomousRecognition(false);
             //telemetry.addData("goal",goal);
@@ -100,6 +107,34 @@ public class AutonomousGenericTest extends LinearOpMode {
                 //telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
                 //telemetry.addData("Frame rate:", cvp.getFrameRate());
+                List<AprilTagDetection> currentDetections = pbVision.getAprilTagResult();
+                for (AprilTagDetection detection : currentDetections) {
+                    if (detection.metadata != null) {
+                        String line = "AprilTag ID:" + detection.metadata.id +
+                                " Center: " + detection.center.x + "," + detection.center.y +
+                                " Corners: ";
+                        for(org.opencv.core.Point p : detection.corners) {
+                            line = line + p.x + "," + p.y + " ";
+                        }
+                        Logger.logFile(line);
+                    }
+                }
+                if (currentDetections.size()>0) {
+                    if (saveImage==true) {
+                        saveImage = false;
+                        pbVision.saveNextImage();   // let's save one image and see
+                    }
+                }
+                if (currentDetections.size()>0) {
+                    Scalar leftS = pbVision.getMeanLeft();
+                    Scalar rightS = pbVision.getMeanRight();
+                    if (pbVision.getMeanLeft()!=null) {
+                        telemetry.addData("MeanLeft H:", leftS.val[0]).addData("S", leftS.val[1])
+                                .addData("V", leftS.val[2]);
+                        telemetry.addData("MeanRight H:", rightS.val[0]).addData("S", rightS.val[1])
+                                .addData("V", rightS.val[2]);
+                    }
+                }
                 telemetry.update();
                 //cvp.saveNextImage();
             }
@@ -235,20 +270,24 @@ public class AutonomousGenericTest extends LinearOpMode {
         TrajectorySequenceBuilder tb2 = robotHardware.mecanumDrive.trajectorySequenceBuilder(ts1.end());
         tb2.setAccelConstraint(getAccelerationConstraint(5));
         tb2.setVelConstraint(getVelocityConstraint(5, Math.toRadians(5), 14.0));
-        tb2.forward(2);
+        tb2.forward(4);
         TrajectorySequence ts2 = tb2.build();
         taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, ts2));
         taskList.add(new IntakePositionTask(robotHardware, false));
-        taskList.add(new RobotSleep(500, "Intake"));
-        TrajectorySequenceBuilder tb3 = robotHardware.mecanumDrive.trajectorySequenceBuilder(ts2.end());
-        tb2.setAccelConstraint(getAccelerationConstraint(5));
-        tb2.setVelConstraint(getVelocityConstraint(5, Math.toRadians(5), 14.0));
+
+        ParallelComboTask par = new ParallelComboTask();
+        par.add(new SmartIntakeActionTask(robotHardware, 3000));
+        TrajectorySequenceBuilder tb2b = robotHardware.mecanumDrive.trajectorySequenceBuilder(ts2.end());
+        tb2b.setAccelConstraint(getAccelerationConstraint(5));
+        tb2b.setVelConstraint(getVelocityConstraint(5, Math.toRadians(5), 14.0));
+        tb2b.back(2);
+        TrajectorySequence ts2b = tb2b.build();
+        par.add(new SplineMoveTask(robotHardware.mecanumDrive, ts2b));
+        taskList.add(par);
+        TrajectorySequenceBuilder tb3 = robotHardware.mecanumDrive.trajectorySequenceBuilder(ts2b.end());
         tb3.forward(4);
         TrajectorySequence ts3 = tb3.build();
         taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, ts3));
-        taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.ON));
-        taskList.add(new RobotSleep(3000, "Into next tray"));
-        taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.OFF));
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
