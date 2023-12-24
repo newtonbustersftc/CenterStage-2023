@@ -40,7 +40,6 @@ public class PixelBoardVision {
     String cameraName;
 
     VisionPortal visionPortal;
-    final double DESIRED_DISTANCE = 1; //  this is how close the camera should get to the target (inches)
 
     public PixelBoardVision(RobotHardware robotHardware, RobotProfile robotProfile, String cameraName){
         this.robotHardware = robotHardware;
@@ -62,7 +61,6 @@ public class PixelBoardVision {
         VisionPortal.Builder builder = new VisionPortal.Builder();
 
         builder.setCamera(robotHardware.getHardwareMap().get(WebcamName.class, cameraName));
-        //builder.setCameraResolution(new Size(640, 360));
 
         // Set and enable the processor.
         builder.addProcessor(aprilTag);
@@ -78,9 +76,6 @@ public class PixelBoardVision {
 //        catch (Exception ex) {
 //            Logger.logFile("Exception when initializing aprilTag " + ex);
 //        }
-
-        // Disable or re-enable the aprilTag processor at any time.
-        //visionPortal.setProcessorEnabled(aprilTag, true);
         Logger.logFile("PixelBoard visionPortal camera state:"+visionPortal.getCameraState());
         Logger.logFile("visionPortal fps="+visionPortal.getFps());
     }
@@ -163,9 +158,6 @@ public class PixelBoardVision {
         AprilTagProcessor aprilTagProcessor;
         boolean isRed;
         boolean saveImage = false;
-        Mat hsvMat = new Mat();
-        Mat maskMat = new Mat();
-        Mat hierarchey = new Mat();
         Scalar DRAW_COLOR = new Scalar(0, 255, 0);
         Scalar meanLeft = null, meanRight = null;
 
