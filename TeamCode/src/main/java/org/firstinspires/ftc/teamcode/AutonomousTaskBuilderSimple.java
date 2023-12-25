@@ -144,21 +144,16 @@ public class AutonomousTaskBuilderSimple {
             TrajectorySequence aftSpikeTrj = aftSpikeTrjBldr.build();
             taskList.add(new SplineMoveTask(drive, aftSpikeTrj));
 
-//            aftSpikeTrjBldr.splineTo(prePickPose.vec(), prePickPose.getHeading());
             ParallelComboTask intakeMove = new ParallelComboTask();
             intakeMove.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.SLOW));
-//            taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.SLOW));
             TrajectorySequenceBuilder aftSpikeTrjBackBldr = drive.trajectorySequenceBuilder(aftSpikeTrj.end())
                     .setAccelConstraint(getAccelerationConstraint(30))
                     .setVelConstraint(getVelocityConstraint(35, Math.toRadians(20), 14.0))
                     .lineTo(pickPose.vec());
-//            aftSpikeTrjBldr.lineTo(pickPose.vec());
             intakeMove.add(new SplineMoveTask(drive, aftSpikeTrjBackBldr.build()));
             taskList.add(intakeMove);
 
             // Pick up pixel
-//            taskList.add(new IntakeActionTask(robotHardware, RobotHardware.IntakeMode.SLOW));
-//            taskList.add(new RobotSleep(500, "Low Power drag"));
             ParallelComboTask paraMoveIntakeDown1 = new ParallelComboTask();
             TrajectorySequence pickMoveBackTrj = drive.trajectorySequenceBuilder(pickPose)
                     .setAccelConstraint(getAccelerationConstraint(5))
@@ -168,8 +163,6 @@ public class AutonomousTaskBuilderSimple {
             paraMoveIntakeDown1.add(new SplineMoveTask(drive, pickMoveBackTrj));
             paraMoveIntakeDown1.add(new IntakePositionTask(robotHardware, false));
             taskList.add(paraMoveIntakeDown1);
-//            taskList.add(new SplineMoveTask(drive, pickMoveBackTrj));
-//            taskList.add(new IntakePositionTask(robotHardware, false));
             taskList.add(new SmartIntakeActionTask(robotHardware, 2000));
             taskList.add(new IntakePositionTask(robotHardware, true));
 
@@ -182,17 +175,20 @@ public class AutonomousTaskBuilderSimple {
                     .lineTo(aprilPose.vec())
                     .build();
             paraMoveIntakeDown2.add(new SplineMoveTask(drive, toAprilTrj));
-            paraMoveIntakeDown2.add(new IntakePositionTask(robotHardware, false));
+            SequentialComboTask liftSeq = new SequentialComboTask();
+            liftSeq.add(new WaitForPoseTask(robotHardware.getLocalizer(), new Pose2d(0, 0, 0), new Pose2d(100, 0, 0)));
+            liftSeq.add(new IntakePositionTask(robotHardware, false));
+            liftSeq.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutAuto));
+            paraMoveIntakeDown2.add(liftSeq);
             taskList.add(paraMoveIntakeDown2);
-//            taskList.add(new SplineMoveTask(drive, toAprilTrj));
-//            taskList.add(new IntakePositionTask(robotHardware, false));
-//            taskList.add(new RobotSleep(300)); // let april tag does recognition
+            taskList.add(new RobotSleep(100)); // stop robot for moment to let april tag does recognition
+            Pose2dRef targetPoseRef = new Pose2dRef(targetPose);
             taskList.add(new AprilTagDetectionTask(robotHardware, this.pixelBoardVision,
-                    robotProfile, teamPropPos, drive, isRed ));
-            taskList.add(new SplineMoveTask(drive, targetPose, true));
+                    robotProfile, teamPropPos, targetPoseRef, drive, isRed ));
+            taskList.add(new SplineMoveTask(drive, targetPoseRef, true));
             goToDropBoard();
-            taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose1, true));
-            taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose2, true));
+            taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, new Pose2dRef(parkingPose1), true));
+            taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, new Pose2dRef(parkingPose2), true));
             return taskList;
         }
         return taskList;
@@ -200,10 +196,10 @@ public class AutonomousTaskBuilderSimple {
 
     void goToDropBoard(){
         if (teamPropPos.equals("RIGHT")) {
-            taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutAuto));
+            //taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutAuto));
         }
         else{
-            taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutAuto));
+            //taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutAuto));
         }
         taskList.add(new DropPixelTask(robotHardware));
     }

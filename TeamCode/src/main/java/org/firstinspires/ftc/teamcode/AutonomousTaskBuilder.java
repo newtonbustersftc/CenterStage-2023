@@ -234,11 +234,12 @@ public class AutonomousTaskBuilder {
                     }
             }
         }
-        taskList.add(new AprilTagDetectionTask(robotHardware, aprilTagRecognition,
-                                                    robotProfile, teamPropPos, drive, isRed ));
+        Pose2dRef targetPoseRef = new Pose2dRef(dropPose);
+        taskList.add(new AprilTagDetectionTask(robotHardware, this.pixelBoardVision,
+                robotProfile, teamPropPos, targetPoseRef, drive, isRed ));
         goToDropBoard();
-        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose1, true));
-        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose2, true));
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, new Pose2dRef(parkingPose1), true));
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, new Pose2dRef(parkingPose2), true));
         return taskList;
     }
     TrajectorySequence firstTraj1=null, firstTraj2=null, firstTraj3=null;

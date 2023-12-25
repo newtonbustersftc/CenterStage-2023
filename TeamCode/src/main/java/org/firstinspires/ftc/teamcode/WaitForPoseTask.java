@@ -37,9 +37,9 @@ public class WaitForPoseTask implements RobotControl {
     // isDone only when the navigator x,y,h all within the range of pos1 and pos2
     @Override
     public boolean isDone() {
-        double ratioX = 0;
-        double ratioY = 0;
-        double ratioA = 0;
+        double ratioX = 0.5;        // if put in same value between low/high, ignore this compare
+        double ratioY = 0.5;        // if put in same value between low/high, ignore this compare
+        double ratioA = 0.5;        // if put in same value between low/high, ignore this compare
 
         currPose = localizer.getPoseEstimate();
 

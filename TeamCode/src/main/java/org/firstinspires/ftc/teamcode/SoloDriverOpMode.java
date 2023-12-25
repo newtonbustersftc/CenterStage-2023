@@ -221,10 +221,13 @@ public class SoloDriverOpMode extends OpMode {
     }
 
     public void handleIntake() {
-        if (currentTask==null) {
+        if (currentTask==null || currentTask instanceof SmartIntakeActionTask) {
             if (!intakePressed && (gamepad1.left_trigger>0.3 || gamepad1.right_trigger>0.3)) {
                 if (robotHardware.isGrabberUp()) {
                     // If the grabber is raised, lower the grabber rather than starting the intake.
+                    if (currentTask instanceof SmartIntakeActionTask) {
+                        robotHardware.stopIntake();
+                    }
                     currentTask = new RetractGrabberTask(robotHardware);
                     currentTask.prepare();
                 } else {
@@ -239,11 +242,12 @@ public class SoloDriverOpMode extends OpMode {
                         } else {
                             // ...and the intake isn't reversed...
                             // ...start the intake in reverse.
+                            currentTask = null; // in case smart intake is going on
                             robotHardware.reverseIntake();
                         }
                     } else {
                         // If the option button isn't pressed...
-                        if (currMode == RobotHardware.IntakeMode.OFF) {
+                        if (!(currentTask instanceof SmartIntakeActionTask)) {
                             // ...and the intake is off...
                             // ...start the intake.
                             //robotHardware.startIntake();
@@ -252,6 +256,7 @@ public class SoloDriverOpMode extends OpMode {
                         } else {
                             // ...and the intake isn't off...
                             // ...stop the intake.
+                            currentTask = null;
                             robotHardware.stopIntake();
                         }
                     }

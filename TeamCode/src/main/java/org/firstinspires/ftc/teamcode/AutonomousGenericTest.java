@@ -49,7 +49,7 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     private TrajectoryVelocityConstraint velConstraint;
     private TrajectoryAccelerationConstraint accelConstraint;
-    private PixelBoardVision aprilTagRecognition;
+    private PixelBoardVision pixelBoardVision;
     private String teamPropPos;
     String startPosMode;
     boolean isRed;
@@ -85,11 +85,9 @@ public class AutonomousGenericTest extends LinearOpMode {
         startPosMode = prefs.getString(AutonomousOptions.START_POS_MODES_PREF, AutonomousOptions.START_POS_MODES[0]);
         isRed = startPosMode.startsWith("RED");
         long loopStart = System.currentTimeMillis();
-        PixelBoardVision pbVision = new PixelBoardVision(robotHardware, robotProfile, "Webcam 1");
-        //aprilTagRecognition = new AprilTagRecognition(true, hardwareMap);
-        //aprilTagRecognition.initAprilTag();
-        pbVision.init();
-        Logger.logFile("Webcam 1 status = "+ pbVision.visionPortal.getCameraState());
+        pixelBoardVision = new PixelBoardVision(robotHardware, robotProfile, "Webcam 1");
+        pixelBoardVision.init();
+        Logger.logFile("Webcam 1 status = "+ pixelBoardVision.visionPortal.getCameraState());
 
         //RobotCVProcessor cvp = new RobotCVProcessor(robotHardware, robotProfile, true);
         //cvp.initWebCam("Webcam 1", true);
@@ -106,29 +104,18 @@ public class AutonomousGenericTest extends LinearOpMode {
             if (loopCnt%1000==0) {
                 //telemetry.addData("CurrPose", currPose);
                 telemetry.addData("LoopTPS", (loopCnt * 1000 / (System.currentTimeMillis() - loopStart)));
-                //telemetry.addData("Frame rate:", cvp.getFrameRate());
-                List<AprilTagDetection> currentDetections = pbVision.getAprilTagResult();
-                for (AprilTagDetection detection : currentDetections) {
-                    if (detection.metadata != null) {
-                        String line = "AprilTag ID:" + detection.metadata.id +
-                                " Center: " + detection.center.x + "," + detection.center.y +
-                                " Corners: ";
-                        for(org.opencv.core.Point p : detection.corners) {
-                            line = line + p.x + "," + p.y + " ";
-                        }
-                        Logger.logFile(line);
-                    }
-                }
+                telemetry.addData("Frame rate:", pixelBoardVision.visionPortal.getFps());
+                List<AprilTagDetection> currentDetections = pixelBoardVision.getAprilTagResult();
                 if (currentDetections.size()>0) {
                     if (saveImage==true) {
                         saveImage = false;
-                        pbVision.saveNextImage();   // let's save one image and see
+                        pixelBoardVision.saveNextImage();   // let's save one image and see
                     }
                 }
                 if (currentDetections.size()>0) {
-                    Scalar leftS = pbVision.getMeanLeft();
-                    Scalar rightS = pbVision.getMeanRight();
-                    if (pbVision.getMeanLeft()!=null) {
+                    Scalar leftS = pixelBoardVision.getMeanLeft();
+                    Scalar rightS = pixelBoardVision.getMeanRight();
+                    if (pixelBoardVision.getMeanLeft()!=null) {
                         telemetry.addData("MeanLeft H:", leftS.val[0]).addData("S", leftS.val[1])
                                 .addData("V", leftS.val[2]);
                         telemetry.addData("MeanRight H:", rightS.val[0]).addData("S", rightS.val[1])
@@ -148,8 +135,8 @@ public class AutonomousGenericTest extends LinearOpMode {
         robotHardware.getLocalizer().setPoseEstimate(p0);
         taskList = new ArrayList<RobotControl>();
 
-        //setupTaskList1();
-        setupTaskList3();
+        setupTaskList2();
+        //setupTaskList4();
 
         robotHardware.setMotorStopBrake(true);
         TaskReporter.report(taskList);
@@ -194,6 +181,7 @@ public class AutonomousGenericTest extends LinearOpMode {
                 }
             }
         }
+        pixelBoardVision.stopStream();
         try {
             Logger.flushToFile();
         }
@@ -234,29 +222,17 @@ public class AutonomousGenericTest extends LinearOpMode {
     }
 
     void setupTaskList2() {
-//        taskList.add(new RobotSleep((1000)));
-//        taskList.add(new DropSpikeMarkTask(robotHardware));
-//        taskList.add(new EqualDistanceTask(robotHardware,robotHardware.mecanumDrive, robotProfile));
-        Pose2d parkingPose = robotProfile.getProfilePose("PARKING_" + startPosMode);
-        Logger.logFile("parking pose:"+parkingPose.getX() +", "+parkingPose.getY()+", "+parkingPose.getHeading());
-
-        taskList.add(new AprilTagDetectionTask(robotHardware, pixelBoardVision,
-                    robotProfile, teamPropPos, robotHardware.mecanumDrive, isRed));
+        isRed = false;
+        teamPropPos = "LEFT";
+        Pose2d targetPose = robotProfile.getProfilePose("DROPBOARD_APRILTAG_BLUE_" + teamPropPos);
+        Pose2dRef targetPoseRef = new Pose2dRef(targetPose);
+        taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutMin));
         taskList.add(new RobotSleep(1000));
-        taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));
-        if(teamPropPos.equals("RIGHT")){
-            taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutMin));
-        }else{
-            taskList.add(new PixelUpTask(robotHardware, false, robotProfile.hardwareSpec.liftOutMin));
-        }
-
+        taskList.add(new AprilTagDetectionTask(robotHardware, pixelBoardVision,
+                    robotProfile, teamPropPos, targetPoseRef, robotHardware.mecanumDrive, isRed));
+        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, targetPoseRef, true));
         taskList.add(new RobotSleep(1000));
         taskList.add(new DropPixelTask(robotHardware));
-//        TrajectorySequence trajParking = robotHardware.mecanumDrive.trajectorySequenceBuilder(
-//                                        robotHardware.mecanumDrive.getPoseEstimate())
-//                                        .lineTo(parkingPose.vec())
-//                                        .build();
-        taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose, false));
     }
 
     void setupTaskList3() {
@@ -288,6 +264,11 @@ public class AutonomousGenericTest extends LinearOpMode {
         tb3.forward(4);
         TrajectorySequence ts3 = tb3.build();
         taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, ts3));
+    }
+
+    void setupTaskList4() {
+        taskList.add(new PixelUpTask(robotHardware, true, robotProfile.hardwareSpec.liftOutAuto));
+        taskList.add(new DropPixelTask(robotHardware));
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

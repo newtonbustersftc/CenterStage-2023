@@ -10,17 +10,21 @@ public class AprilTagDetectionTask implements RobotControl {
     private  int desiredTagId = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
     boolean targetFound=false;
     RobotHardware robotHardware;
+    RobotProfile profile;
     PixelBoardVision aprilTagRecognition;
     String teamPropPos;
     NBMecanumDrive drive;
     boolean isRed;
+    Pose2dRef targetPoseRef;
     double desiredAprilTagX, desiredAprilTagY, totalX, totalY, totalHeading, sizeOfDetectionIDList, startTime;
 
     public AprilTagDetectionTask(RobotHardware robotHardware, PixelBoardVision aprilTagRecognition, RobotProfile profile,
-                                 String teamPropPos, NBMecanumDrive drive, boolean isRed){
+                                 String teamPropPos, Pose2dRef targetPoseRef, NBMecanumDrive drive, boolean isRed){
         this.robotHardware = robotHardware;
+        this.profile = profile;
         this.aprilTagRecognition = aprilTagRecognition;
         this.teamPropPos = teamPropPos;
+        this.targetPoseRef = targetPoseRef;
         this.drive = drive;
         this.isRed = isRed;
         String color = isRed ? "RED" : "BLUE";
@@ -53,6 +57,7 @@ public class AprilTagDetectionTask implements RobotControl {
         else {
             sizeOfDetectionIDList = currentDetections.size();
             Logger.logFile("AprilTag detected count: " + sizeOfDetectionIDList);
+            Logger.logFile("Pixel Left: " + aprilTagRecognition.isLeftTaken() + " Right:" + aprilTagRecognition.isRightTaken());
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.metadata != null) {
                     checkID(detection);
@@ -61,6 +66,19 @@ public class AprilTagDetectionTask implements RobotControl {
             if (totalX > 0) {
                 targetFound = true;
                 setUpdatePose();
+                if (aprilTagRecognition.isLeftTaken() ||
+                        (!aprilTagRecognition.isRightTaken() && (desiredTagId==1 || desiredTagId==4))) {
+                    Logger.logFile("Going to  drop at right slot");
+                    Pose2d targetPose = targetPoseRef.getPose2d();
+                    targetPoseRef.setPose2d(new Pose2d(targetPose.getX(), targetPose.getY()-1.8, targetPose.getHeading()));
+                    robotHardware.gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateAutoRight);
+                }
+                else {
+                    Logger.logFile("Going to  drop at left slot");
+                    Pose2d targetPose = targetPoseRef.getPose2d();
+                    targetPoseRef.setPose2d(new Pose2d(targetPose.getX(), targetPose.getY()+1.8, targetPose.getHeading()));
+                    robotHardware.gripperRotateServo.setPosition(profile.hardwareSpec.gripperRotateAutoLeft);
+                }
 //                goToDesiredTag();
             }
         }
@@ -82,9 +100,8 @@ public class AprilTagDetectionTask implements RobotControl {
                                             totalHeading/sizeOfDetectionIDList);
         drive.getLocalizer().setPoseEstimate(updatedPose);
         robotHardware.resetDriveAndEncoders();
-        Logger.logFile("averagedPoseX:"+updatedPose.getX());
-        Logger.logFile("averagedPoseY:"+updatedPose.getY());
-        Logger.logFile("averagedPoseHeading:"+updatedPose.getHeading());
+        Logger.logFile("Update Pose to:"+updatedPose.getX() + ", " + updatedPose.getY() + "," + Math.toDegrees(updatedPose.getHeading()));
+
     }
     private Pose2d getLocalizerPose(AprilTagDetection detection){
         Logger.logFile("*********in calculate current pose and update*********");
@@ -130,7 +147,7 @@ public class AprilTagDetectionTask implements RobotControl {
     @Override
     public void cleanUp() {
         targetFound = false;
-        aprilTagRecognition.visionPortal.close();
+        aprilTagRecognition.visionPortal.close();   // for now
     }
 
     @Override

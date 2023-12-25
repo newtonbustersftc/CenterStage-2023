@@ -20,7 +20,7 @@ public class SplineMoveTask implements RobotControl {
     NBMecanumDrive drive;
     Trajectory trajectory;
     TrajectorySequence trajectorySequence;
-    Pose2d targetPose;
+    Pose2dRef targetPose;
     boolean isLineTo = false;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
@@ -29,7 +29,7 @@ public class SplineMoveTask implements RobotControl {
         targetPose = null;
     }
 
-    public SplineMoveTask(NBMecanumDrive drive, Pose2d targetPose) {
+    public SplineMoveTask(NBMecanumDrive drive, Pose2dRef targetPose) {
         this.drive = drive;
         this.targetPose = targetPose;
     }
@@ -41,7 +41,7 @@ public class SplineMoveTask implements RobotControl {
     }
 
     //AprilTag
-    public SplineMoveTask(NBMecanumDrive drive, Pose2d targetPose, boolean isLineTo){
+    public SplineMoveTask(NBMecanumDrive drive, Pose2dRef targetPose, boolean isLineTo){
         this.drive = drive;
         this.targetPose = targetPose;
         this.isLineTo = isLineTo;
@@ -53,8 +53,8 @@ public class SplineMoveTask implements RobotControl {
         } else if (trajectorySequence != null) {
             return "SplineMove " + trajectorySequence.start() + " -> " + trajectorySequence.end();
         } else if (targetPose != null) {
-            return "SplineMove targetPose x:" + targetPose.getX()+ ", y: " + targetPose.getY() +", heading:" +
-                    targetPose.getHeading();
+            return "SplineMove targetPose x:" + targetPose.getPose2d().getX()+ ", y: " + targetPose.getPose2d().getY() +", heading:" +
+                    targetPose.getPose2d().getHeading();
         }else{
             return "Invalid task.... trajectory, trajectorySequence, or trajectoryTag should be not null..";
         }
@@ -68,13 +68,13 @@ public class SplineMoveTask implements RobotControl {
         if (targetPose!=null) {
             Pose2d currPose = drive.getPoseEstimate();
             if (isLineTo) {
-                trajectory = drive.trajectoryBuilder(currPose).lineTo(targetPose.vec()).build();
+                trajectory = drive.trajectoryBuilder(currPose).lineTo(targetPose.getPose2d().vec()).build();
             }
             else {
-                double ang = Math.atan2(targetPose.getX() - currPose.getX(), targetPose.getY() - currPose.getY());
+                double ang = Math.atan2(targetPose.getPose2d().getX() - currPose.getX(), targetPose.getPose2d().getY() - currPose.getY());
                 boolean forward = Math.abs(currPose.getHeading() - ang) < Math.PI / 2;
                 trajectory = drive.trajectoryBuilder(currPose, !forward)
-                        .splineToSplineHeading(targetPose, targetPose.getHeading()).build();
+                        .splineToSplineHeading(targetPose.getPose2d(), targetPose.getPose2d().getHeading()).build();
             }
             drive.followTrajectoryAsync(trajectory);
         }else if(trajectorySequence!=null) {

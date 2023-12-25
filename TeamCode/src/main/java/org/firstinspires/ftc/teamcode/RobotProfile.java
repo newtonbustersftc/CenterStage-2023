@@ -110,6 +110,7 @@ public class RobotProfile {
         public double intakeServo2In, intakeServo2Out, intakeServo2Stop;
         public double gripperInOutServoOut, gripperInOutServoIn, gripperInOutServoDrop;
         public double gripperRotateServoUp, gripperRotateServoLeft, gripperRotateServoRight;
+        public double gripperRotateAutoLeft, gripperRotateAutoRight;
         public double dropPixelDist, leftOffsetDist, autoDropMaxDist, afterDropDist;
         public double autoDropMinPower, autoDropMaxPower, autoDropP;
 
