@@ -19,16 +19,9 @@ public class SplineMoveTask implements RobotControl {
 
     NBMecanumDrive drive;
     Trajectory trajectory;
-    TrajectorySequence trajectorySequence, trajectoryTag, parkingTrajectoryTag1, parkingTrajectoryTag2;
+    TrajectorySequence trajectorySequence;
     Pose2d targetPose;
-    TrajectoryVelocityConstraint velocityConstraint;
-    AprilTagDetection desiredTag;
-    boolean isRed;
-    int parkingDistance;
     boolean isLineTo = false;
-    Pose2d parkingPose;
-
-    int constructionNum;
 
     public SplineMoveTask(NBMecanumDrive drive, Trajectory trajectory){
         this.drive = drive;
@@ -63,7 +56,7 @@ public class SplineMoveTask implements RobotControl {
             return "SplineMove targetPose x:" + targetPose.getX()+ ", y: " + targetPose.getY() +", heading:" +
                     targetPose.getHeading();
         }else{
-            return "the robot should not come to here.... trajectory, trajectorySequence, or trajectoryTag should be not null..";
+            return "Invalid task.... trajectory, trajectorySequence, or trajectoryTag should be not null..";
         }
     }
 

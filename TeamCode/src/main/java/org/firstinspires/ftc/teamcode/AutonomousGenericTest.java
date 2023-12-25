@@ -49,7 +49,7 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     private TrajectoryVelocityConstraint velConstraint;
     private TrajectoryAccelerationConstraint accelConstraint;
-    private PixelBoardVision pixelBoardVision;
+    private PixelBoardVision aprilTagRecognition;
     private String teamPropPos;
     String startPosMode;
     boolean isRed;
