@@ -10,16 +10,16 @@ public class AprilTagDetectionTask implements RobotControl {
     private  int  DESIRED_TAG_ID = -1;     // Choose the tag you want to approach or set to -1 for ANY tag.
     boolean targetFound=false;
     RobotHardware robotHardware;
-    AprilTagRecognition aprilTagRecognition;
+    PixelBoardVision pixelBoardVision ;
     String teamPropPos;
     NBMecanumDrive drive;
     boolean isRed;
     double desiredAprilTagX, desiredAprilTagY, totalX, totalY, totalHeading, sizeOfDetectionIDList, startTime;
 
-    public AprilTagDetectionTask(RobotHardware robotHardware, AprilTagRecognition aprilTagRecognition, RobotProfile profile,
+    public AprilTagDetectionTask(RobotHardware robotHardware, PixelBoardVision pixelBoardVision, RobotProfile profile,
                                  String teamPropPos, NBMecanumDrive drive, boolean isRed){
         this.robotHardware = robotHardware;
-        this.aprilTagRecognition = aprilTagRecognition;
+        this.pixelBoardVision = pixelBoardVision;
         this.teamPropPos = teamPropPos;
         this.drive = drive;
         this.isRed = isRed;
@@ -47,7 +47,7 @@ public class AprilTagDetectionTask implements RobotControl {
     @Override
     public void execute() {
         // Step through the list of detected tags and look for a matching tag
-        List<AprilTagDetection> currentDetections = this.aprilTagRecognition.aprilTag.getDetections();
+        List<AprilTagDetection> currentDetections = this.pixelBoardVision.aprilTag.getDetections();
         if (currentDetections==null) {
             Logger.logFile("AprilTag detections is null");
         }
@@ -62,7 +62,7 @@ public class AprilTagDetectionTask implements RobotControl {
             if (totalX > 0) {
                 targetFound = true;
                 setUpdatePose();
-                goToDesiredTag();
+//                goToDesiredTag();
             }
         }
     }
@@ -131,7 +131,7 @@ public class AprilTagDetectionTask implements RobotControl {
     @Override
     public void cleanUp() {
         targetFound = false;
-        aprilTagRecognition.visionPortal.close();
+        pixelBoardVision.visionPortal.close();
     }
 
     @Override

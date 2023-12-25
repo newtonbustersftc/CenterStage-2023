@@ -26,19 +26,19 @@ public class AutonomousTaskBuilder {
     String delayString, startPosMode, passThrough, parking, wayPoint = "_WAY_POINT";
     Pose2d startingPose, wp1, wp2, wp3, wp4, wp5, wp6, wp7,aprilTagPt;
     String teamPropPos; //default in case
-    AprilTagRecognition aprilTagRecognition;
+    PixelBoardVision pixelBoardVision;
     TrajectorySequence  team_prop_pos_traj=null,dropBoard_traj=null;
     boolean isRed, isFar, isSkipWeightPoint, isStraightToSpikeMark;
 
     public AutonomousTaskBuilder(RobotHardware robotHardware, RobotProfile robotProfile,
                                  String teamPropPos, Pose2d startingPose,
-                                 AprilTagRecognition aprilTagRecognition, String parking) {
+                                 PixelBoardVision pixelBoardVision, String parking) {
         this.robotHardware = robotHardware;
         this.robotProfile = robotProfile;
         drive = (NBMecanumDrive)robotHardware.getMecanumDrive();
         this.teamPropPos = teamPropPos;
         this.startingPose = startingPose;
-        this.aprilTagRecognition = aprilTagRecognition;
+        this.pixelBoardVision = pixelBoardVision;
         this.parking = parking;
     }
     public ArrayList<RobotControl> buildTaskList() {
@@ -233,7 +233,7 @@ public class AutonomousTaskBuilder {
                     }
             }
         }
-        taskList.add(new AprilTagDetectionTask(robotHardware, this.aprilTagRecognition,
+        taskList.add(new AprilTagDetectionTask(robotHardware, this.pixelBoardVision,
                                                     robotProfile, teamPropPos, drive, isRed ));
         goToDropBoard();
         taskList.add(new SplineMoveTask(robotHardware.mecanumDrive, parkingPose1, true));

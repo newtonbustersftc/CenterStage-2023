@@ -49,7 +49,7 @@ public class AutonomousGenericTest extends LinearOpMode {
 
     private TrajectoryVelocityConstraint velConstraint;
     private TrajectoryAccelerationConstraint accelConstraint;
-    private AprilTagRecognition aprilTagRecognition;
+    private PixelBoardVision pixelBoardVision;
     private String teamPropPos;
     String startPosMode;
     boolean isRed;
@@ -240,7 +240,7 @@ public class AutonomousGenericTest extends LinearOpMode {
         Pose2d parkingPose = robotProfile.getProfilePose("PARKING_" + startPosMode);
         Logger.logFile("parking pose:"+parkingPose.getX() +", "+parkingPose.getY()+", "+parkingPose.getHeading());
 
-        taskList.add(new AprilTagDetectionTask(robotHardware, aprilTagRecognition,
+        taskList.add(new AprilTagDetectionTask(robotHardware, pixelBoardVision,
                     robotProfile, teamPropPos, robotHardware.mecanumDrive, isRed));
         taskList.add(new RobotSleep(1000));
         taskList.add(new GrabberTask(robotHardware, GrabberTask.GrabberState.CLOSE));

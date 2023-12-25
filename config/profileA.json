@@ -314,42 +314,42 @@
       "heading":0
     },
     "DROPBOARD_APRILTAG_BLUE_LEFT": {
-      "x": 49,
+      "x": 48,
       "y": 40,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_CENTER": {
-      "x": 49,
-      "y": 34,
+      "x": 48,
+      "y": 36,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_BLUE_RIGHT": {
-      "x": 49,
-      "y": 30,
+      "x": 48,
+      "y": 32,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_LEFT": {
-      "x": 49,
+      "x": 48,
       "y": -29,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_CENTER": {
-      "x": 49,
+      "x": 48,
       "y": -34,
       "heading": 0.0
     },
     "DROPBOARD_APRILTAG_RED_RIGHT": {
-      "x": 49,
+      "x": 48,
       "y": -42,
       "heading": 0.0
     },
     "PARKING_BLUE_CORNER": {
-      "x": 49,
+      "x": 48,
       "y": 58,
       "heading": 0.0
     },
     "PARKING_BLUE_MIDDLE": {
-      "x": 49,
+      "x": 48,
       "y": 12,
       "heading": 0.0
     },
@@ -714,12 +714,12 @@
       "heading": 0
     },
     "HZ_AFT_SPIKE_RIGHT_BLUE_RIGHT": {
-      "x": -34,
+      "x": -36,
       "y": 34,
       "heading": 0
     },
     "HZ_ROT2_RIGHT_BLUE_RIGHT": {
-      "x": -34,
+      "x": -36,
       "y": 34,
       "heading": 0
     },
@@ -729,42 +729,47 @@
       "heading": 0
     },
     "HZ_OUT_CENTER_BLUE_RIGHT": {
-      "x": -36,
-      "y": 24,
+      "x": -40,
+      "y": 62,
       "heading": 90
     },
     "HZ_ROT1_CENTER_BLUE_RIGHT": {
-      "x": -36,
-      "y": 24,
-      "heading": 180
+      "x": -40,
+      "y": 38,
+      "heading": 0
     },
     "HZ_SPIKE_CENTER_BLUE_RIGHT": {
-      "x": -44,
-      "y": 24,
-      "heading": 180
+      "x": -40,
+      "y": 32,
+      "heading": 90
     },
     "HZ_AFT_SPIKE_CENTER_BLUE_RIGHT": {
-      "x": -48,
-      "y": 24,
-      "heading": 180
+      "x": -40,
+      "y": 38,
+      "heading": 90
+    },
+    "HZ_AFT_SPIKE2_CENTER_BLUE_RIGHT": {
+      "x": -50,
+      "y": 38,
+      "heading": 90
     },
     "HZ_ROT2_CENTER_BLUE_RIGHT": {
-      "x": -48,
-      "y": 24,
+      "x": -50,
+      "y": 38,
       "heading": 0
     },
     "HZ_PRE_PICK_CENTER_BLUE_RIGHT": {
-      "x": -48,
+      "x": -50,
       "y": 12,
       "heading": 0
     },
     "HZ_PICK_BLUE_RIGHT": {
-      "x": -58,
+      "x": -60,
       "y": 12,
       "heading": 0
     },
     "HZ_AFT_PICK_BLUE_RIGHT": {
-      "x": -53,
+      "x": -57,
       "y": 12,
       "heading": 0
     },
