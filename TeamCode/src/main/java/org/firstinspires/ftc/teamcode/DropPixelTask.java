@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+
 public class DropPixelTask implements RobotControl {
     RobotHardware robotHardware;
     RobotProfile profile;
     long dropTime, inTime;
     enum Mode { APPROACH, OPEN, DEPART, IN, DONE, NON_ACTION}
+    Pose2d[] poseHist = new Pose2d[10];
+    int currNdx = 0;
     Mode mode;
 
     public DropPixelTask(RobotHardware hardware) {
@@ -53,6 +57,17 @@ public class DropPixelTask implements RobotControl {
                         Logger.logFile("DropPixel Power Min, Left: " + dLeft + " Right: " + dRight);
                     }
                 }
+            }
+            // keep track of movement, if stopped change mode to open
+            Pose2d currPose = robotHardware.getLocalizer().getPoseEstimate();
+            if (poseHist[currNdx]!=null &&
+                    Math.sqrt((currPose.getX() - poseHist[currNdx].getX())*(currPose.getX() - poseHist[currNdx].getX()) +
+                    (currPose.getY() - poseHist[currNdx].getY())*(currPose.getY() - poseHist[currNdx].getY()))<0.2) {
+                mode = Mode.OPEN;   // robot didn't move after looping 20 times
+            }
+            else {
+                poseHist[currNdx ] = currPose;
+                currNdx = (currNdx + 1) % poseHist.length;  // move the pointer in the ring array
             }
             if (mode==Mode.OPEN) {
                 robotHardware.setMotorPower(0, 0, 0, 0);
